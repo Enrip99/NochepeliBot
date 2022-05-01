@@ -10,9 +10,9 @@ module.exports = {
 			message.channel.send("Escribe \"add *nombre de la peícula*\" para añadirla a la lista.")
 		}
 		else {
-			var peli = message.content.substring(4,message.content.length).trim()
-			var exists = false
-			for (var i = 0; i < lista.lista.length; ++i){
+			let peli = message.content.substring(4,message.content.length).trim()
+			let exists = false
+			for (let i = 0; i < lista.lista.length; ++i){
 				if (peli.toLowerCase() === lista.lista[i].toLowerCase()) exists = true
 			}
 			if (exists) message.channel.send("Esa peli ya está en la lista.")

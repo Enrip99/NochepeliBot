@@ -10,9 +10,9 @@ module.exports = {
 			message.channel.send("Escribe \"remove *nombre de la peícula*\" para quitarla de la lista.")
 		}
 		else {
-			var peli = message.content.substring(7,message.content.length).trim()
-			var exists = false
-			for (var i = 0; i < lista.lista.length; ++i){
+			let peli = message.content.substring(7,message.content.length).trim()
+			let exists = false
+			for (let i = 0; i < lista.lista.length; ++i){
 				if (peli.toLowerCase() === lista.lista[i].toLowerCase()) {
 					exists = true
 					lista.lista.splice(i,1)

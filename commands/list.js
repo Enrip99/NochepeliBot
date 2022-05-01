@@ -9,8 +9,8 @@ module.exports = {
 		if (!args.length) {
 			if (!lista.lista.length) message.channel.send("No hay películas en la lista")
 			else {
-				var tosend = ""
-				for (var i = 0; i < lista.lista.length; ++i){
+				let tosend = ""
+				for (let i = 0; i < lista.lista.length; ++i){
 					tosend = tosend + "- **" + lista.lista[i] + "**\n"
 				}
 				message.channel.send(tosend)

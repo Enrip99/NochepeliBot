@@ -6,7 +6,7 @@ module.exports = {
 			message.channel.send("https://cdn.discordapp.com/avatars/" + message.author.id + "/" + message.author.avatar + ".png?size=1024")
 		}
 		else {
-			var col = message.mentions.users
+			let col = message.mentions.users
 			col.each(usr => message.channel.send("https://cdn.discordapp.com/avatars/" + usr.id + "/" + usr.avatar + ".png?size=1024"))
 			}
 		}

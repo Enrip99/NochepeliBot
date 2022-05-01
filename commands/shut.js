@@ -6,7 +6,7 @@ module.exports = {
 	execute(message, args, client) {
 		if (args.length === 1 && args[0] === "off") {
 
-			for (var i = 0; i < config.owners.length; ++i){
+			for (let i = 0; i < config.owners.length; ++i){
 				if (message.author.id === config.owners[i]){
 					console.log('Apagando...');
 					process.exit();
