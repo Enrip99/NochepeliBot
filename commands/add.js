@@ -22,7 +22,10 @@ module.exports = {
 			let inputpeli = message.content.substring(4,message.content.length).trim()
 			let existe = false
 			for (let i = 0; i < lista.lista.length; ++i){
-				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) existe = true
+				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()){
+					existe = true
+					break
+				}
 			}
 			if (existe) message.channel.send("Esa película ya está en la lista.")
 			else {

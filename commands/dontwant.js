@@ -10,7 +10,7 @@ module.exports = {
 		//message.channel.send(message.author.username + " tiene muchas ganas de ver " + utils.parse_movie_name(message.content))
     //TODO Este comando está sin terminar
 		if (!args.length) {
-			message.channel.send("Escribe \"reallywant *nombre de la peícula*\" para añadirte como interesado.")
+			message.channel.send("Escribe \"dontwant *nombre de la peícula*\" para añadirte como interesado.")
 		}
 		else{
 			let inputpeli = message.content.split(' ')
