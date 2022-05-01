@@ -6,7 +6,9 @@ const fs = require('fs');
 objeto:
 	nombre
 	enlace
+	propuesto (la persona que lo propone)
 	interesados[]
+	no_interesados[]
 */
 
 module.exports = {
@@ -27,7 +29,9 @@ module.exports = {
 				let peli = {
 					nombre: inputpeli,
 					enlace: "",
-					interesados: [message.author.id]
+					propuesto: message.author.id,
+					interesados: [message.author.id],
+					no_interesados: []
 				}
 				lista.lista.push(peli)
 				fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
