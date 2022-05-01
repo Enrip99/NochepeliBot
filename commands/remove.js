@@ -4,26 +4,26 @@ const fs = require('fs');
 
 module.exports = {
 	name: 'remove',
-	description: 'quita peli de la lista',
+	description: 'quita película de la lista',
 	execute(message, args, client) {
 		if (!args.length) {
 			message.channel.send("Escribe \"remove *nombre de la peícula*\" para quitarla de la lista.")
 		}
 		else {
-			let peli = message.content.substring(7,message.content.length).trim()
+			let inputpeli = message.content.substring(7,message.content.length).trim()
 			let exists = false
 			for (let i = 0; i < lista.lista.length; ++i){
-				if (peli.toLowerCase() === lista.lista[i].toLowerCase()) {
+				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) {
 					exists = true
 					lista.lista.splice(i,1)
 					fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
 						if (err) console.log(err)
-						else message.channel.send("**" + peli + "** eliminada de la lista.")
+						else message.channel.send("**" + inputpeli + "** eliminada de la lista.")
 					})
 					break
 				}
 			}
-			if (!exists) message.channel.send("La peli no está en la lista.")
+			if (!exists) message.channel.send("La película no está en la lista.")
 		}
 	}
 };

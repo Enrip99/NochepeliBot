@@ -2,25 +2,37 @@ const config = require('../data/config.json');
 var lista = require('../data/lista.json');
 const fs = require('fs');
 
+/*
+objeto:
+	nombre
+	enlace
+	interesados[]
+*/
+
 module.exports = {
 	name: 'add',
-	description: 'añade peli a la lista',
+	description: 'añade película a la lista',
 	execute(message, args, client) {
 		if (!args.length) {
 			message.channel.send("Escribe \"add *nombre de la peícula*\" para añadirla a la lista.")
 		}
 		else {
-			let peli = message.content.substring(4,message.content.length).trim()
-			let exists = false
+			let inputpeli = message.content.substring(4,message.content.length).trim()
+			let existe = false
 			for (let i = 0; i < lista.lista.length; ++i){
-				if (peli.toLowerCase() === lista.lista[i].toLowerCase()) exists = true
+				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) existe = true
 			}
-			if (exists) message.channel.send("Esa peli ya está en la lista.")
+			if (existe) message.channel.send("Esa película ya está en la lista.")
 			else {
+				let peli = {
+					nombre: inputpeli,
+					enlace: "",
+					interesados: [message.author.id]
+				}
 				lista.lista.push(peli)
 				fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
 					if (err) console.log(err)
-					else message.channel.send("**" + peli + "** añadida a la lista.")
+					else message.channel.send("**" + inputpeli + "** añadida a la lista.")
 				})
 			}
 		}
