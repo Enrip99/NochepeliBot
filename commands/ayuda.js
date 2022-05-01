@@ -1,7 +1,14 @@
 module.exports = {
-	name: 'aydua',
+	name: 'ayuda',
 	description: 'help',
 	execute(message, args, client) {
-		message.channel.send("Escribe **list** para ver la lista de películas.\nEscribe **add** ***nombre de la peli*** para añadirla a la lista.\nEscribe **remove** ***nombre de la peli*** para quitarla de la lista.")
+		let msg = "Escribe **list** para ver la lista de películas.\n"
+		msg += "Escribe **add** ***nombre de la peli*** para añadirla a la lista.\n"
+		msg += "Escribe **remove** ***nombre de la peli*** para quitarla de la lista.\n"
+		msg += "Escribe **getlink** ***nombre de la peli*** para obtener el enlace de la película.\n"
+		msg += "Escribe **addlink** ***enlace*** **nombre de la peli** para añadir o modificar un enlace a una película.\n"
+		msg += "Escribe **removelink** ***nombre de la peli*** para quitar el enlace de una película.\n"
+
+		message.channel.send(msg)
 	},
 };

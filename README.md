@@ -1,4 +1,4 @@
-# DespachoBot-Discord
+# NochepeliBot
 
 Discord bot that upon command, takes a picture through a webcam and sends it through that same channel and lets you set up a timetable for shared spaces. It also includes miscelaneous response commands.
 
