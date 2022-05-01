@@ -1,5 +1,7 @@
 const config = require('../data/config.json');
+var lista = require('../data/lista.json');
 const utils = require('../utils.js')
+const fs = require('fs');
 
 module.exports = {
 	name: 'dontwant',
