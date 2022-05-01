@@ -7,8 +7,6 @@ module.exports = {
 	name: 'reallywant',
 	description: 'Te registra como persona particularmente interesada en esta peli. Evitaremos verla si no estás.',
 	execute(message, args, client) {
-		//message.channel.send(message.author.username + " tiene muchas ganas de ver " + utils.parse_movie_name(message.content))
-    //TODO Este comando está sin terminar
 		if (!args.length) {
 			message.channel.send("Escribe \"reallywant *nombre de la peícula*\" para añadirte como interesado.")
 		}
