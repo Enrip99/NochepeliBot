@@ -5,13 +5,14 @@ module.exports = {
 	description: 'kills bot',
 	execute(message, args, client) {
 		if (args.length === 1 && args[0] === "off") {
-			if (message.author.id === config.owner1 || message.author.id === config.owner2){
-				console.log('Apagando...');
-				process.exit();
+
+			for (var i = 0; i < config.owners.length; ++i){
+				if (message.author.id === config.owners[i]){
+					console.log('Apagando...');
+					process.exit();
+				}
 			}
-			else {
-				message.channel.send('Solo puedo apagarme por orden de los propietarios del bot.')
-			}
+			message.channel.send('Solo puedo apagarme por orden de los propietarios del bot.')
 		}
 	}
 }
