@@ -1,6 +1,5 @@
 {
-  "owner1": "",
-  "owner2": "",
+  "owners": ["","",""],
   "token": "",
   "serverid": ""
 }
