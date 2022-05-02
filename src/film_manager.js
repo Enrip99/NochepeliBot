@@ -103,7 +103,10 @@ FilmManager.prototype.set_latest_film = function(film_name) {
  */
 FilmManager.prototype.save = function(on_success = () => {}, on_error = () => {}) {
     console.log("Guardando la lista...")
-    fs.writeFile(LISTA_LOCATION, JSON.stringify(this.dict), function(err) {
+    lista = {
+        "pelis": this.dict
+    }
+    fs.writeFile(LISTA_LOCATION, JSON.stringify(lista), function(err) {
         if (err) {
             console.error(err)
             on_error()
@@ -129,7 +132,8 @@ FilmManager.prototype.load = function(on_success = () => {}, on_error = () => {}
             on_error()
         } else {
             try {
-                this_instance.dict = JSON.parse(data)
+                parsed_data = JSON.parse(data)
+                this_instance.dict = parsed_data.pelis
                 console.log("Cargada la lista desde disco.")
                 on_success()
             } catch(e) {

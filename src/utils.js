@@ -5,7 +5,12 @@
  * Función auxiliar para estandarizar la sanitización de los nombres de las pelis
  */
 exports.sanitize_film_name = function(film_name) {
-    return film_name.trim().toLowerCase();
+    let regex = /(\W*)(\w*)*?/gm
+    let ret = film_name.trim().replace(regex, "$2").toLowerCase()
+    if(!ret) {
+        ret = "_"
+    }
+    return ret
 }
 
 

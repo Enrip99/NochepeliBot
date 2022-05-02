@@ -11,6 +11,9 @@ module.exports = {
 			message.channel.send("Escribe \"add *nombre de la peícula*\" para añadirla a la lista.")
 		}
 		else {
+			if(vaporeon_check(message)) {
+				return
+			}
 			let inputpeli = utils.parse_film_name(message.content)
 			if(FilmManager.instance.exists(inputpeli)) {
 				message.channel.send("Esa película ya está en la lista.")
@@ -31,3 +34,14 @@ module.exports = {
 		}
 	}
 };
+
+
+function vaporeon_check(message) {
+	let regex = /\bvaporeon\b/gmi
+	let ret = false
+	if(message.content.match(regex)) {
+		message.channel.send(utils.random_from_list(["jaja qué gracioso", "comedy heaven", "me parto los cojones /s", "lol", "ok"]))
+		ret = true
+	}
+	return ret
+}
