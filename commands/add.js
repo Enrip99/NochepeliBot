@@ -1,4 +1,3 @@
-const fs = require('fs');
 const { FilmManager } = require("../src/film_manager.js")
 const utils = require('../src/utils.js')
 
