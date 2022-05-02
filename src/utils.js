@@ -1,5 +1,4 @@
 
-
 //TODO: Igual quitar aquí la puntuación del título???
 /**
  * Función auxiliar para estandarizar la sanitización de los nombres de las pelis

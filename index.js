@@ -3,6 +3,7 @@ const fs = require('fs');
 const config = require('./data/config.json');
 const FilmManager = require('./src/film_manager.js').FilmManager
 const utils = require('./src/utils.js')
+const interest = require('./src/interest.js')
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -56,30 +57,24 @@ client.on('message', message => {
 });
 
 client.on('messageReactionAdd', async (reaction, author) => {
-  if (reaction.message.channel.id != config.channelid) {
+  if (reaction.message.channel.id != config.channelid || author.bot) {
     return;
   }
   else {
     let user = author.id
     for (let peli of FilmManager.instance.iterate()){
       if (reaction.message.id == peli.react_message){
-        if(peli.interested.includes(user)) {
-					reaction.message.channel.send("<@" + user + ">, ya estás puesto como muy interesado en **" + peli.first_name + "**.")
-        }
-        else {
-					peli.interested.push(user)
-					let msg = "<@" + user + ">, has sido añadido a la lista de muy interesados en **" + peli.first_name + "**."
-					if(utils.remove_from_list(peli.not_interested, user)) {
-						msg += " También has sido eliminado de la lista de no interesados."
-					}
-          FilmManager.instance.save(
-						on_success = () => {
-							reaction.message.channel.send(msg)
-						},
-						on_error = () => {
-							reaction.message.channel.send("Ha habido algún problema para actualizar tu interés en esta peli :/")
-						}
-					)
+        switch (reaction.emoji.name) {
+          case '🤷': //:shrug, neutralwant
+            interest.remove_interest_for_film(reaction.message, peli.first_name, author)
+            break;
+          case '☑️': //:tick, reallywant
+            interest.add_very_interested(reaction.message, peli.first_name, author)
+            break;
+          case '❎': //:cruz, dontwant
+            interest.add_not_interested(reaction.message, peli.first_name, author)
+            break;
+          default:
         }
       }
     }

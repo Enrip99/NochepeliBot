@@ -1,4 +1,5 @@
 const utils = require('../src/utils.js')
+const interests = require('../src/interest.js')
 const { FilmManager } = require('../src/film_manager.js')
 
 module.exports = {
@@ -7,7 +8,7 @@ module.exports = {
 	execute(message, args, client) {
 		if (!args.length) {
 			if(FilmManager.instance.latest_film) {
-				add_very_interested(message, FilmManager.instance.latest_film)
+				interests.add_very_interested(message, FilmManager.instance.latest_film, message.author)
 			} else {
 				message.channel.send("Escribe \"reallywant *nombre de la peícula*\" para añadirte como interesado.")
 			}
@@ -20,33 +21,8 @@ module.exports = {
 				message.channel.send("La película no está en la lista.")
 			} else {
 				FilmManager.instance.set_latest_film(inputpeli)
-				add_very_interested(message, inputpeli)
+				interests.add_very_interested(message, inputpeli, message.author)
 			}
 		}
-	}
-}
-
-
-function add_very_interested(message, inputpeli) {
-	let peli = FilmManager.instance.get(inputpeli)
-	let user = message.author.id
-	if(peli.interested.includes(user)) {
-		message.channel.send("Tú ya estás puesto como muy interesado en **" + peli.first_name + "**."
-			+ " Si quieres quitarte, escribe *neutralwant " + inputpeli + "*")
-	} else {
-		peli.interested.push(user)
-		let msg = "Has sido añadido a la lista de muy interesados en **" + peli.first_name + "**."
-		if(utils.remove_from_list(peli.not_interested, user)) {
-			msg += " También has sido eliminado de la lista de no interesados."
-		}
-		
-		FilmManager.instance.save(
-			on_success = () => {
-				message.channel.send(msg)
-			},
-			on_error = () => {
-				message.channel.send("Ha habido algún problema para actualizar tu interés en esta peli :/")
-			}
-		)
 	}
 }

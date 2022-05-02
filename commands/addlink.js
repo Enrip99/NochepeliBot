@@ -1,6 +1,6 @@
 const { FilmManager } = require("../src/film_manager.js")
 
-//input: addlink <nombre peli> <link> 
+//input: addlink <nombre peli> <link>
 
 module.exports = {
 	name: 'addlink',
@@ -20,33 +20,43 @@ module.exports = {
 			inputpeli.shift()
 			inputpeli.pop()
 			if(inputpeli.length === 0) {
-				message.channel.send("Escribe \"addlink *nombre de la peícula* *enlace*\" para añadir el enlace a la película.")
+				if(FilmManager.instance.latest_film){
+					add_link(message,FilmManager.instance.latest_film, inputlink)
+				} else{
+					message.channel.send("Escribe \"addlink *nombre de la peícula* *enlace*\" para añadir el enlace a la película.")
+
+				}
+				return
 			}
 			inputpeli = inputpeli.join(' ')
 
-			if(!FilmManager.instance.exists(inputpeli)) {
-				FilmManager.instance.set_latest_film(null)
-				message.channel.send("La película no está en la lista.")
-			} else {
-				let peli = FilmManager.instance.get(inputpeli)
-				let actualizar = peli.link != null
-				FilmManager.instance.set_latest_film(inputpeli)
-				peli.link = inputlink
-				console.log("Actualizado link para peli " + inputpeli)
-
-				FilmManager.instance.save(
-					on_success = () => {
-						if(actualizar) {
-							message.channel.send("Enlace actualizado para la peli **" + inputpeli +  "**.")
-						} else {
-							message.channel.send("Enlace añadido a la peli **" + inputpeli +  "**.")
-						}
-					},
-					on_error = () => {
-						message.channel.send("No se ha podido poner ese enlace a la peli.")
-					}
-				)
-			}
+			add_link(message,inputpeli, inputlink)
 		}
 	}
 };
+
+function add_link(message, inputpeli, inputlink){
+	if(!FilmManager.instance.exists(inputpeli)) {
+		FilmManager.instance.set_latest_film(null)
+		message.channel.send("La película no está en la lista.")
+	} else {
+		let peli = FilmManager.instance.get(inputpeli)
+		let actualizar = peli.link != null
+		FilmManager.instance.set_latest_film(inputpeli)
+		peli.link = inputlink
+		console.log("Actualizado link para peli " + inputpeli)
+
+		FilmManager.instance.save(
+			on_success = () => {
+				if(actualizar) {
+					message.channel.send("Enlace actualizado para la peli **" + inputpeli +  "**.")
+				} else {
+					message.channel.send("Enlace añadido a la peli **" + inputpeli +  "**.")
+				}
+			},
+			on_error = () => {
+				message.channel.send("No se ha podido poner ese enlace a la peli.")
+			}
+		)
+	}
+}
