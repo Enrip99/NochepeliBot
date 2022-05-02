@@ -10,10 +10,9 @@ module.exports = {
 		}
 		else {
 			let inputpeli = utils.parse_film_name(message.content)
-			
+
 			if(!FilmManager.instance.exists(inputpeli)) {
 				message.channel.send("La película no está en la lista.")
-				console.log(inputpeli + " eliminada de la lista")
 			} else {
 				peli = FilmManager.instance.get(inputpeli)
 				FilmManager.instance.remove(inputpeli)

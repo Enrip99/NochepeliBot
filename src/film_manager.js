@@ -74,6 +74,7 @@ FilmManager.prototype.count = function() {
  */
 FilmManager.prototype.iterate = function*() {
     for(let film of Object.keys(this.dict)) {
+      console.log(film + "SEXO")
         yield this.dict[film]
     }
 }
