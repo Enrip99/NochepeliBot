@@ -9,6 +9,7 @@ module.exports = {
 			if (!FilmManager.instance.count()) { 
 				message.channel.send("No hay películas en la lista")
 			} else {
+				FilmManager.instance.set_latest_film(null)
 				let listmsgs = []
 				let listprom = []
 				let tosend = ""

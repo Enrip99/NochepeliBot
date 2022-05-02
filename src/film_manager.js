@@ -7,6 +7,7 @@ const LISTA_LOCATION = "data/lista.json"
 
 FilmManager = function() {
     this.dict = {}
+    this.latest_film = null
 }
 
 /** @type {FilmManager} */
@@ -19,9 +20,9 @@ FilmManager.instance = new FilmManager()
  * @returns Si la película ha sido añadida por primera vez
  */
 FilmManager.prototype.add = function(film_name, proposed_by_user) {
-    sanitized_name = utils.sanitize_film_name(film_name)
+    let sanitized_name = utils.sanitize_film_name(film_name)
     console.log("Añadida peli " + sanitized_name)
-    ret = sanitized_name in this.dict
+    let ret = sanitized_name in this.dict
     this.dict[sanitized_name] = new Film(film_name, proposed_by_user)
     return !ret
 }
@@ -80,6 +81,20 @@ FilmManager.prototype.iterate = function*() {
 
 
 /**
+ * Indica la peli dada como la última de la que se ha hablado, para el propósito de algunos comandos
+ * @param {string} film_name El nombre de la peli, sin sanitizar
+ */
+FilmManager.prototype.set_latest_film = function(film_name) {
+    film_name = film_name ? utils.sanitize_film_name(film_name) : null
+    if(film_name && this.exists(film_name)) {
+        this.latest_film = film_name
+    } else {
+        this.latest_film = null
+    }
+}
+
+
+/**
  * Escribe las pelis del bot en ~La Lista~ para que sea persistente
  * @param {() => undefined} on_success A ejecutar si guarda correctamente
  * @param {() => undefined} on_error A ejecutar si no puede guardar
@@ -105,7 +120,7 @@ FilmManager.prototype.save = function(on_success = () => {}, on_error = () => {}
  */
 FilmManager.prototype.load = function(on_success = () => {}, on_error = () => {}) {
     console.log("Cargando la lista...")
-    this_instance = this
+    let this_instance = this
     fs.readFile(LISTA_LOCATION, "utf8", function(err, data) {
         if(err) {
             console.error(err)
