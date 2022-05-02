@@ -20,7 +20,6 @@ module.exports = {
 				FilmManager.instance.set_latest_film(null)
 				message.channel.send("La película no está en la lista.")
 			} else {
-				let peli = FilmManager.instance.get(inputpeli)
 				FilmManager.instance.set_latest_film(inputpeli)
 				remove_link_for_film(message, inputpeli)
 			}
@@ -30,6 +29,7 @@ module.exports = {
 
 
 function remove_link_for_film(message, inputpeli) {
+	let peli = FilmManager.instance.get(inputpeli)
 	peli.link = null
 	console.log("Eliminado link de " + inputpeli)
 	FilmManager.instance.save(

@@ -6,12 +6,12 @@ module.exports = {
 	name: 'addlink',
 	description: 'añade o modifica el enlace de una película de la lista',
 	execute(message, args, client) {
-		if (args.length < 2) {
+		if (args.length < 1) {
 			message.channel.send("Escribe \"addlink *nombre de la peícula* *enlace*\" para añadir el enlace a la película.")
 		}
 		else {
 			let inputlink = args[args.length-1]
-			if(!inputlink.includes("://")) {
+			if(!inputlink.includes("://") && !inputlink.includes(":?")) {
 				FilmManager.instance.set_latest_film(null)
 				message.channel.send("No veo el link :eyes:")
 				return
@@ -19,6 +19,9 @@ module.exports = {
 			let inputpeli = message.content.split(' ')
 			inputpeli.shift()
 			inputpeli.pop()
+			if(inputpeli.length === 0) {
+				message.channel.send("Escribe \"addlink *nombre de la peícula* *enlace*\" para añadir el enlace a la película.")
+			}
 			inputpeli = inputpeli.join(' ')
 
 			if(!FilmManager.instance.exists(inputpeli)) {
