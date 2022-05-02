@@ -4,8 +4,13 @@
 /**
  * Función auxiliar para estandarizar la sanitización de los nombres de las pelis
  */
-function sanitize_film_name(film_name) {
-    return film_name.trim().toLowerCase();
+exports.sanitize_film_name = function(film_name) {
+    let regex = /(\W*)(\w*)*?/gm
+    let ret = film_name.trim().replace(regex, "$2").toLowerCase()
+    if(!ret) {
+        ret = "_"
+    }
+    return ret
 }
 
 
@@ -13,7 +18,7 @@ function sanitize_film_name(film_name) {
  * Extrae el nombre de la peli del mensaje, asumiendo que el mensaje está en formato
  * \<comando\> \<nombre de la peli\>
  */
-function parse_film_name(text) {
+exports.parse_film_name = function(text) {
     splitted_text = text.split(' ')
     splitted_text.shift()
     return splitted_text.join(' ')
@@ -25,7 +30,7 @@ function parse_film_name(text) {
  * al bot. Devuelve una promesa, por lo que hay que usar await o .then() para
  * obtener el objeto.
  */
-async function get_user_by_id(client, id) {
+exports.get_user_by_id = async function(client, id) {
     return client.users.fetch(String(id))
 }
 
@@ -35,7 +40,7 @@ async function get_user_by_id(client, id) {
  * @param {*} list Lista de la que borrar el objeto
  * @param {*} item El objeto a borrar
  */
-function remove_from_list(list, item) {
+exports.remove_from_list = function(list, item) {
     ret = list.includes(item)
     if(ret) {
         list.splice(list.indexOf(item), 1)
@@ -44,4 +49,9 @@ function remove_from_list(list, item) {
 }
 
 
-module.exports = { sanitize_film_name, parse_film_name, get_user_by_id, remove_from_list }
+/**
+ * Devuelve un elemento aleatorio de la lista
+ */
+exports.random_from_list = function(list) {
+    return list[Math.floor(Math.random() * list.length)]
+}
