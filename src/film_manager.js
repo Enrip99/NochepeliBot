@@ -23,7 +23,9 @@ FilmManager.prototype.add = function(film_name, proposed_by_user) {
     let sanitized_name = utils.sanitize_film_name(film_name)
     console.log("Añadida peli " + sanitized_name)
     let ret = sanitized_name in this.dict
-    this.dict[sanitized_name] = new Film(film_name, proposed_by_user)
+    if(!ret) {
+        this.dict[sanitized_name] = new Film(film_name, proposed_by_user)
+    }
     return !ret
 }
 

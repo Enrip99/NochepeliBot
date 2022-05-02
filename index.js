@@ -15,7 +15,8 @@ client.once('ready', async () => {
   await FilmManager.instance.load(
     on_success = () => {
       console.log('¡Listo!');
-      client.user.setActivity('Type AYUDA for help', );
+      client.user.setActivity('Type AYUDA for help');
+      client.channels.fetch(config.channelid).then(channel => channel.send(':°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
     },
     on_error = () => {
       console.error("No se ha podido cargar la lista")
@@ -40,5 +41,6 @@ client.on('message', message => {
   }
 
 });
+
 
 client.login(config.token);
