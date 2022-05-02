@@ -14,7 +14,6 @@ module.exports = {
 				let listprom = []
 				let tosend = ""
 				for (let peli of FilmManager.instance.iterate()) {
-					console.log(peli)
 					listmsgs.push("\n- **" + peli.first_name + "** (" + peli.interested.length + ") - Propuesta por: **")
 					listprom.push(utils.get_user_by_id(client, peli.proposed_by_user))
 				}

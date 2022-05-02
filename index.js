@@ -26,7 +26,7 @@ client.once('ready', async () => {
         }
         Promise.all(promarray).then( value => {
           console.log('¡Listo!');
-          client.channels.fetch(config.channelid).then(channel => channel.send(':°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
+          client.channels.fetch(config.channelid).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
         })
       })
 

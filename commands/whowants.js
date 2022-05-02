@@ -34,7 +34,6 @@ function check_interests_for_film(message, inputpeli, client) {
 	let interested_msg = ""
 	let not_interested_msg = ""
 	let interested_promises = []
-	let not_interested_promises = []
 	if(peli.interested.length === 0) {
 		interested_msg += "No hay nadie particularmente interesado en ver **" + peli.first_name + "**."
 	}
@@ -45,25 +44,22 @@ function check_interests_for_film(message, inputpeli, client) {
 		}
 	}
 	if (peli.not_interested.length === 0) {
-		not_interested_msg += "No hay nadie que no quiera ver **" + inputpeli + "**."
+		not_interested_msg += "\nNo hay nadie que no quiera ver **" + peli.first_name + "**."
 	}
 	else {
-		not_interested_msg += "Gente sin interés en ver **" + inputpeli + "**:"
+		not_interested_msg += "\nGente sin interés en ver **" + peli.first_name + "**:"
 		for (let user of peli.not_interested){
-			not_interested_promises.push(utils.get_user_by_id(client, user))
+			interested_promises.push(utils.get_user_by_id(client, user))
 		}
 	}
+	let i = 0;
 	Promise.all(interested_promises).then(values => {
 		for (let value of values) {
+			if (i == peli.interested.length) interested_msg += not_interested_msg
+			++i
 			interested_msg += "\n- **" + value.username + "**"
 		}
+		if (peli.not_interested.length == 0) interested_msg += not_interested_msg
 		message.channel.send(interested_msg)
-	})
-
-	Promise.all(not_interested_promises).then(values => {
-		for (let value of values) {
-			not_interested_msg += "\n- **" + value.username + "**"
-		}
-		message.channel.send(not_interested_msg)
 	})
 }
