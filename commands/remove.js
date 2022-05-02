@@ -10,7 +10,7 @@ module.exports = {
 		}
 		else {
 			let inputpeli = utils.parse_film_name(message.content)
-			
+
 			if(!FilmManager.instance.exists(inputpeli)) {
 				FilmManager.instance.set_latest_film(null)
 				message.channel.send("La película no está en la lista.")
