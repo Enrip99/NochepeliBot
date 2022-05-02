@@ -30,4 +30,18 @@ async function get_user_by_id(client, id) {
 }
 
 
-module.exports = { sanitize_film_name, parse_film_name, get_user_by_id }
+/**
+ * Elimina de la lista la primera ocurrencia del objeto indicado
+ * @param {*} list Lista de la que borrar el objeto
+ * @param {*} item El objeto a borrar
+ */
+function remove_from_list(list, item) {
+    ret = list.includes(item)
+    if(ret) {
+        list.splice(list.indexOf(item), 1)
+    }
+    return ret
+}
+
+
+module.exports = { sanitize_film_name, parse_film_name, get_user_by_id, remove_from_list }

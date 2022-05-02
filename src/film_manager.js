@@ -33,7 +33,7 @@ FilmManager.prototype.add = function(film_name, proposed_by_user) {
  */
 FilmManager.prototype.remove = function(film_name) {
     film_name = utils.sanitize_film_name(film_name)
-    console.log("Eliminada peli " + sanitized_name)
+    console.log("Eliminada peli " + film_name)
     return delete this.dict[film_name]
 }
 

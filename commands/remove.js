@@ -15,13 +15,14 @@ module.exports = {
 				message.channel.send("La película no está en la lista.")
 				console.log(inputpeli + " eliminada de la lista")
 			} else {
+				peli = FilmManager.instance.get(inputpeli)
 				FilmManager.instance.remove(inputpeli)
 				FilmManager.instance.save(
 					on_success = () => {
-						message.channel.send("**" + inputpeli + "** eliminada de la lista.")
+						message.channel.send("**" + peli.first_name + "** eliminada de la lista.")
 					},
 					on_error = () => {
-						message.channel.send("No se ha podido eliminar **" + inputpeli + "** de la lista.")
+						message.channel.send("No se ha podido eliminar **" + peli.first_name + "** de la lista.")
 					}
 				)
 			}

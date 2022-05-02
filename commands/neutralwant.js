@@ -1,53 +1,38 @@
-const config = require('../data/config.json');
-var lista = require('../data/lista.json');
-const utils = require('../utils.js')
-const fs = require('fs');
+const utils = require('../src/utils.js')
+const { FilmManager } = require('../src/film_manager.js')
 
 module.exports = {
 	name: 'neutralwant',
 	description: 'Deshace el haber indicado si una película te interesa particularmente o no te interesa.',
 	execute(message, args, client) {
 		if (!args.length) {
-			message.channel.send("Escribe \"neutralwant *nombre de la peícula*\" psalirte de la lista de interesado o no interesado.")
+			message.channel.send("Escribe \"neutralwant *nombre de la peícula*\" para salirte de la lista de muy interesado o no interesado.")
 		}
 		else{
-			let inputpeli = message.content.split(' ')
-			inputpeli.shift()
-			inputpeli = inputpeli.join(' ').trim()
-			let existei = false
-			for (let i = 0; i < lista.lista.length; ++i){
-				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()){
-					let existej = false
-					for (let j = 0; j < lista.lista[i].interesados.length; ++j){
-						if (lista.lista[i].interesados[j] == message.author.id){
-							existej = true
-							lista.lista[i].interesados.splice(j,1)
-							fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
-								if (err) console.log(err)
-								else message.channel.send("Has sido eliminado de la lista de interesados en **" + inputpeli + "**.")
-							})
-							break
-						}
-					}
+			let inputpeli = utils.parse_film_name(message.content)
 
-					for (let j = 0; j < lista.lista[i].no_interesados.length; ++j){
-						if (lista.lista[i].no_interesados[j] == message.author.id){
-							existej = true
-							lista.lista[i].no_interesados.splice(j,1)
-							fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
-								if (err) console.log(err)
-								else message.channel.send("Has sido eliminado de la lista de no interesados en **" + inputpeli + "**.")
-							})
-							break
-						}
-					}
+			if(!FilmManager.instance.exists(inputpeli)) {
+				message.channel.send("La película no está en la lista.")
+			} else {
+				let peli = FilmManager.instance.get(inputpeli)
+				let user = message.author.id
+				success = false
+				success |= utils.remove_from_list(peli.interested, user)
+				success |= utils.remove_from_list(peli.not_interested, user)
 
-					if (!existej) message.channel.send("No estás en ninguna lista para **" + inputpeli + "**.")
-					existei = true
-					break
+				if(!success) {
+					message.channel.send("Tú no estabas marcado como interesado o desinteresado en **" + peli.first_name + "**.")
+				} else {
+					FilmManager.instance.save(
+						on_success = () => {
+							message.channel.send("Ahora tu interés en **" + peli.first_name + "** es neutral.")
+						},
+						on_error = () => {
+							message.channel.send("Ha habido algún problema para actualizar tu interés en esta peli :/")
+						}
+					)
 				}
 			}
-			if (!existei) message.channel.send("La película no está en la lista.")
 		}
 	}
 }

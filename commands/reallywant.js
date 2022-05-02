@@ -1,7 +1,5 @@
-const config = require('../data/config.json');
-var lista = require('../data/lista.json');
-const utils = require('../utils.js')
-const fs = require('fs');
+const utils = require('../src/utils.js')
+const { FilmManager } = require('../src/film_manager.js')
 
 module.exports = {
 	name: 'reallywant',
@@ -11,40 +9,33 @@ module.exports = {
 			message.channel.send("Escribe \"reallywant *nombre de la peícula*\" para añadirte como interesado.")
 		}
 		else{
-			let inputpeli = message.content.split(' ')
-			inputpeli.shift()
-			inputpeli = inputpeli.join(' ').trim()
-			let existsi = false
+			let inputpeli = utils.parse_film_name(message.content)
 
-			for (let i = 0; i < lista.lista.length; ++i){
-				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) {
-					existsi = true
-					let existsj = false;
-					for (let j = 0; j < lista.lista[i].interesados.length; ++j){
-						if (lista.lista[i].interesados[j] == message.author.id){
-							message.channel.send("Ya estás interesado en **" + inputpeli + "**.")
-							existsj = true
-							break
-						}
+			if(!FilmManager.instance.exists(inputpeli)) {
+				message.channel.send("La película no está en la lista.")
+			} else {
+				let peli = FilmManager.instance.get(inputpeli)
+				let user = message.author.id
+				if(peli.interested.includes(user)) {
+					message.channel.send("Tú ya estás puesto como muy interesado en **" + peli.first_name + "**."
+						+ " Si quieres quitarte, escribe *neutralwant " + inputpeli + "*")
+				} else {
+					peli.interested.push(user)
+					let msg = "Has sido añadido a la lista de muy interesados en **" + peli.first_name + "**."
+					if(utils.remove_from_list(peli.not_interested, user)) {
+						msg += " También has sido eliminado de la lista de no interesados."
 					}
-					if (!existsj) {
-						lista.lista[i].interesados.push(message.author.id)
-						let msg = "Has sido añadido a la lista de interesados de **" + inputpeli + "**."
-						for (let k = 0; k < lista.lista[i].no_interesados.length; ++k){
-							if (lista.lista[i].no_interesados[k] == message.author.id) {
-								lista.lista[i].no_interesados.splice(k,1)
-								msg += " También has sido eliminado de la lista de no interesados."
-							}
+					
+					FilmManager.instance.save(
+						on_success = () => {
+							message.channel.send(msg)
+						},
+						on_error = () => {
+							message.channel.send("Ha habido algún problema para actualizar tu interés en esta peli :/")
 						}
-						fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
-							if (err) console.log(err)
-							else message.channel.send(msg)
-						})
-					}
-					break
+					)
 				}
 			}
-			if (!existsi) message.channel.send("La película no está en la lista.")
 		}
 	}
 }
