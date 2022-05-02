@@ -17,13 +17,34 @@ module.exports = {
 			}
 			else {
 				FilmManager.instance.add(inputpeli, message.author.id)
+				let pelipost = FilmManager.instance.get(inputpeli)
+
+				message.channel.send("Espera un segundo...").then(sentmsg => {
+					pelipost.react_message = sentmsg.id
+					FilmManager.instance.save(on_success = () => {
+						sentmsg.edit("**" + inputpeli + "** añadida a la lista.\nReacciona a este mensaje para añadirte como interesado.")
+					},
+					on_error = () => {
+						sentmsg.edit("No se ha podido añadir esa peli :/")
+					})
+				})
+
+				/*
 				FilmManager.instance.save(
 					on_success = () => {
-						message.channel.send("**" + inputpeli + "** añadida a la lista.")
+						message.channel.send("**" + inputpeli + "** añadida a la lista.").then(sentmsg => {
+							console.log(sentmsg)
+							let pelipost = FilmManager.instance.get(inputpeli)
+							pelipost.react_message = sentmsg.id
+							FilmManager.instance.save()
+							sentmsg.edit(sentmsg.content + "\nReacciona a este mensaje para añadirte como interesado.")
+						})
 					},
 					on_error = () => {
 						message.channel.send("No se ha podido añadir esa peli :/")
 					})
+
+					*/
 			}
 		}
 	}

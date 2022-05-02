@@ -20,6 +20,7 @@ function Film(name, proposed_by_user) {
     this.link = null
     this.interested = [proposed_by_user]
     this.not_interested = []
+    this.react_message = null
 }
 
 module.exports = { Film }
