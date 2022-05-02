@@ -12,6 +12,7 @@ module.exports = {
 		else {
 			let inputlink = args[args.length-1]
 			if(!inputlink.includes("://")) {
+				FilmManager.instance.set_latest_film(null)
 				message.channel.send("No veo el link :eyes:")
 				return
 			}
@@ -21,10 +22,12 @@ module.exports = {
 			inputpeli = inputpeli.join(' ')
 
 			if(!FilmManager.instance.exists(inputpeli)) {
+				FilmManager.instance.set_latest_film(null)
 				message.channel.send("La película no está en la lista.")
 			} else {
 				let peli = FilmManager.instance.get(inputpeli)
 				let actualizar = peli.link != null
+				FilmManager.instance.set_latest_film(inputpeli)
 				peli.link = inputlink
 				console.log("Actualizado link para peli " + inputpeli)
 
