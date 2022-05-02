@@ -1,15 +1,7 @@
-const config = require('../data/config.json');
-var lista = require('../data/lista.json');
 const fs = require('fs');
+const { FilmManager } = require("../src/film_manager.js")
+const utils = require('../src/utils.js')
 
-/*
-objeto:
-	nombre
-	enlace
-	propuesto (la persona que lo propone)
-	interesados[]
-	no_interesados[]
-*/
 
 module.exports = {
 	name: 'add',
@@ -19,25 +11,19 @@ module.exports = {
 			message.channel.send("Escribe \"add *nombre de la peícula*\" para añadirla a la lista.")
 		}
 		else {
-			let inputpeli = message.content.substring(4,message.content.length).trim()
-			let existe = false
-			for (let i = 0; i < lista.lista.length; ++i){
-				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) existe = true
+			let inputpeli = utils.parse_film_name(message.content)
+			if(FilmManager.instance.exists(inputpeli)) {
+				message.channel.send("Esa película ya está en la lista.")
 			}
-			if (existe) message.channel.send("Esa película ya está en la lista.")
 			else {
-				let peli = {
-					nombre: inputpeli,
-					enlace: "",
-					propuesto: message.author.id,
-					interesados: [message.author.id],
-					no_interesados: []
-				}
-				lista.lista.push(peli)
-				fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
-					if (err) console.log(err)
-					else message.channel.send("**" + inputpeli + "** añadida a la lista.")
-				})
+				FilmManager.instance.add(inputpeli, message.author.id)
+				FilmManager.instance.save(
+					on_success = () => {
+						message.channel.send("**" + inputpeli + "** añadida a la lista.")
+					},
+					on_error = () => {
+						message.channel.send("No se ha podido añadir esa peli :/")
+					})
 			}
 		}
 	}

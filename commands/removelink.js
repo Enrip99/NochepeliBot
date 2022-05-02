@@ -1,6 +1,5 @@
-const config = require('../data/config.json');
-var lista = require('../data/lista.json');
-const fs = require('fs');
+const utils = require('../src/utils.js')
+const { FilmManager } = require("../src/film_manager.js")
 
 module.exports = {
 	name: 'removelink',
@@ -10,22 +9,23 @@ module.exports = {
 			message.channel.send("Escribe \"removelink *nombre de la peícula*\" para quitarle su enlace.")
 		}
 		else {
-			let inputpeli = message.content.split(' ')
-			inputpeli.shift()
-			inputpeli = inputpeli.join(' ').trim()
-			let exists = false
-			for (let i = 0; i < lista.lista.length; ++i){
-				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) {
-					exists = true
-					lista.lista[i].enlace = ""
-					fs.writeFile("./data/lista.json", JSON.stringify(lista), function(err) {
-						if (err) console.log(err)
-						else message.channel.send("Eliminado el enalce de **" + inputpeli + "**.")
-					})
-					break
-				}
+			let inputpeli = utils.parse_film_name(message.content)
+
+			if(!FilmManager.instance.exists(inputpeli)) {
+				message.channel.send("La película no está en la lista.")
+			} else {
+				let peli = FilmManager.instance.get(inputpeli)
+				peli.link = null
+				console.log("Eliminado link de " + inputpeli)
+				FilmManager.instance.save(
+					on_success = () => {
+						message.channel.send("Eliminado el enalce de **" + inputpeli + "**.")
+					},
+					on_error = () => {
+						message.channel.send("No se ha podido eliminar el enlace de **" + inputpeli + "** ")
+					}
+				)
 			}
-			if (!exists) message.channel.send("La película no está en la lista.")
 		}
 	}
 };

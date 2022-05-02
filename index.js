@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const config = require('./data/config.json');
+const FilmManager = require('./src/film_manager.js').FilmManager
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -10,9 +11,16 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-client.once('ready', () => {
-  console.log('¡Listo!');
-  client.user.setActivity('Type AYUDA for help', );
+client.once('ready', async () => {
+  await FilmManager.instance.load(
+    on_success = () => {
+      console.log('¡Listo!');
+      client.user.setActivity('Type AYUDA for help', );
+    },
+    on_error = () => {
+      console.error("No se ha podido cargar la lista")
+    }
+  );
 });
 
 client.on('message', message => {

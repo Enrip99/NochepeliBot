@@ -11,7 +11,7 @@ function sanitize_film_name(film_name) {
 
 /**
  * Extrae el nombre de la peli del mensaje, asumiendo que el mensaje está en formato
- * <comando> <nombre de la peli>
+ * \<comando\> \<nombre de la peli\>
  */
 function parse_film_name(text) {
     splitted_text = text.split(' ')
@@ -28,5 +28,6 @@ function parse_film_name(text) {
 async function get_user_by_id(client, id) {
     return client.users.fetch(String(id))
 }
+
 
 module.exports = { sanitize_film_name, parse_film_name, get_user_by_id }
