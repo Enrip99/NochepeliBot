@@ -107,3 +107,4 @@ dist
 data/
 
 .DS_Store
+.vscode

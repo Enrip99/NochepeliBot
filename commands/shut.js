@@ -13,6 +13,8 @@ module.exports = {
 				}
 			}
 			message.channel.send('Solo puedo apagarme por orden de los propietarios del bot.')
+		} else if (args.length === 0) {
+			message.channel.send('https://i.redd.it/dwq88d3nnj141.png')
 		}
 	}
 }

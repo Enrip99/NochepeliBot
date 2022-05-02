@@ -1,6 +1,5 @@
-const config = require('../data/config.json');
-var lista = require('../data/lista.json');
-const fs = require('fs');
+const utils = require('../src/utils.js')
+const { FilmManager } = require("../src/film_manager.js")
 
 module.exports = {
 	name: 'getlink',
@@ -10,19 +9,18 @@ module.exports = {
 			message.channel.send("Escribe \"getlink *nombre de la peícula*\" para ver su enlace.")
 		}
 		else {
-			let inputpeli = message.content.split(' ')
-			inputpeli.shift()
-			inputpeli = inputpeli.join(' ').trim()
-			let exists = false
-			for (let i = 0; i < lista.lista.length; ++i){
-				if (inputpeli.toLowerCase() === lista.lista[i].nombre.toLowerCase()) {
-					if (lista.lista[i].enlace == "") message.channel.send("**" + inputpeli + "** no tiene enlace.")
-					else message.channel.send(lista.lista[i].enlace)
-					exists = true
-					break
+			let inputpeli = utils.parse_film_name(message.content)
+
+			if(!FilmManager.instance.exists(inputpeli)) {
+				message.channel.send("La película no está en la lista.")
+			} else {
+				let peli = FilmManager.instance.get(inputpeli)
+				if(peli.link == null) {
+					message.channel.send("**" + inputpeli + "** no tiene enlace.")
+				} else {
+					message.channel.send(peli.link)
 				}
 			}
-			if (!exists) message.channel.send("La película no está en la lista.")
 		}
 	}
 };
