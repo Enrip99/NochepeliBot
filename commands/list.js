@@ -10,19 +10,24 @@ module.exports = {
 				message.channel.send("No hay películas en la lista")
 			} else {
 				FilmManager.instance.set_latest_film(null)
-				let listmsgs = []
-				let listprom = []
+				let listmsg = []
 				let tosend = ""
-				for (let peli of FilmManager.instance.iterate()) {
-					listmsgs.push("\n- **" + peli.first_name + "** (" + peli.interested.length + ") - Propuesta por: **")
-					listprom.push(utils.get_user_by_id(client, peli.proposed_by_user))
-				}
-
-				Promise.all(listprom).then(values => {
-					for (let j = 0; j < values.length; ++j){
-						tosend += listmsgs[j] += values[j].username + "**"
+				utils.parallel_for(FilmManager.instance.iterate(), async peli => {
+					let msg = "\n**" + peli.first_name + "**\n"
+					msg += "☑️ " + peli.interested.length + " · ❎ " + peli.not_interested.length
+					if(peli.not_interested.length - 3 >= peli.interested.length) {
+						msg += " · ratio"
 					}
-				message.channel.send(tosend)
+					let user = await utils.get_user_by_id(client, peli.proposed_by_user)
+					msg += " · Propuesta por **" + user.username + "**\n"
+					listmsg.push(msg)
+				})
+				.then(() => {
+					for(let msg of listmsg) {
+						tosend += msg
+					}
+					message.channel.send(tosend)
+
 				})
 			}
 		}
