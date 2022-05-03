@@ -108,8 +108,6 @@ client.on('interactionCreate', async interaction => { //Botones
 // Login to Discord with your client's token
 client.login(token);
 
-client.login(config.token);
-
 
 for(let p of ["SIGQUIT", "SIGINT", "SIGTERM", "SIGBREAK", "SIGHUP", "exit"]) {
   process.on(p, () => utils.shut_down(client))

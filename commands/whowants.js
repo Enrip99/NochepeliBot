@@ -22,7 +22,7 @@ module.exports = {
 		
 		let peli = FilmManager.instance.get(inputpeli)
 		let interested_msg = "✔️ "
-		let not_interested_msg = "\n❌ "
+		let not_interested_msg = "\n\n❌ "
 		let interested_promises = []
 		if(peli.interested.length === 0) {
 			interested_msg += "No hay nadie particularmente interesado en ver **" + peli.first_name + "**."
