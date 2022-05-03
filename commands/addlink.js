@@ -1,62 +1,44 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../src/film_manager.js")
 
 //input: addlink <nombre peli> <link>
 
 module.exports = {
-	name: 'addlink',
-	description: 'añade o modifica el enlace de una película de la lista',
-	execute(message, args, client) {
-		if (args.length < 1) {
-			message.channel.send("Escribe \"addlink *nombre de la peícula* *enlace*\" para añadir el enlace a la película.")
-		}
-		else {
-			let inputlink = args[args.length-1]
-			if(!inputlink.includes("://") && !inputlink.includes(":?")) {
-				FilmManager.instance.set_latest_film(null)
-				message.channel.send("No veo el link :eyes:")
-				return
-			}
-			let inputpeli = message.content.split(' ')
-			inputpeli.shift()
-			inputpeli.pop()
-			if(inputpeli.length === 0) {
-				if(FilmManager.instance.latest_film){
-					add_link(message,FilmManager.instance.latest_film, inputlink)
-				} else{
-					message.channel.send("Escribe \"addlink *nombre de la peícula* *enlace*\" para añadir el enlace a la película.")
+	data: new SlashCommandBuilder()
+	.setName('addlink')
+	.setDescription('añade o modifica el enlace de una película de la lista')
+	.addStringOption(option => 
+		option.setName('peli')
+			.setDescription('la película')
+			.setRequired(true))
+	.addStringOption(option => 
+		option.setName('link')
+			.setDescription('El Hipervínculo')
+			.setRequired(true)),
+	async execute(interaction) {
 
-				}
-				return
-			}
-			inputpeli = inputpeli.join(' ')
-
-			add_link(message,inputpeli, inputlink)
-		}
-	}
-};
-
-function add_link(message, inputpeli, inputlink){
-	if(!FilmManager.instance.exists(inputpeli)) {
-		FilmManager.instance.set_latest_film(null)
-		message.channel.send("La película no está en la lista.")
-	} else {
+		let inputpeli = interaction.options.getString('peli')
+		let inputlink = interaction.options.getString('link')
+		
+		if(!FilmManager.instance.exists(inputpeli)) {
+			await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
+			return
+		} 
+		
 		let peli = FilmManager.instance.get(inputpeli)
 		let actualizar = peli.link != null
-		FilmManager.instance.set_latest_film(inputpeli)
 		peli.link = inputlink
 		console.log("Actualizado link para peli " + inputpeli)
 
-		FilmManager.instance.save(
-			on_success = () => {
+		await FilmManager.instance.save().then( () => {
 				if(actualizar) {
-					message.channel.send("Enlace actualizado para la peli **" + inputpeli +  "**.")
+					interaction.reply("Enlace actualizado para la peli **" + inputpeli +  "**.")
 				} else {
-					message.channel.send("Enlace añadido a la peli **" + inputpeli +  "**.")
+					interaction.reply("Enlace añadido a la peli **" + inputpeli +  "**.")
 				}
-			},
-			on_error = () => {
-				message.channel.send("No se ha podido poner ese enlace a la peli.")
-			}
-		)
+			}).catch( () => {
+				interaction.reply({ content: "No se ha podido poner ese enlace a la peli.", ephemeral: true })
+			})
+			
 	}
 }

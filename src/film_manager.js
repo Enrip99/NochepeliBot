@@ -101,19 +101,22 @@ FilmManager.prototype.set_latest_film = function(film_name) {
  * @param {() => undefined} on_success A ejecutar si guarda correctamente
  * @param {() => undefined} on_error A ejecutar si no puede guardar
  */
-FilmManager.prototype.save = function(on_success = () => {}, on_error = () => {}) {
+FilmManager.prototype.save = function() {
     console.log("Guardando la lista...")
     lista = {
         "pelis": this.dict
     }
-    fs.writeFile(LISTA_LOCATION, JSON.stringify(lista), function(err) {
-        if (err) {
-            console.error(err)
-            on_error()
-        } else {
-            console.log("Guardada la lista en disco.")
-            on_success()
-        }
+    
+    return new Promise( (resolve, reject) => {
+        fs.writeFile(LISTA_LOCATION, JSON.stringify(lista), function(err) {
+            if (err) {
+                console.error(err)
+                reject()
+            } else {
+                console.log("Guardada la lista en disco.")
+                resolve()
+            }
+        })    
     })
 }
 
