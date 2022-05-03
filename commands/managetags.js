@@ -62,7 +62,7 @@ module.exports = {
 
 		FilmManager.instance.save().then( () => {
 			sentmsg.edit({
-                content: "Modificando los tags de la película " + inputpeli + ".\nTags actuales: " + peli.tags,
+                content: "Modificando los tags de la película **" + inputpeli + "**.",
                 components: [row]
             })
 		}).catch( () => {
