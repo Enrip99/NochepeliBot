@@ -22,30 +22,26 @@ for (const file of commandFiles) {
 
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
-  await FilmManager.instance.load(
-    on_success = () => {
-      client.user.setActivity('Type AYUDA for help', );
+  await FilmManager.instance.load().then( () => {
+    client.user.setActivity('Type AYUDA for help', );
 
-      client.channels.fetch(channelid).then(channel => {
-        console.log("Cargando en caché mensajes de reacción:")
-        let promarray = []
-        for (let peli of FilmManager.instance.iterate()){
-          console.log(peli.react_messages + " - " + peli.first_name)
-          promarray.push(channel.messages.fetch(peli.react_messages, true))
-        }
-        Promise.all(promarray).then( value => {
-          console.log('¡Listo!');
-          client.channels.fetch(channelid).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
-        })
+    client.channels.fetch(channelid).then(channel => {
+      console.log("Cargando en caché mensajes de reacción:")
+      let promarray = []
+      for (let peli of FilmManager.instance.iterate()){
+        console.log(peli.react_messages + " - " + peli.first_name)
+        promarray.push(channel.messages.fetch(peli.react_messages, true))
+      }
+      Promise.all(promarray).then( value => {
+        console.log('¡Listo!');
+        client.channels.fetch(channelid).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
       })
+    })
+  }).catch( () => {
+    console.error("No se ha podido cargar la lista")
+  })
+})
 
-
-    },
-    on_error = () => {
-      console.error("No se ha podido cargar la lista")
-    }
-  );
-});
 
 
 
