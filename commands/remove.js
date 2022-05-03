@@ -1,34 +1,32 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const utils = require('../src/utils.js')
 const { FilmManager } = require("../src/film_manager.js")
 
 module.exports = {
-	name: 'remove',
-	description: 'quita película de la lista',
-	execute(message, args, client) {
-		if (!args.length) {
-			message.channel.send("Escribe \"remove *nombre de la peícula*\" para quitarla de la lista.")
-		}
-		else {
-			let inputpeli = utils.parse_film_name(message.content)
+	data: new SlashCommandBuilder()
+		.setName('remove')
+		.setDescription('quita película de la lista')
+		.addStringOption(option => 
+			option.setName('peli')
+				.setDescription('la película a quitar')
+				.setRequired(true)),
+	async execute(interaction) {
+		let inputpeli = interaction.options.getString('peli')
 
-			if(!FilmManager.instance.exists(inputpeli)) {
-				FilmManager.instance.set_latest_film(null)
-				message.channel.send("La película no está en la lista.")
-			} else {
-				peli = FilmManager.instance.get(inputpeli)
-				FilmManager.instance.remove(inputpeli)
-				if(FilmManager.instance.latest_film === peli.sanitized_name) {
-					FilmManager.instance.set_latest_film(null)
-				}
-				FilmManager.instance.save(
-					on_success = () => {
-						message.channel.send("**" + peli.first_name + "** eliminada de la lista.")
-					},
-					on_error = () => {
-						message.channel.send("No se ha podido eliminar **" + peli.first_name + "** de la lista.")
-					}
-				)
-			}
+		if(!FilmManager.instance.exists(inputpeli)) {
+			await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
+			return
+		} 
+		
+		peli = FilmManager.instance.get(inputpeli)
+		FilmManager.instance.remove(inputpeli)
+		if(FilmManager.instance.latest_film === peli.sanitized_name) {
+			FilmManager.instance.set_latest_film(null)
 		}
+		await FilmManager.instance.save().then( () => {
+			interaction.reply("**" + peli.first_name + "** eliminada de la lista.")
+		}).catch( () => {
+			interaction.reply({ content: "No se ha podido eliminar **" + peli.first_name + "** de la lista.", ephemeral: true })
+		})
 	}
 };

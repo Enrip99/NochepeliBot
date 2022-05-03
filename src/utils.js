@@ -21,17 +21,6 @@ exports.sanitize_film_name = function(film_name) {
 
 
 /**
- * Extrae el nombre de la peli del mensaje, asumiendo que el mensaje está en formato
- * \<comando\> \<nombre de la peli\>
- */
-exports.parse_film_name = function(text) {
-    splitted_text = text.split(' ')
-    splitted_text.shift()
-    return splitted_text.join(' ')
-}
-
-
-/**
  * Devuelve un objeto User en base a un id. Es necesario pasar una referencia
  * al bot. Devuelve una promesa, por lo que hay que usar await o .then() para
  * obtener el objeto.
@@ -91,3 +80,21 @@ exports.shut_down = async function(client) {
     console.log('Apagando...');
     setTimeout(() => process.exit(), 200);
 }
+
+
+/**
+ *  Hey guys, did you know that in terms of male human and female Pokémon breeding, Vaporeon is the most compatible Pokémon for humans? Not only are they in the field egg group, which is mostly comprised of mammals, Vaporeon are an average of 3”03’ tall and 63.9 pounds, this means they’re large enough to be able handle human dicks, and with their impressive Base Stats for HP and access to Acid Armor, you can be rough with one. Due to their mostly water based biology, there’s no doubt in my mind that an aroused Vaporeon would be incredibly wet, so wet that you could easily have sex with one for hours without getting sore. They can also learn the moves Attract, Baby-Doll Eyes, Captivate, Charm, and Tail Whip, along with not having fur to hide nipples, so it’d be incredibly easy for one to get you in the mood. With their abilities Water Absorb and Hydration, they can easily recover from fatigue with enough water. No other Pokémon comes close to this level of compatibility. Also, fun fact, if you pull out enough, you can make your Vaporeon turn white. Vaporeon is literally built for human dick. Ungodly defense stat+high HP pool+Acid Armor means it can take cock all day, all shapes and sizes and still come for more
+ */
+exports.vaporeon_check = function(my_string) {
+	let regex = /\bvaporeon\b/gmi
+	let ret = false
+	if(my_string.match(regex)) {
+        ret = exports.random_from_list(
+			["jaja qué gracioso", "comedy heaven", "me parto los cojones /s", "la comedia fue hecha",
+			"Hey guys, did you know that in terms of human companionship, Flareon is objectively the most huggable Pokemon? While their maximum temperature is likely too much for most, they are capable of controlling it, so they can set themselves to the perfect temperature for you. Along with that, they have a lot of fluff, making them undeniably incredibly soft to touch. But that's not all, they have a very respectable special defense stat of 110, which means that they are likely very calm and resistant to emotional damage. Because of this, if you have a bad day, you can vent to it while hugging it, and it won't mind. It can make itself even more endearing with moves like Charm and Baby Doll Eyes, ensuring that you never have a prolonged bout of depression ever again.",
+			"lol", "ok", "ratio"]) 
+            //La cadena es verdaderosa
+	}
+	return ret
+}
+
