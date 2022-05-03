@@ -21,8 +21,9 @@ function Film(name, proposed_by_user) {
     this.link = null
     this.interested = [proposed_by_user]
     this.not_interested = []
-    this.react_messages = []
+    this.react_message = {"channel_id": null, "message_id": null}
     this.tags = []
+    this.tag_manager_message = {"channel_id": null, "message_id": null}
 }
 
 module.exports = { Film }

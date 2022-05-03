@@ -4,7 +4,8 @@ const { Client, Collection, Intents } = require('discord.js');
 const { owners, token, channelid } = require('./data/config.json');
 const FilmManager = require('./src/film_manager.js').FilmManager
 const utils = require('./src/utils.js')
-const interests = require('./src/interests.js')
+const interests = require('./src/interests.js');
+const { MessageActionRow, MessageButton, Application} = require('discord.js');
 
 
 // Create a new client instance
@@ -29,8 +30,8 @@ client.once('ready', async () => {
       console.log("Cargando en caché mensajes de reacción:")
       let promarray = []
       for (let peli of FilmManager.instance.iterate()){
-        console.log(peli.react_messages + " - " + peli.first_name)
-        promarray.push(channel.messages.fetch(peli.react_messages, true))
+        console.log(peli.react_message + " - " + peli.first_name)
+        // promarray.push(peli.react_message["channel_id"].messages.fetch(peli.react_message["message_id"], true))
       }
       Promise.all(promarray).then( value => {
         console.log('¡Listo!');
@@ -67,7 +68,7 @@ client.on('interactionCreate', async interaction => { //Botones
   let user = interaction.user
   for (let peli of FilmManager.instance.iterate()){
 
-    if (peli.react_messages.includes(interaction.message.id)){
+    if (peli.react_message["channel_id"] == interaction.channelId && peli.react_message["message_id"] == interaction.message.id){
 
       let inputpeli = peli.first_name
       let inputinteres = interaction.customId
@@ -97,6 +98,44 @@ client.on('interactionCreate', async interaction => { //Botones
           })
           break
       }
+    }
+    else if(peli.tag_manager_message["channel_id"] == interaction.channelId && peli.tag_manager_message["message_id"] == interaction.message.id){
+
+      interaction.deferUpdate()
+
+      let inputtag = interaction.customId
+
+      if(peli.tags.includes(inputtag)){
+        utils.remove_from_list(peli.tags, inputtag)
+      } else{
+        peli.tags.push(inputtag)
+      }
+
+      //copypasteado de maangetags.js. Iteramos de nuevo por todos los tags porque me da palo buscar un modo mejor.
+
+      const row = new MessageActionRow() 
+
+      for(let tag of FilmManager.instance.iterate_tags()){
+
+          let tag_button = new MessageButton()
+                          .setCustomId(tag.sanitized_name)
+                          .setLabel(tag.tag_name)
+
+          if(peli.tags.includes(tag.sanitized_name)){
+              tag_button.setStyle('SUCCESS')
+          }
+          else{
+              tag_button.setStyle('SECONDARY')
+          }
+
+          row.addComponents(tag_button)
+
+      }    
+
+      FilmManager.instance.save().then( () => {
+        interaction.message.edit({ components: [row]})
+      }).catch( (e) => console.log(e))
+      
     }
   }
 })

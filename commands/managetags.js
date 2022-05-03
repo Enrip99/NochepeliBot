@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton} = require('discord.js');
+const { MessageActionRow, MessageButton, Application} = require('discord.js');
 const { FilmManager } = require("../src/film_manager.js")
 
 //input: managetags <nombre peli>
@@ -23,11 +23,22 @@ module.exports = {
 
         peli = FilmManager.instance.get(inputpeli)
 
+
+        let old_channel_id = peli.tag_manager_message["channel_id"]
+        let old_message_id = peli.tag_manager_message["message_id"]
+        
+        if(old_message_id){
+            let channel = await interaction.client.channels.fetch(old_channel_id)
+            channel.messages.fetch(old_message_id)
+                .then(old_message => old_message.edit({ content: "~~" + old_message.content + "~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando `/managetags`).", components: []}))
+                .catch( (e) => {
+                    console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
+                })
+        }
+
         const row = new MessageActionRow()
 
         for(let tag of FilmManager.instance.iterate_tags()){
-
-            console.log(tag)
 
             let tag_button = new MessageButton()
                             .setCustomId(tag.sanitized_name)
@@ -44,12 +55,19 @@ module.exports = {
 
         }    
 
-        interaction.reply({
-            content: "Modificando los tags de la película " + inputpeli + ".\nTags actuales: " + peli.tags,
-            components: [row]
-        })
+		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
+		
+        peli.tag_manager_message["channel_id"] = sentmsg.channelId
+		peli.tag_manager_message["message_id"] = sentmsg.id
 
-        //TODO: hacer que los botones hagan algo lmao
+		FilmManager.instance.save().then( () => {
+			sentmsg.edit({
+                content: "Modificando los tags de la película " + inputpeli + ".\nTags actuales: " + peli.tags,
+                components: [row]
+            })
+		}).catch( () => {
+			sentmsg.edit("No se ha podido inicializar el manageador :/")
+		})
 
     }
 
