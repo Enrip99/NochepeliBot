@@ -6,7 +6,8 @@ const LISTA_LOCATION = "data/lista.json"
 
 
 FilmManager = function() {
-    this.dict = {}
+    this.pelis = {}
+    this.tags = {}
     this.latest_film = null
 }
 
@@ -22,12 +23,29 @@ FilmManager.instance = new FilmManager()
 FilmManager.prototype.add = function(film_name, proposed_by_user) {
     let sanitized_name = utils.sanitize_film_name(film_name)
     console.log("Añadida peli " + sanitized_name)
-    let ret = sanitized_name in this.dict
+    let ret = sanitized_name in this.pelis
     if(!ret) {
-        this.dict[sanitized_name] = new Film(film_name, proposed_by_user)
+        this.pelis[sanitized_name] = new Film(film_name, proposed_by_user)
     }
     return !ret
 }
+
+/**
+ * Añade un tag a la lista de tags
+ * @param {string} tag_name El nombre del tag, sin sanitizar
+ * @returns Si el tag ha sido añadido por primera vez
+ */
+
+FilmManager.prototype.add_tag = function(tag_name) {
+    let sanitized_name = utils.sanitize_film_name(tag_name)
+    console.log("Añadido tag " + sanitized_name)
+    let ret = sanitized_name in this.tags
+    if(!ret) {
+        this.tags[sanitized_name] = {"tag_name":tag_name, "sanitized_name":sanitized_name}
+    }
+    return !ret
+}
+
 
 /**
  * Quita una peli de la lista
@@ -37,7 +55,7 @@ FilmManager.prototype.add = function(film_name, proposed_by_user) {
 FilmManager.prototype.remove = function(film_name) {
     film_name = utils.sanitize_film_name(film_name)
     console.log("Eliminada peli " + film_name)
-    return delete this.dict[film_name]
+    return delete this.pelis[film_name]
 }
 
 
@@ -48,7 +66,7 @@ FilmManager.prototype.remove = function(film_name) {
  */
 FilmManager.prototype.get = function(film_name) {
     film_name = utils.sanitize_film_name(film_name)
-    return this.dict[film_name] ?? null
+    return this.pelis[film_name] ?? null
 }
 
 
@@ -59,8 +77,19 @@ FilmManager.prototype.get = function(film_name) {
  */
 FilmManager.prototype.exists = function(film_name) {
     film_name = utils.sanitize_film_name(film_name)
-    return film_name in this.dict
+    return film_name in this.pelis
 }
+
+/**
+ * Indica si hay un tag registrado con ese nombre
+ * @param {string} tag_name El nombre del tag, sin sanitizar
+ * @returns Si el tag existe o no
+ */
+ FilmManager.prototype.exists_tag = function(tag_name) {
+    tag_name = utils.sanitize_film_name(tag_name)
+    return tag_name in this.tags
+}
+
 
 
 /**
@@ -68,7 +97,7 @@ FilmManager.prototype.exists = function(film_name) {
  * @returns el número de pelis que hay en la lista
  */
 FilmManager.prototype.count = function() {
-    return Object.keys(this.dict).length
+    return Object.keys(this.pelis).length
 }
 
 
@@ -76,8 +105,8 @@ FilmManager.prototype.count = function() {
  * Itera por todas las pelis añadidas
  */
 FilmManager.prototype.iterate = function*() {
-    for(let film of Object.keys(this.dict)) {
-        yield this.dict[film]
+    for(let film of Object.keys(this.pelis)) {
+        yield this.pelis[film]
     }
 }
 
@@ -97,14 +126,14 @@ FilmManager.prototype.set_latest_film = function(film_name) {
 
 
 /**
- * Escribe las pelis del bot en ~La Lista~ para que sea persistente
- * @param {() => undefined} on_success A ejecutar si guarda correctamente
- * @param {() => undefined} on_error A ejecutar si no puede guardar
+ * Escribe las pelis del bot en ~La Lista~ para que sea persistente.
+ * Retorna una promesa.
  */
 FilmManager.prototype.save = function() {
     console.log("Guardando la lista...")
     lista = {
-        "pelis": this.dict
+        "pelis": this.pelis,
+        "tags": this.tags
     }
     
     return new Promise( (resolve, reject) => {
@@ -136,7 +165,7 @@ FilmManager.prototype.load = function(on_success = () => {}, on_error = () => {}
         } else {
             try {
                 parsed_data = JSON.parse(data)
-                this_instance.dict = parsed_data.pelis
+                this_instance.pelis = parsed_data.pelis
                 console.log("Cargada la lista desde disco.")
                 on_success()
             } catch(e) {

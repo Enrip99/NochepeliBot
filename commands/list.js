@@ -27,8 +27,6 @@ module.exports = {
 			tosend += listmsgs[j] += values[j].username + "**"
 		}
 		
-		console.log(interaction)
-		console.log(tosend)
 		await interaction.reply(tosend)
 	}
 }

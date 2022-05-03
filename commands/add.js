@@ -29,8 +29,6 @@ module.exports = {
 				.setRequired(true)),
 	async execute(interaction) {
 
-		console.log(interaction)
-
 		let inputpeli = interaction.options.getString('peli')
 
 		vibe_check = utils.vaporeon_check(inputpeli) //cadena verdaderosa o false
