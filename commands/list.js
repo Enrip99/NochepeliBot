@@ -31,6 +31,5 @@ module.exports = {
 		let embeds = utils.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, DESCRIPTION_LIMIT)
 
 		await interaction.reply({ embeds: [embeds[0]] })
-
 	}
 }

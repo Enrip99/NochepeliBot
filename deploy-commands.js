@@ -18,3 +18,9 @@ for (const file of commandFiles) {
 rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
 	.then(() => console.log('Successfully registered application commands.'))
 	.catch(console.error);
+
+
+// Registrar comandos globalmente (tarda cerca de una hora):
+// rest.put(Routes.applicationCommands(clientId), { body: commands })
+// 	.then(() => console.log('Successfully registered global application commands.'))
+// 	.catch(console.error);

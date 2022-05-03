@@ -12,6 +12,7 @@ const utils = require("./utils.js")
  * @field `link` — Link para descargar la peli. Puede ser `null`.
  * @field `interested` — Lista de ids de usuarios particularmente interesados
  * @field `not_interested` — Lista de ids de usuarios no interesados
+ * @field `tags` — Tags de la peli vamos a ver es autoevidente
  */
 function Film(name, proposed_by_user) {
     this.first_name = name.trim()
@@ -20,7 +21,9 @@ function Film(name, proposed_by_user) {
     this.link = null
     this.interested = [proposed_by_user]
     this.not_interested = []
-    this.react_messages = []
+    this.react_message = {"channel_id": null, "message_id": null}
+    this.tags = []
+    this.tag_manager_message = {"channel_id": null, "message_id": null}
 }
 
 module.exports = { Film }
