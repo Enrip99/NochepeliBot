@@ -68,8 +68,6 @@ client.on('interactionCreate', async interaction => {
 client.on('interactionCreate', async interaction => { //Botones
 	if (!interaction.isButton()) return;
 
-  console.log(interaction)
-
   let user = interaction.user
   for (let peli of FilmManager.instance.iterate()){
 
