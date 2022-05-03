@@ -1,13 +1,18 @@
 const config = require('../data/config.json')
 
 
-//TODO: Igual quitar aquí la puntuación del título???
 /**
  * Función auxiliar para estandarizar la sanitización de los nombres de las pelis
  */
 exports.sanitize_film_name = function(film_name) {
-    let regex = /(\W*)(\w*)*?/gm
-    let ret = film_name.trim().replace(regex, "$2").toLowerCase()
+    let diacritic_regex = /\p{Diacritic}/gu
+    let alphanumeric_regex = /(\W*)(\w*)*?/gm
+    let ret = film_name
+        .trim()
+        .normalize("NFD")
+        .replace(diacritic_regex, "")
+        .replace(alphanumeric_regex, "$2")
+        .toLowerCase()
     if(!ret) {
         ret = "_"
     }
