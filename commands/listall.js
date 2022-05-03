@@ -7,8 +7,8 @@ const DESCRIPTION_LIMIT = 4096
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('list')
-		.setDescription('lista todas las pelis por páginas'),
+		.setName('listall')
+		.setDescription('lista todas las páginas de todas las pelis'),
 	async execute(interaction) {
 		
 		if (!FilmManager.instance.count()) {
@@ -30,7 +30,7 @@ module.exports = {
 
 		let embeds = utils.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, DESCRIPTION_LIMIT)
 
-		await interaction.reply({ embeds: [embeds[0]] })
+		await interaction.reply({ embeds: embeds })
 
 	}
 }

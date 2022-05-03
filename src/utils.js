@@ -1,4 +1,5 @@
 const config = require('../data/config.json')
+const { MessageEmbed } = require('discord.js')
 
 
 /**
@@ -79,6 +80,42 @@ exports.shut_down = async function(client) {
     channel.send(exports.random_from_list(['adios', 'buenas noches', 'bona nit', 'que os jodan']));
     console.log('Apagando...');
     setTimeout(() => process.exit(), 200);
+}
+
+
+/**
+ * Crea ~Empotrados~ que son listas de los elementos que se pasan por parámetro, respetando el límite de caracteres dado.
+ * No se puede meter más de 10 ~Empotrados~ en el mismo mensaje
+ * @param {string} title El título que va a tener cada ~Empotrado~
+ * @param {list[string]} list_of_items Lista de elementos que se van a repartir en los ~Empotrados~ que se van a crear
+ */
+exports.create_embeds_for_list = function(title, list_of_items, character_limit) {
+    let pages = []
+    let current_page = 0
+    pages[current_page] = ""
+    for(let msg of list_of_items) {
+        if(pages[current_page].length + msg.length > character_limit) {
+            current_page += 1
+            pages[current_page] = ""
+        }
+        if(msg.length > character_limit) {
+            console.warn("A message has been skipped because it's too long")
+            continue
+        }
+        pages[current_page] += msg
+    }
+    let embeds = []
+    current_page = 0
+    for(let page of pages) {
+        current_page += 1
+        embeds.push(new MessageEmbed()
+        .setTitle(title + " (" + current_page + "/" + pages.length + ")")
+        .setDescription(page))
+    }
+    if(embeds.length > 10) {
+        console.warn("Se han creado más de 10 ~Empotrados~ de golpe. No se pueden meter más de 10 ~Empotrados~ en el mismo mensaje")
+    }
+    return embeds
 }
 
 
