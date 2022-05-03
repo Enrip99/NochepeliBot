@@ -83,3 +83,8 @@ client.on('messageReactionAdd', async (reaction, author) => {
 
 
 client.login(config.token);
+
+
+for(let p of ["SIGQUIT", "SIGINT", "SIGTERM", "SIGBREAK", "SIGHUP", "exit"]) {
+  process.on(p, () => utils.shut_down(client))
+}

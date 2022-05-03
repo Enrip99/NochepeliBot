@@ -1,3 +1,5 @@
+const config = require('../data/config.json')
+
 
 //TODO: Igual quitar aquí la puntuación del título???
 /**
@@ -53,4 +55,13 @@ exports.remove_from_list = function(list, item) {
  */
 exports.random_from_list = function(list) {
     return list[Math.floor(Math.random() * list.length)]
+}
+
+
+exports.shut_down = async function(client) {
+    // TODO Con la nueva versión de la API, process.exit() tendría que ir después de esperar al mensaje (await o then)
+    let channel = await client.channels.fetch(config.channelid)
+    channel.send(exports.random_from_list(['adios', 'buenas noches', 'bona nit', 'que os jodan']));
+    console.log('Apagando...');
+    setTimeout(() => process.exit(), 200);
 }

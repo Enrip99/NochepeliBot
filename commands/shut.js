@@ -8,9 +8,7 @@ module.exports = {
 		if (args.length === 1 && (args[0].toLowerCase() === "off" || args[0].toLowerCase() === "down")) {
 
 			if(config.owners.includes(message.author.id)) {
-				message.channel.send(utils.random_from_list(['adios', 'buenas noches', 'bona nit', 'que os jodan']));
-				console.log('Apagando...');
-				setTimeout(() => process.exit(), 200);
+				utils.shut_down(client)
 			}
 			else {
 				message.channel.send('Solo puedo apagarme por orden de los propietarios del bot.')

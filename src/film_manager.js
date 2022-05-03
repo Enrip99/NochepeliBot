@@ -98,8 +98,8 @@ FilmManager.prototype.set_latest_film = function(film_name) {
 
 /**
  * Escribe las pelis del bot en ~La Lista~ para que sea persistente
- * @param {() => undefined} on_success A ejecutar si guarda correctamente
- * @param {() => undefined} on_error A ejecutar si no puede guardar
+ * @param {() => void} on_success A ejecutar si guarda correctamente
+ * @param {() => void} on_error A ejecutar si no puede guardar
  */
 FilmManager.prototype.save = function(on_success = () => {}, on_error = () => {}) {
     console.log("Guardando la lista...")
