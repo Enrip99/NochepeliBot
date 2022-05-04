@@ -84,42 +84,6 @@ exports.shut_down = async function(client) {
 
 
 /**
- * Crea ~Empotrados~ que son listas de los elementos que se pasan por parámetro, respetando el límite de caracteres dado.
- * No se puede meter más de 10 ~Empotrados~ en el mismo mensaje
- * @param {string} title El título que va a tener cada ~Empotrado~
- * @param {list[string]} list_of_items Lista de elementos que se van a repartir en los ~Empotrados~ que se van a crear
- */
-exports.create_embeds_for_list = function(title, list_of_items, character_limit) {
-    let pages = []
-    let current_page = 0
-    pages[current_page] = ""
-    for(let msg of list_of_items) {
-        if(pages[current_page].length + msg.length > character_limit) {
-            current_page += 1
-            pages[current_page] = ""
-        }
-        if(msg.length > character_limit) {
-            console.warn("A message has been skipped because it's too long")
-            continue
-        }
-        pages[current_page] += msg
-    }
-    let embeds = []
-    current_page = 0
-    for(let page of pages) {
-        current_page += 1
-        embeds.push(new MessageEmbed()
-        .setTitle(title + " (" + current_page + "/" + pages.length + ")")
-        .setDescription(page))
-    }
-    if(embeds.length > 10) {
-        console.warn("Se han creado más de 10 ~Empotrados~ de golpe. No se pueden meter más de 10 ~Empotrados~ en el mismo mensaje")
-    }
-    return embeds
-}
-
-
-/**
  *  Hey guys, did you know that in terms of male human and female Pokémon breeding, Vaporeon is the most compatible Pokémon for humans? Not only are they in the field egg group, which is mostly comprised of mammals, Vaporeon are an average of 3”03’ tall and 63.9 pounds, this means they’re large enough to be able handle human dicks, and with their impressive Base Stats for HP and access to Acid Armor, you can be rough with one. Due to their mostly water based biology, there’s no doubt in my mind that an aroused Vaporeon would be incredibly wet, so wet that you could easily have sex with one for hours without getting sore. They can also learn the moves Attract, Baby-Doll Eyes, Captivate, Charm, and Tail Whip, along with not having fur to hide nipples, so it’d be incredibly easy for one to get you in the mood. With their abilities Water Absorb and Hydration, they can easily recover from fatigue with enough water. No other Pokémon comes close to this level of compatibility. Also, fun fact, if you pull out enough, you can make your Vaporeon turn white. Vaporeon is literally built for human dick. Ungodly defense stat+high HP pool+Acid Armor means it can take cock all day, all shapes and sizes and still come for more
  */
 exports.vaporeon_check = function(my_string) {

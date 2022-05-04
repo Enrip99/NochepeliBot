@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton, Application} = require('discord.js');
+const { MessageActionRow, MessageButton } = require('discord.js');
 const { FilmManager } = require("../src/film_manager.js")
+const { Message } = require("../src/message.js")
 
 //input: managetags <nombre peli>
 
@@ -21,19 +22,16 @@ module.exports = {
             return
         } 
 
-        peli = FilmManager.instance.get(inputpeli)
+        let peli = FilmManager.instance.get(inputpeli)
 
-
-        let old_channel_id = peli.tag_manager_message["channel_id"]
-        let old_message_id = peli.tag_manager_message["message_id"]
+        let old_messaje_obj = peli.tag_manager_message
         
-        if(old_message_id){
-            let channel = await interaction.client.channels.fetch(old_channel_id)
-            channel.messages.fetch(old_message_id)
-                .then(old_message => old_message.edit({ content: "~~" + old_message.content + "~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando `/managetags`).", components: []}))
-                .catch( (e) => {
-                    console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
-                })
+        if(old_message_obj) {
+            old_messaje_obj.fetch(interaction.client)
+            .then(old_message => old_message.edit({ content: "~~" + old_message.content + "~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando `/managetags`).", components: []}))
+            .catch( (e) => {
+                console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
+            })
         }
 
         const row = new MessageActionRow()
@@ -57,8 +55,7 @@ module.exports = {
 
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		
-        peli.tag_manager_message["channel_id"] = sentmsg.channelId
-		peli.tag_manager_message["message_id"] = sentmsg.id
+        peli.tag_manager_message = Message.from(sentmsg)
 
 		FilmManager.instance.save().then( () => {
 			sentmsg.edit({

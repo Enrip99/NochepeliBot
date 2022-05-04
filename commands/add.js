@@ -1,6 +1,7 @@
 const { MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../src/film_manager.js")
+const { Message } = require("../src/message.js")
 const utils = require('../src/utils.js')
 
 const row = new MessageActionRow()
@@ -72,8 +73,7 @@ module.exports = {
 
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		
-		pelipost.react_message['channel_id'] = sentmsg.channelId
-		pelipost.react_message['message_id'] = sentmsg.id
+		pelipost.react_message = Message.from(sentmsg)
 		FilmManager.instance.save().then( () => {
 			sentmsg.edit({ content: "**" + inputpeli + "** añadida a la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.", components: [row] })
 		}).catch( () => {

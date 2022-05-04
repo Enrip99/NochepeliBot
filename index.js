@@ -2,10 +2,11 @@
 const fs = require('node:fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { owners, token, channelid } = require('./data/config.json');
-const FilmManager = require('./src/film_manager.js').FilmManager
+const { FilmManager } = require('./src/film_manager.js')
+const { Message } = require('./src/message.js')
 const utils = require('./src/utils.js')
 const interests = require('./src/interests.js');
-const { MessageActionRow, MessageButton, Application} = require('discord.js');
+const { MessageActionRow, MessageButton } = require('discord.js');
 
 
 // Create a new client instance
@@ -23,7 +24,9 @@ for (const file of commandFiles) {
 
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
-  await FilmManager.instance.load().then( () => {
+  try {
+    FilmManager.instance.client = client
+    await FilmManager.instance.load()
     client.user.setActivity('Type AYUDA for help', );
 
     client.channels.fetch(channelid).then(channel => {
@@ -38,9 +41,9 @@ client.once('ready', async () => {
         client.channels.fetch(channelid).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
       })
     })
-  }).catch( () => {
+  } catch(e) {
     console.error("No se ha podido cargar la lista")
-  })
+  }
 })
 
 
@@ -66,9 +69,10 @@ client.on('interactionCreate', async interaction => { //Botones
 	if (!interaction.isButton()) return;
 
   let user = interaction.user
+  let interaction_msg = Message.from(interaction.message)
   for (let peli of FilmManager.instance.iterate()){
 
-    if (peli.react_message["channel_id"] == interaction.channelId && peli.react_message["message_id"] == interaction.message.id){
+    if(peli.react_message && peli.react_message.equals(interaction_msg)) {
 
       let inputpeli = peli.first_name
       let inputinteres = interaction.customId
@@ -99,7 +103,7 @@ client.on('interactionCreate', async interaction => { //Botones
           break
       }
     }
-    else if(peli.tag_manager_message["channel_id"] == interaction.channelId && peli.tag_manager_message["message_id"] == interaction.message.id){
+    else if(peli.tag_manager_message && peli.tag_manager_message.equals(interaction_msg)){
 
       interaction.deferUpdate()
 

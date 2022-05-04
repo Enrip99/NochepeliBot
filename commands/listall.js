@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { Message } = require('../src/message.js');
 const { FilmManager } = require('../src/film_manager.js');
 const utils = require('../src/utils.js');
 
@@ -16,21 +16,12 @@ module.exports = {
 			return
 		} 
 
-		let listmsg = []
-		await utils.parallel_for(FilmManager.instance.iterate(), async peli => {
-			let msg = "\n**" + peli.first_name + "**\n"
-			msg += "☑️ " + peli.interested.length + " · ❎ " + peli.not_interested.length
-			if(peli.not_interested.length - 3 >= peli.interested.length) {
-				msg += " · ratio"
-			}
-			let user = await utils.get_user_by_id(interaction.client, peli.proposed_by_user)
-			msg += " · Propuesta por **" + user.username + "**\n"
-			listmsg.push(msg)
-		})
+		let embeds = await FilmManager.instance.list_renderer.generate_embeds(interaction.client)
+		let msg = await interaction.reply({ embeds: embeds, fetchReply: true })
 
-		let embeds = utils.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, DESCRIPTION_LIMIT)
+		FilmManager.instance.list_renderer.pinned_message = Message.from(msg)
+		FilmManager.instance.save()		
 
-		await interaction.reply({ embeds: embeds })
-
+		
 	}
 }
