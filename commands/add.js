@@ -68,7 +68,6 @@ module.exports = {
 		}
 
 		FilmManager.instance.add(inputpeli, interaction.user.id)
-		FilmManager.instance.set_latest_film(inputpeli)
 		let pelipost = FilmManager.instance.get(inputpeli)
 
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })

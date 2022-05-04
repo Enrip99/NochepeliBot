@@ -49,7 +49,7 @@ class FilmManager {
         this.list_renderer.update(this.client)
         return ret
     }
-
+    
 
     /**
      * Añade un tag a la lista de tags
@@ -67,6 +67,7 @@ class FilmManager {
         return !ret
     }
 
+
     /**
      * Comprueba qué películas tienen asociadas cierto tag
      * @param {string} tag_name El nombre del tag, sin sanitizar
@@ -83,6 +84,7 @@ class FilmManager {
         this.list_renderer.update(this.client)
         return ret
     }
+
 
     /**
      * Quita un tag de la lista de tags
@@ -189,20 +191,6 @@ class FilmManager {
     *iterate_tags() {
         for(let tag of Object.keys(this.tags)) {
             yield this.tags[tag]
-        }
-    }
-
-
-    /**
-     * Indica la peli dada como la última de la que se ha hablado, para el propósito de algunos comandos
-     * @param {string} film_name El nombre de la peli, sin sanitizar
-     */
-    set_latest_film(film_name) {
-        film_name = film_name ? utils.sanitize_film_name(film_name) : null
-        if(film_name && this.exists(film_name)) {
-            this.latest_film = film_name
-        } else {
-            this.latest_film = null
         }
     }
 

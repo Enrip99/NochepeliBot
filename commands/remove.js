@@ -20,9 +20,6 @@ module.exports = {
 		
 		peli = FilmManager.instance.get(inputpeli)
 		FilmManager.instance.remove(inputpeli)
-		if(FilmManager.instance.latest_film === peli.sanitized_name) {
-			FilmManager.instance.set_latest_film(null)
-		}
 		await FilmManager.instance.save().then( () => {
 			interaction.reply("**" + peli.first_name + "** eliminada de la lista.")
 		}).catch( () => {

@@ -25,7 +25,6 @@ module.exports = {
 		let peli = FilmManager.instance.get(inputpeli)
 
 		if(!FilmManager.instance.exists(inputpeli)) {
-			FilmManager.instance.set_latest_film(null)
 			interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
 			return
 		}

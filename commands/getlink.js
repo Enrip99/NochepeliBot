@@ -19,7 +19,6 @@ module.exports = {
 		} 
 
 		let peli = FilmManager.instance.get(inputpeli)
-		FilmManager.instance.set_latest_film(inputpeli)
 		if(peli.link == null) {
 			interaction.reply({ content: "**" + inputpeli + "** no tiene enlace.", ephemeral: true })
 		} else {
