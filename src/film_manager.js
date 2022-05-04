@@ -240,7 +240,7 @@ class FilmManager {
         }
         
         return new Promise((resolve, reject) => {
-            fs.writeFile(LISTA_LOCATION, JSON.stringify(lista), function(err) {
+            fs.writeFile(LISTA_LOCATION, JSON.stringify(lista, null, 4), function(err) {
                 if (err) {
                     console.error(err)
                     reject()
