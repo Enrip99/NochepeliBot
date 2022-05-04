@@ -1,11 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageEmbed } = require('discord.js');
 const { FilmManager } = require('../src/film_manager.js');
 const utils = require('../src/utils.js');
+
+const DESCRIPTION_LIMIT = 4096
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('list')
-		.setDescription('lista todas las pelis'),
+		.setDescription('lista todas las pelis por páginas'),
 	async execute(interaction) {
 		
 		if (!FilmManager.instance.count()) {
@@ -14,7 +17,6 @@ module.exports = {
 		} 
 
 		let listmsg = []
-		let tosend = ""
 		await utils.parallel_for(FilmManager.instance.iterate(), async peli => {
 			let msg = "\n**" + peli.first_name + "**\n"
 			msg += "☑️ " + peli.interested.length + " · ❎ " + peli.not_interested.length
@@ -25,10 +27,9 @@ module.exports = {
 			msg += " · Propuesta por **" + user.username + "**\n"
 			listmsg.push(msg)
 		})
-		for(let msg of listmsg) {
-			tosend += msg
-		}
-		await interaction.reply(tosend)
 
+		let embeds = utils.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, DESCRIPTION_LIMIT)
+
+		await interaction.reply({ embeds: [embeds[0]] })
 	}
 }
