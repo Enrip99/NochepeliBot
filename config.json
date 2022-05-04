@@ -1,5 +1,7 @@
 {
-  "owners": ["","",""],
+  "owners": ["", "", ""],
   "token": "",
+	"clientId": "",
+	"guildId": "",
   "channelid": ""
 }

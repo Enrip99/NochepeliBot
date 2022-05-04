@@ -1,43 +1,31 @@
-const utils = require('../src/utils.js')
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../src/film_manager.js")
 
 module.exports = {
-	name: 'removelink',
-	description: 'quita el enlace de una película en la lista',
-	execute(message, args, client) {
-		if (!args.length) {
-			if(FilmManager.instance.latest_film) {
-				remove_link_for_film(message, FilmManager.instance.latest_film)
-			} 
-			else {
-				message.channel.send("Escribe \"removelink *nombre de la peícula*\" para quitarle su enlace.")
-			}
-		}
-		else {
-			let inputpeli = utils.parse_film_name(message.content)
+	data: new SlashCommandBuilder()
+	.setName('removelink')
+	.setDescription('quita el enlace de una película de la lista')
+	.addStringOption(option => 
+		option.setName('peli')
+			.setDescription('la película')
+			.setRequired(true)),
+	async execute(interaction) {
 
-			if(!FilmManager.instance.exists(inputpeli)) {
-				FilmManager.instance.set_latest_film(null)
-				message.channel.send("La película no está en la lista.")
-			} else {
-				FilmManager.instance.set_latest_film(inputpeli)
-				remove_link_for_film(message, inputpeli)
-			}
-		}
+		let inputpeli = interaction.options.getString('peli')
+
+		if(!FilmManager.instance.exists(inputpeli)) {
+			await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
+			return
+		} 
+		
+		let peli = FilmManager.instance.get(inputpeli)
+		peli.link = null
+		console.log("Eliminado link de " + inputpeli)
+		await FilmManager.instance.save().then( () => {
+			interaction.reply("Eliminado el enalce de **" + inputpeli + "**.")
+		}).catch(() => {
+			interaction.reply("No se ha podido eliminar el enlace de **" + inputpeli + "** ")
+		})
+
 	}
 };
-
-
-function remove_link_for_film(message, inputpeli) {
-	let peli = FilmManager.instance.get(inputpeli)
-	peli.link = null
-	console.log("Eliminado link de " + inputpeli)
-	FilmManager.instance.save(
-		on_success = () => {
-			message.channel.send("Eliminado el enalce de **" + inputpeli + "**.")
-		},
-		on_error = () => {
-			message.channel.send("No se ha podido eliminar el enlace de **" + inputpeli + "** ")
-		}
-	)
-}

@@ -1,7 +1,10 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 module.exports = {
-	name: 'ayuda',
-	description: 'help',
-	execute(message, args, client) {
+	data: new SlashCommandBuilder()
+		.setName('ayuda')
+		.setDescription('help'),
+	async execute(interaction) {
 		let msg = "Escribe **list** para ver la lista de películas.\n"
 		+ "Escribe **add**  ***nombre de la peli*** para añadirla a la lista.\n"
 		+ "Escribe **remove**  ***nombre de la peli*** para quitarla de la lista.\n\n"
@@ -16,11 +19,9 @@ module.exports = {
 		+ "Escribe **whowants**  **nombre de la peli** para ver todos los interesados y desinteresados de una película.\n\n"
 		+ "Puedes no escribir el nombre de una película, y el bot realizará la acción sobre la última película con la que se haya interaccionado.\n\n"
 		+ "Otros comandos varios:\n"
-		+ "**shut down**/**shut off** - Apaga el bot\n"
 		+ "**ping** - Mide el tiempo de respuesta\n"
-		+ "**avatar** - Obtén tu foto de perfil. Puedes mencionar a varios usuarios para obtener las suyas.\n"
 		+ "**ayuda** - Estás leyendo esto ahora mismo."
 
-		message.channel.send(msg)
+		await interaction.reply({ content: msg, ephemeral: true })
 	},
 };
