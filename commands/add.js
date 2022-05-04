@@ -4,20 +4,20 @@ const { FilmManager } = require("../src/film_manager.js")
 const utils = require('../src/utils.js')
 
 const row = new MessageActionRow()
-.addComponents(
-	new MessageButton()
-		.setCustomId('1')
-		.setLabel('Positivo')
-		.setStyle('SUCCESS'),
-	new MessageButton()
-		.setCustomId('0')
-		.setLabel('Neutral')
-		.setStyle('PRIMARY'),
-	new MessageButton()
-		.setCustomId('-1')
-		.setLabel('Negativo')
-		.setStyle('DANGER'),
-)
+				.addComponents(
+					new MessageButton()
+						.setCustomId('1')
+						.setLabel('Positivo')
+						.setStyle('SUCCESS'),
+					new MessageButton()
+						.setCustomId('0')
+						.setLabel('Neutral')
+						.setStyle('PRIMARY'),
+					new MessageButton()
+						.setCustomId('-1')
+						.setLabel('Negativo')
+						.setStyle('DANGER'),
+				)
 
 module.exports = {
 	data: new SlashCommandBuilder()

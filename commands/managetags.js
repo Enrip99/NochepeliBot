@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, Application} = require('discord.js');
+const { Film } = require('../src/film.js');
 const { FilmManager } = require("../src/film_manager.js")
 
 //input: managetags <nombre peli>
@@ -36,9 +37,20 @@ module.exports = {
                 })
         }
 
-        const row = new MessageActionRow()
+        let counter = 0
+
+        const rows = []
+        
+        let row = new MessageActionRow()
 
         for(let tag of FilmManager.instance.iterate_tags()){
+
+            counter += 1
+            if(counter > 5){
+                counter -= 5
+                rows.push(row)
+                row = new MessageActionRow()
+            }
 
             let tag_button = new MessageButton()
                             .setCustomId(tag.sanitized_name)
@@ -54,6 +66,7 @@ module.exports = {
             row.addComponents(tag_button)
 
         }    
+        rows.push(row)
 
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		
@@ -63,7 +76,7 @@ module.exports = {
 		FilmManager.instance.save().then( () => {
 			sentmsg.edit({
                 content: "Modificando los tags de la película **" + inputpeli + "**.",
-                components: [row]
+                components: rows
             })
 		}).catch( () => {
 			sentmsg.edit("No se ha podido inicializar el manageador :/")

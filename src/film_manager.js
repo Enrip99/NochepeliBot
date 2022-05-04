@@ -61,59 +61,39 @@ FilmManager.prototype.add_tag = function(tag_name) {
 /**
  * Comprueba qué películas tienen asociadas cierto tag
  * @param {string} tag_name El nombre del tag, sin sanitizar
- * @returns Una lista de nombres sanitizados de películas con dicho tag (posiblemente vacía)
+ * @returns Una lista de películas (Film) con dicho tag (posiblemente vacía)
  */
 
  FilmManager.prototype.films_with_tag = function(tag_name) {
     sanitized_tag_name = utils.sanitize_film_name(tag_name)
     ret = []
-    Object.keys(this.pelis).forEach(sanitized_film_name => {
-        if(this.pelis[sanitized_film_name].tags.includes(sanitized_tag_name)) {
-            ret.push(sanitized_film_name)
+
+    for(let peli of Object.values(this.pelis)){
+        if(peli.tags.includes(sanitized_tag_name)){
+            ret.push(peli)
         }
-    });
+    }
+    
     return ret
 }
 
 /**
  * Quita un tag de la lista de tags
  * @param {string} tag_name El nombre del tag, sin sanitizar
- * @returns Si el tag existía antes de quitarlo. Si no se puede borrar, retorna -1.
+ * @returns Si el tag existía antes de quitarlo.
  */
  FilmManager.prototype.remove_tag = function(tag_name) {
-    tag_name = utils.sanitize_film_name(tag_name)
-    films_with_tag = this.films_with_tag(tag_name)
-    if(films_with_tag.length == 0) {
-        console.log("Eliminado tag " + tag_name)
-        return delete this.tags[tag_name]
+
+    sanitized_tag_name = utils.sanitize_film_name(tag_name)
+    films_with_tag = this.films_with_tag(sanitized_tag_name)
+
+    for(let film of films_with_tag){
+        utils.remove_from_list(film.tags, sanitized_tag_name)
     }
-    else {
-        console.log("No se puede eliminar el tag " + tag_name + ". Las siguientes películas lo tienen: " + films_with_tag)
-        return -1
-    }   
-}
-
-/**
- * Añade un tag a una película
- * @param {string} film_name El nombre de la peli, sin sanitizar
- * @param {string} sanitized_tag_name El nombre del tag, sanitizado
- * @returns Si el tag ha sido añadido por primera vez
- */
-
- FilmManager.prototype.add_tag_to_film = function(film_name, sanitized_tag_name) {
     
-    let sanitized_film_name = utils.sanitize_film_name(film_name)
-    console.log("Añadido tag " + sanitized_tag_name + " a la película " + sanitized_film_name)
-    let ret = this.pelis[sanitized_film_name].tags.includes(sanitized_tag_name)
-    if(!ret) {
-        this.pelis[sanitized_film_name].tags.push(sanitized_tag_name)
-    }
-    return !ret
+    console.log("Eliminado tag " + sanitized_tag_name)
+    return delete this.tags[sanitized_tag_name]
 }
-
-
-
-
 
 /**
  * Devuelve una peli, si existe. En caso contrario devuelve `null`
@@ -166,6 +146,13 @@ FilmManager.prototype.count = function() {
     return Object.keys(this.pelis).length
 }
 
+/**
+ * Devuelve el número de tags que hay en la lista de tags
+ * @returns el número de tags que hay en la lista de tags
+ */
+ FilmManager.prototype.count_tags = function() {
+    return Object.keys(this.tags).length
+}
 
 /**
  * Itera por todas las pelis añadidas
