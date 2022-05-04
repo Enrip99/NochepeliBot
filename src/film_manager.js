@@ -1,6 +1,7 @@
 const fs = require('fs');
 const utils = require('./utils.js')
-const { Film } = require ('./film.js')
+const { Film } = require ('./film.js');
+const { TeamMemberMembershipState } = require('discord-api-types/v10');
 
 const LISTA_LOCATION = "data/lista.json"
 
@@ -39,6 +40,31 @@ FilmManager.prototype.add = function(film_name, proposed_by_user) {
     film_name = utils.sanitize_film_name(film_name)
     console.log("Eliminada peli " + film_name)
     return delete this.pelis[film_name]
+}
+
+/**
+ * Edita el nombre de una peli de la lista
+ * @param {string} old_name El nombre de la peli, sin sanitizar
+ * @param {string} new_name El nuevo nombre de la peli, sin sanitizar
+ * @returns Si la película existía o el nuevo nombre ya existe
+ */
+ FilmManager.prototype.edit_name = function(old_name, new_name) {
+    let old_sanitized_name = utils.sanitize_film_name(old_name)
+    let new_sanitized_name = utils.sanitize_film_name(new_name)
+    console.log("La peli " + old_sanitized_name + " ahora se llama " + new_sanitized_name)
+
+    if(!(old_sanitized_name in this.pelis) || (new_sanitized_name in this.pelis)){
+        return false
+    }
+    old_peli = this.pelis[old_sanitized_name]
+
+    old_peli.first_name = new_name
+    old_peli.sanitized_name = new_sanitized_name
+
+    this.pelis[new_sanitized_name] = old_peli
+    delete this.pelis[old_sanitized_name]
+    return true
+
 }
 
 
