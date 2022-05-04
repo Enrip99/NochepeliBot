@@ -25,8 +25,12 @@ class ListRenderer {
     async generate_embeds(client) {
         let listmsg = []
         await utils.parallel_for(this.film_manager.iterate(), async peli => {
-            let msg = "\n**" + peli.first_name + "**\n"
-            msg += "☑️ " + peli.interested.length + " · ❎ " + peli.not_interested.length
+            let msg = "\n**" + peli.first_name + "**"
+            let tag_names = this.display_tag_names(peli)
+            if(tag_names.length != "") {
+                msg += " (" + tag_names + ")"
+            }
+            msg += "\n\☑️ " + peli.interested.length + " · ❎ " + peli.not_interested.length
             if(peli.not_interested.length - 3 >= peli.interested.length) {
                 msg += " · ratio"
             }
@@ -75,6 +79,11 @@ class ListRenderer {
             console.warn("Se han creado más de 10 ~Empotrados~ de golpe. No se pueden meter más de 10 ~Empotrados~ en el mismo mensaje")
         }
         return embeds
+    }
+
+
+    display_tag_names(peli) {
+        return peli.tags.join(", ")
     }
 
 

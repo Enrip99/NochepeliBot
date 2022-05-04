@@ -1,4 +1,5 @@
 const utils = require("./utils.js")
+const { Message } = require("./message.js")
 
 /**
  * Objeto que representa una peli
@@ -46,10 +47,10 @@ class Film {
             proposed_by_user: this.proposed_by_user,
             link: this.link,
             interested: this.interested,
-            not_interested: [],
-            tags: [],
-            react_message: null,
-            tag_manager_message: null
+            not_interested: this.not_interested,
+            tags: this.tags,
+            react_message: this.react_message,
+            tag_manager_message: this.tag_manager_message
         }
     }
 
@@ -64,6 +65,8 @@ class Film {
             for(let key in data) {
                 ret[key] = data[key]
             }
+            ret.react_message = Message.deserialize(data.react_message)
+            ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
 
         } catch(e) {
             console.error("Error al deserializar: " + e + " (JSON: " + json + ")")

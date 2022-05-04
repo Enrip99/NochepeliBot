@@ -68,6 +68,7 @@ client.on('interactionCreate', async interaction => {
 client.on('interactionCreate', async interaction => { //Botones
 	if (!interaction.isButton()) return;
 
+  //TODO: mover esta ristra enorme a subarchivos, igual que con commands
   let user = interaction.user
   let interaction_msg = Message.from(interaction.message)
   for (let peli of FilmManager.instance.iterate()){
@@ -117,9 +118,20 @@ client.on('interactionCreate', async interaction => { //Botones
 
       //copypasteado de maangetags.js. Iteramos de nuevo por todos los tags porque me da palo buscar un modo mejor.
 
-      const row = new MessageActionRow() 
+      let counter = 0
+
+      const rows = []
+      
+      let row = new MessageActionRow()
 
       for(let tag of FilmManager.instance.iterate_tags()){
+
+          counter += 1
+          if(counter > 5){
+              counter -= 5
+              rows.push(row)
+              row = new MessageActionRow()
+          }
 
           let tag_button = new MessageButton()
                           .setCustomId(tag.sanitized_name)
@@ -135,13 +147,32 @@ client.on('interactionCreate', async interaction => { //Botones
           row.addComponents(tag_button)
 
       }    
+      rows.push(row)
 
       FilmManager.instance.save().then( () => {
-        interaction.message.edit({ components: [row]})
+        interaction.message.edit({ components: rows})
       }).catch( (e) => console.log(e))
       
     }
   }
+
+  if(interaction.customId == 'cancel'){
+    interaction.message.edit({ content: "Acción cancelada por el usuario " + user.username + ".", components: []})
+  }
+
+  let delete_tag_regex = /delete tag (.*)/gm
+  let regmatch = delete_tag_regex.exec(interaction.customId)
+  
+  if(regmatch){
+      let inputtag = regmatch[1]
+      FilmManager.instance.remove_tag(inputtag)
+      FilmManager.instance.save().then( () => {
+        interaction.message.edit({ content: "El tag **" + inputtag + "** se ha borrado de la lista de tags.", components: []})
+      }).catch( () => {
+        interaction.message.edit({ content: "No se ha podido borrar el tag **" + inputtag + "** :(", components: []})
+      })
+  }
+
 })
 
 // Login to Discord with your client's token
