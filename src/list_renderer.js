@@ -1,7 +1,6 @@
 const utils = require('./utils.js')
 const { MessageEmbed } = require('discord.js')
 const { Message } = require('./message.js')
-const list = require('../commands/list.js')
 
 const DESCRIPTION_LIMIT = 4096
 
@@ -44,7 +43,6 @@ class ListRenderer {
             listobj.push(obj)
         })
 
-        console.log(listobj)
         listobj.sort(sort_criterion)
         let listmsg = listobj.map( (element) => element.message )
 
