@@ -1,6 +1,7 @@
 const utils = require('./utils.js')
 const { MessageEmbed } = require('discord.js')
 const { Message } = require('./message.js')
+const list = require('../commands/list.js')
 
 const DESCRIPTION_LIMIT = 4096
 
@@ -20,10 +21,10 @@ class ListRenderer {
         let embeds = await this.generate_embeds(client)
         this.pinned_message.edit(client, { embeds: embeds })
     }
-    
 
-    async generate_embeds(client) {
-        let listmsg = []
+    async generate_embeds(client, sort_criterion = default_sort_criterion) {
+
+        let listobj = []
         await utils.parallel_for(this.film_manager.iterate(), async peli => {
             let msg = "\n**" + peli.first_name + "**"
             let tag_names = this.display_tag_names(peli)
@@ -37,8 +38,15 @@ class ListRenderer {
             let user = await utils.get_user_by_id(client, peli.proposed_by_user)
             msg += " · Propuesta por **" + user.username + "**\n"
             msg += this.display_film_link_status(peli)
-            listmsg.push(msg)
+
+            let obj = { 'message': msg, 'peli': peli } 
+
+            listobj.push(obj)
         })
+
+        console.log(listobj)
+        listobj.sort(sort_criterion)
+        let listmsg = listobj.map( (element) => element.message )
 
         let embeds = ListRenderer.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, DESCRIPTION_LIMIT)
         return embeds
@@ -124,6 +132,12 @@ class ListRenderer {
         }
         return ret
     }
+}
+
+//Funciones privadas
+
+function default_sort_criterion(obj1, obj2){
+    return obj1.peli.compareTo(obj2.peli)
 }
 
 module.exports = { ListRenderer }

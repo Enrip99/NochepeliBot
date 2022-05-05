@@ -40,6 +40,27 @@ class Film {
         return "[Film : " + this.sanitized_name + "]"
     }
 
+    compareTo(other, comparison_criterion = 'INTEREST') {
+
+        switch(comparison_criterion){
+
+            case 'INTEREST':
+                let norm = ( peli ) => peli.interested.length - peli.not_interested.length
+                let ret = norm( other ) - norm( this ) 
+                if( ret == 0 ){ //Si ambas pelis tienen la misma norma, las ordenamos alfabéticamente
+                    return this.compareTo(other, 'ALPHA')
+                }
+                return ret
+            
+            case 'ALPHA':
+                return this.sanitized_name.localeCompare(other.sanitized_name)
+
+            default:
+                console.warn(`El criterio de comparación ${comparison_criterion} no es válido.`)
+                return 0
+        }
+    }
+
 
     serialize() {
         return {
