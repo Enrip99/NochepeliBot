@@ -21,7 +21,7 @@ class ListRenderer {
         this.pinned_message.edit(client, { embeds: embeds })
     }
 
-    async generate_embeds(client, sort_criterion = default_sort_criterion) {
+    async generate_embeds(client, sort_criterion = default_sort_criterion, character_limit = DESCRIPTION_LIMIT) {
 
         let listobj = []
         await utils.parallel_for(this.film_manager.iterate(), async peli => {
@@ -46,7 +46,7 @@ class ListRenderer {
         listobj.sort(sort_criterion)
         let listmsg = listobj.map( (element) => element.message )
 
-        let embeds = ListRenderer.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, DESCRIPTION_LIMIT)
+        let embeds = ListRenderer.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, character_limit)
         return embeds
     }
 

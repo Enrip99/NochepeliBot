@@ -62,8 +62,7 @@ exports.parallel_for = async function(list, lambda) {
     let promises = []
     for(let item of list) {
         promises.push(new Promise((resolve, reject) => {
-            lambda(item)
-            resolve()
+            lambda(item).then(resolve)
         }))
     }
     return Promise.all(promises)

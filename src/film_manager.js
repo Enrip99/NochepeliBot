@@ -261,7 +261,7 @@ class FilmManager {
         console.log("Cargando la lista...")
         let this_instance = this
         return new Promise( (resolve, reject) => {
-            fs.readFile(LISTA_LOCATION, "utf8", function(err, data) {
+            fs.readFile(LISTA_LOCATION, "utf8", async function(err, data) {
                 if(err) {
                     console.error(err)
                     reject()
