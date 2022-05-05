@@ -69,6 +69,45 @@ exports.parallel_for = async function(list, lambda) {
 }
 
 
+exports.reverse_dictionary = function(dict) {
+    let ret = {}
+    for(let key of Object.keys(dict)) {
+        let value = dict[key]
+        if(value in ret) {
+            console.warn(`Value '${value}' is duplicated`)
+        }
+        ret[value] = key
+    }
+    return ret
+}
+
+
+exports.button_customId_parser = function(types, customId) {
+    let fields = customId.split(":")
+    if(fields.length < 3) {
+        console.warn("Unexpected customId arg length")
+    }
+    let deciduousity = fields[0]
+    let type = ""
+    if(!(fields[1] in types)) {
+        console.warn("customId type unknown")
+    } else {
+        type = types[fields[1]]
+    }
+    let individual_customId = fields[2]
+    let args = fields.slice(3) // Si no existe, devuelve []
+    return [deciduousity, type, individual_customId, args]
+}
+
+
+exports.button_customId_maker = function(deciduousity, type, customId, args = []) {
+
+    let ret = `${deciduousity}:${type.unique_id}:${customId}`
+    let stringified_args = args.join(":")
+    return [ret, stringified_args].join(":")
+}
+
+
 /**
  * Apaga el bot
  * @param {DiscordClient} client Referencia al cliente del bot
