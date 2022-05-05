@@ -21,10 +21,16 @@ class ListRenderer {
         this.pinned_message.edit(client, { embeds: embeds })
     }
 
-    async generate_embeds(client, sort_criterion = default_sort_criterion, character_limit = DESCRIPTION_LIMIT) {
+    async generate_embeds(client, sort_criterion = default_sort_criterion, character_limit = DESCRIPTION_LIMIT, include_hidden = false, iterable = null) {
 
+        if(!iterable){
+            iterable = this.film_manager.iterate()
+        }
         let listobj = []
-        await utils.parallel_for(this.film_manager.iterate(), async peli => {
+        await utils.parallel_for(iterable, async peli => {
+
+            if(!include_hidden && peli.is_hidden()) return
+
             let msg = "\n**" + peli.first_name + "**"
             let tag_names = this.display_tag_names(peli)
             if(tag_names.length != "") {
@@ -89,7 +95,7 @@ class ListRenderer {
 
 
     display_tag_names(peli) {
-        return peli.tags.join(", ")
+        return peli.tags.map( (tag) => tag.tag_name ).join(", ")
     }
 
 
@@ -98,7 +104,7 @@ class ListRenderer {
         if(!peli.link) {
             return ret
         }
-        if(peli.link.includes(":?")) {
+        if(peli.link.includes("magnet:?")) {
             ret = " · 🧲"
         } else if(peli.link.includes("://")) {
             ret = " · 🔗"

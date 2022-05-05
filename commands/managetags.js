@@ -33,45 +33,45 @@ module.exports = {
                 console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
             })
         }
-
+        
         let counter = 0
 
         const rows = []
         
         let row = new MessageActionRow()
-
+  
         for(let tag of FilmManager.instance.iterate_tags()){
-
+  
             counter += 1
             if(counter > 5){
                 counter -= 5
                 rows.push(row)
                 row = new MessageActionRow()
             }
-
+  
             let tag_button = new MessageButton()
                             .setCustomId(tag.sanitized_name)
-                            .setLabel(tag.tag_name)
-
-            if(peli.tags.includes(tag.sanitized_name)){
+                            .setLabel(tag.tag_name + (tag.hidden ? " (OCULTO)" : ""))
+  
+            if(peli.tags.includes(tag)){
                 tag_button.setStyle('SUCCESS')
             }
             else{
                 tag_button.setStyle('SECONDARY')
             }
-
+  
             row.addComponents(tag_button)
-
+  
         }    
         rows.push(row)
-
+  
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		
         peli.tag_manager_message = Message.from(sentmsg)
 
 		FilmManager.instance.save().then( () => {
 			sentmsg.edit({
-                content: "Modificando los tags de la película **" + inputpeli + "**.",
+                content: `Modificando los tags de la película **${peli.first_name}**.`,
                 components: rows
             })
 		}).catch( () => {

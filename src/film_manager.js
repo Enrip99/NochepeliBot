@@ -85,11 +85,12 @@ class FilmManager {
      */
 
     films_with_tag(tag_name) {
-        let sanitized_tag_name = utils.sanitize_film_name(tag_name)
+        
+        let tag = this.get_tag(tag_name)
         let ret = []
 
         for(let peli of Object.values(this.pelis)){
-            if(peli.tags.includes(sanitized_tag_name)){
+            if(peli.tags.includes(tag)){
                 ret.push(peli)
             }
         }
@@ -116,39 +117,22 @@ class FilmManager {
 
 
     /**
-     * Comprueba qué películas tienen asociadas cierto tag
-     * @param {string} tag_name El nombre del tag, sin sanitizar
-     * @returns Una lista de nombres sanitizados de películas con dicho tag (posiblemente vacía)
-     */
-    films_with_tag(tag_name) {
-        let sanitized_tag_name = utils.sanitize_film_name(tag_name)
-        let ret = []
-
-        for(let peli of Object.values(this.pelis)){
-            if(peli.tags.includes(sanitized_tag_name)){
-                ret.push(peli)
-            }
-        }
-        return ret
-    }
-
-
-    /**
      * Quita un tag de la lista de tags
      * @param {string} tag_name El nombre del tag, sin sanitizar
      * @returns Si el tag existía antes de quitarlo. Si no se puede borrar, retorna -1.
      */
     remove_tag(tag_name) {
-        let sanitized_tag_name = utils.sanitize_film_name(tag_name)
-        let films_with_tag = this.films_with_tag(sanitized_tag_name)
+
+        let tag = this.get_tag(tag_name)
+        let films_with_tag = this.films_with_tag(tag_name)
 
         for(let film of films_with_tag){
-            utils.remove_from_list(film.tags, sanitized_tag_name)
+            utils.remove_from_list(film.tags, tag)
         }
         
-        console.log("Eliminado tag " + sanitized_tag_name)
+        console.log("Eliminado tag " + tag.sanitized_name)
         this.list_renderer.update(this.client)
-        return delete this.tags[sanitized_tag_name]
+        return delete this.tags[tag.sanitized_name]
     }
 
 
@@ -268,14 +252,14 @@ class FilmManager {
                 } else {
                     try {
                         let parsed_data = JSON.parse(data)
+                        this_instance.tags = parsed_data.tags ?? {}
                         if(!parsed_data.pelis) {
                             this_instance.pelis = {}
                         }
                         else for(let film of Object.values(parsed_data.pelis)) {
-                            let deserialized_film = Film.deserialize(film)
+                            let deserialized_film = Film.deserialize(film, this_instance.tags)
                             this_instance.pelis[deserialized_film.sanitized_name] = deserialized_film
                         }
-                        this_instance.tags = parsed_data.tags ?? {}
                         this_instance.list_renderer = ListRenderer.deserialize(parsed_data.list_renderer ?? {}, this_instance)
                         console.log("Cargada la lista desde disco.")
                         this_instance.list_renderer.update(this_instance.client)

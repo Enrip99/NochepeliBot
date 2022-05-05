@@ -111,11 +111,12 @@ client.on('interactionCreate', async interaction => { //Botones
       interaction.deferUpdate()
 
       let inputtag = interaction.customId
+      let tag = FilmManager.instance.get_tag(inputtag)
 
-      if(peli.tags.includes(inputtag)){
-        utils.remove_from_list(peli.tags, inputtag)
+      if(peli.tags.includes(tag)){
+        utils.remove_from_list(peli.tags, tag)
       } else{
-        peli.tags.push(inputtag)
+        peli.tags.push(tag)
       }
 
       //copypasteado de maangetags.js. Iteramos de nuevo por todos los tags porque me da palo buscar un modo mejor.
@@ -137,9 +138,9 @@ client.on('interactionCreate', async interaction => { //Botones
 
           let tag_button = new MessageButton()
                           .setCustomId(tag.sanitized_name)
-                          .setLabel(tag.tag_name)
+                          .setLabel(tag.tag_name + (tag.hidden ? " (OCULTO)" : ""))
 
-          if(peli.tags.includes(tag.sanitized_name)){
+          if(peli.tags.includes(tag)){
               tag_button.setStyle('SUCCESS')
           }
           else{

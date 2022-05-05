@@ -61,6 +61,11 @@ class Film {
         }
     }
 
+    is_hidden() {
+        //Si algún tag está oculto, la peli está oculta
+        return this.tags.some((tag) => tag.hidden)  
+    }
+
 
     serialize() {
         return {
@@ -69,14 +74,14 @@ class Film {
             link: this.link,
             interested: this.interested,
             not_interested: this.not_interested,
-            tags: this.tags,
+            tags: this.tags.map( (tag) => tag.sanitized_name ),
             react_message: this.react_message,
             tag_manager_message: this.tag_manager_message
         }
     }
 
-    static deserialize(json) {
-        if(!json) {
+    static deserialize(json, tag_dict) {
+        if(!json || !tag_dict) {
             return null
         }
         let ret = null
@@ -86,6 +91,8 @@ class Film {
             for(let key in data) {
                 ret[key] = data[key]
             }
+            ret.tags = data.tags.map( (sanitized_tag_name) => tag_dict[sanitized_tag_name]) 
+            //Hace falta pasarle el tag_dict para evitar bucle de dependencias
             ret.react_message = Message.deserialize(data.react_message)
             ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
 
