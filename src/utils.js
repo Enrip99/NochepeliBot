@@ -76,7 +76,7 @@ exports.parallel_for = async function(list, lambda) {
  */
 exports.shut_down = async function(client) {
     // TODO Con la nueva versión de la API, process.exit() tendría que ir después de esperar al mensaje (await o then)
-    let channel = await client.channels.fetch(config.channelid)
+    let channel = await client.channels.fetch(config.channelId)
     channel.send(exports.random_from_list(['adios', 'buenas noches', 'bona nit', 'que os jodan']));
     console.log('Apagando...');
     setTimeout(() => process.exit(), 200);
