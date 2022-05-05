@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const fs = require('node:fs');
 const { Client, Collection, Intents } = require('discord.js');
-const { owners, token, channelid } = require('./data/config.json');
+const { token, guildId, channelId } = require('./data/config.json');
 const { FilmManager } = require('./src/film_manager.js')
 const { Message } = require('./src/message.js')
 const utils = require('./src/utils.js')
@@ -29,7 +29,7 @@ client.once('ready', async () => {
     await FilmManager.instance.load()
     client.user.setActivity('Type AYUDA for help', );
 
-    client.channels.fetch(channelid).then(channel => {
+    client.channels.fetch(channelId).then(channel => {
       console.log("Cargando en caché mensajes de reacción:")
       let promarray = []
       for (let peli of FilmManager.instance.iterate()){
@@ -38,7 +38,7 @@ client.once('ready', async () => {
       }
       Promise.all(promarray).then( value => {
         console.log('¡Listo!');
-        client.channels.fetch(channelid).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
+        client.channels.fetch(channelId).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
       })
     })
   } catch(e) {
@@ -51,6 +51,7 @@ client.once('ready', async () => {
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
+  if (interaction.guildId != guildId) return;
 
 	const command = client.commands.get(interaction.commandName);
 
@@ -67,6 +68,7 @@ client.on('interactionCreate', async interaction => {
 
 client.on('interactionCreate', async interaction => { //Botones
 	if (!interaction.isButton()) return;
+  if (interaction.guildId != guildId) return;
 
   //TODO: mover esta ristra enorme a subarchivos, igual que con commands
   let user = interaction.user
