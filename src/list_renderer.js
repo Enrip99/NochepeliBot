@@ -25,17 +25,17 @@ class ListRenderer {
 
         let listobj = []
         await utils.parallel_for(this.film_manager.iterate(), async peli => {
-            let msg = "\n**" + peli.first_name + "**"
+            let msg = `\n**${peli.first_name}**`
             let tag_names = this.display_tag_names(peli)
             if(tag_names.length != "") {
-                msg += " (" + tag_names + ")"
+                msg += ` (${tag_names})`
             }
-            msg += "\n\☑️ " + peli.interested.length + " · ❎ " + peli.not_interested.length
+            msg += `\n\☑️ ${peli.interested.length} · ❎ ${peli.not_interested.length}`
             if(peli.not_interested.length - 3 >= peli.interested.length) {
                 msg += " · ratio"
             }
             let user = await utils.get_user_by_id(client, peli.proposed_by_user)
-            msg += " · Propuesta por **" + user.username + "**\n"
+            msg += ` · Propuesta por **${user.username}**\n`
             msg += this.display_film_link_status(peli)
 
             let obj = { 'message': msg, 'peli': peli } 
@@ -78,7 +78,7 @@ class ListRenderer {
         for(let page of pages) {
             current_page += 1
             embeds.push(new MessageEmbed()
-            .setTitle(title + " (" + current_page + "/" + pages.length + ")")
+            .setTitle(`${title} (${current_page}/${pages.length})`)
             .setDescription(page))
         }
         if(embeds.length > 10) {
@@ -126,7 +126,7 @@ class ListRenderer {
             ret = new ListRenderer(film_manager)
             ret.pinned_message = Message.deserialize(data.pinned_message)
         } catch(e) {
-            console.error("Error al deserializar: " + e + " (JSON: " + json + ")")
+            console.error(`Error al deserializar: ${e} (JSON: ${json})`)
         }
         return ret
     }

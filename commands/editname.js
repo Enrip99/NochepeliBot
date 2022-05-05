@@ -28,13 +28,13 @@ module.exports = {
 		}
 
         if(!FilmManager.instance.exists(inputpeli)){
-            await interaction.reply({ content: "La película **" + inputpeli + "** no está en la lista.", ephemeral: true})
+            await interaction.reply({ content: `La película **${inputpeli}** no está en la lista.`, ephemeral: true})
 			return
         }
 
         if(FilmManager.instance.exists(inputnombre)){
             let peli = FilmManager.instance.get(inputnombre)
-            await interaction.reply({ content: "Ya hay una película con el nombre **" + peli.first_name + "** en la lista.", ephemeral: true})
+            await interaction.reply({ content: `Ya hay una película con el nombre **${peli.first_name}** en la lista.`, ephemeral: true})
 			return
         }
 		
@@ -44,7 +44,7 @@ module.exports = {
         FilmManager.instance.edit_name(inputpeli, inputnombre)        
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("La película **" + deadname + "** ahora se llama **" + inputnombre + "**. No le hagas deadname :(.")
+			interaction.reply(`La película **${deadname}** ahora se llama **${inputnombre}**. No le hagas deadname :(.`)
 		}).catch( () => {
 			interaction.reply({ content: "No se ha podido cambiar el nombre de esa peli :/", ephemeral: true })
 		})

@@ -37,7 +37,7 @@ class Film {
 
 
     toString() {
-        return "[Film : " + this.sanitized_name + "]"
+        return `[Film : ${this.sanitized_name}]`
     }
 
     compareTo(other, comparison_criterion = 'INTEREST') {
@@ -90,7 +90,7 @@ class Film {
             ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
 
         } catch(e) {
-            console.error("Error al deserializar: " + e + " (JSON: " + json + ")")
+            console.error(`Error al deserializar: ${e} (JSON: ${json})`)
         }
         return ret
     }

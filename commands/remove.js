@@ -21,9 +21,9 @@ module.exports = {
 		peli = FilmManager.instance.get(inputpeli)
 		FilmManager.instance.remove(inputpeli)
 		await FilmManager.instance.save().then( () => {
-			interaction.reply("**" + peli.first_name + "** eliminada de la lista.")
+			interaction.reply(`**${peli.first_name}** eliminada de la lista.`)
 		}).catch( () => {
-			interaction.reply({ content: "No se ha podido eliminar **" + peli.first_name + "** de la lista.", ephemeral: true })
+			interaction.reply({ content: `No se ha podido eliminar **${peli.first_name}** de la lista.`, ephemeral: true })
 		})
 	}
 };

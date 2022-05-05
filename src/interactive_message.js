@@ -20,13 +20,13 @@ class InteractiveMessage extends Message {
     }
 
 
-    on_update(interaction) {
+    on_update(message_instance, customId, args) {
         // To be overriden in subclasses
     }
 
 
     toString() {
-        return "[InteractiveMessage : channel " + this.channel_id + ", message " + this.message_id + "]"
+        return `[InteractiveMessage : channel ${this.channel_id}, message ${this.message_id}]`
     }
 }
 

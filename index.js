@@ -33,7 +33,7 @@ client.once('ready', async () => {
       console.log("Cargando en caché mensajes de reacción:")
       let promarray = []
       for (let peli of FilmManager.instance.iterate()){
-        console.log(peli.react_message + " - " + peli.first_name)
+        console.log(`${peli.react_message} - ${peli.first_name}`)
         // promarray.push(peli.react_message["channel_id"].messages.fetch(peli.react_message["message_id"], true))
       }
       Promise.all(promarray).then( value => {
@@ -83,25 +83,25 @@ client.on('interactionCreate', async interaction => { //Botones
       switch(inputinteres){
         case '1':		
           interests.add_very_interested(inputpeli, user).then( () => {
-            interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora positivo. Evitaremos verla si no estás.", ephemeral: true })
+            interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora positivo. Evitaremos verla si no estás.`, ephemeral: true })
           }).catch( () => {
-            interaction.reply({ content: "No se ha podido guardar tu gran interés en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+            interaction.reply({ content: `No se ha podido guardar tu gran interés en la peli **${peli.first_name}** :(. Algo se habrá roto.`, ephemeral: true })
           })
           break
         
         case '0':				
           interests.remove_interest_for_film(inputpeli, user).then( () => {
-            interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora neutral, como Suiza.", ephemeral: true })
+            interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora neutral, como Suiza.`, ephemeral: true })
           }).catch( () => {
-            interaction.reply({ content: "No se ha podido guardar tu neutralidad en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+            interaction.reply({ content: `No se ha podido guardar tu neutralidad en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
           })
           break
         
         case '-1':
           interests.add_not_interested(inputpeli, user).then( () => {
-            interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora negativo. La veremos sin ti :).", ephemeral: true })
+            interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora negativo. La veremos sin ti :).`, ephemeral: true })
           }).catch( () => {
-            interaction.reply({ content: "No se ha podido guardar tu desinterés en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+            interaction.reply({ content: `No se ha podido guardar tu desinterés en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
           })
           break
       }
@@ -159,7 +159,7 @@ client.on('interactionCreate', async interaction => { //Botones
   }
 
   if(interaction.customId == 'cancel'){
-    interaction.message.edit({ content: "Acción cancelada por el usuario " + user.username + ".", components: []})
+    interaction.message.edit({ content: `Acción cancelada por el usuario ${user.username}.`, components: []})
   }
 
   let delete_tag_regex = /delete tag (.*)/gm
@@ -169,9 +169,9 @@ client.on('interactionCreate', async interaction => { //Botones
       let inputtag = regmatch[1]
       FilmManager.instance.remove_tag(inputtag)
       FilmManager.instance.save().then( () => {
-        interaction.message.edit({ content: "El tag **" + inputtag + "** se ha borrado de la lista de tags.", components: []})
+        interaction.message.edit({ content: `El tag **${inputtag}** se ha borrado de la lista de tags.`, components: []})
       }).catch( () => {
-        interaction.message.edit({ content: "No se ha podido borrar el tag **" + inputtag + "** :(", components: []})
+        interaction.message.edit({ content: `No se ha podido borrar el tag **${inputtag}** :(`, components: []})
       })
   }
 

@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Tiempo de respuesta del bot'),
 	async execute(interaction) {
 		interaction.reply({ content: 'pong 🏓', fetchReply: true }).then((sentmsg) => {
-			sentmsg.edit("pong 🏓\n" + (sentmsg.createdTimestamp - interaction.createdTimestamp) + " milisegundos")
+			sentmsg.edit(`pong 🏓\n${(sentmsg.createdTimestamp - interaction.createdTimestamp)} milisegundos`)
 		});
 	},
 };

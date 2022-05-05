@@ -32,17 +32,17 @@ module.exports = {
 		switch(inputinteres){
 			case 1:		
 				interests.add_very_interested(inputpeli, user).then( () => {
-					interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora positivo. Evitaremos verla si no estás.", ephemeral: true })
+					interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora positivo. Evitaremos verla si no estás.`, ephemeral: true })
 				}).catch( () => {
-					interaction.reply({ content: "No se ha podido guardar tu gran interés en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+					interaction.reply({ content: `No se ha podido guardar tu gran interés en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
 				})
 				break
 			
 			case 0:				
 				interests.remove_interest_for_film(inputpeli, user).then( () => {
-					interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora neutral, como Suiza.", ephemeral: true })
+					interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora neutral, como Suiza.`, ephemeral: true })
 				}).catch( () => {
-					interaction.reply({ content: "No se ha podido guardar tu neutralidad en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+					interaction.reply({ content: `No se ha podido guardar tu neutralidad en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
 				})
 				break
 			
@@ -50,7 +50,7 @@ module.exports = {
 				interests.add_not_interested(inputpeli, user).then( () => {
 					interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora negativo. La veremos sin ti :).", ephemeral: true })
 				}).catch( () => {
-					interaction.reply({ content: "No se ha podido guardar tu desinterés en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+					interaction.reply({ content: `No se ha podido guardar tu desinterés en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
 				})
 				break
 		}	

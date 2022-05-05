@@ -60,7 +60,7 @@ class FilmManager {
     edit_name(old_name, new_name) {
         let old_sanitized_name = utils.sanitize_film_name(old_name)
         let new_sanitized_name = utils.sanitize_film_name(new_name)
-        console.log("La peli " + old_sanitized_name + " ahora se llama " + new_sanitized_name)
+        console.log(`La peli ${old_sanitized_name} ahora se llama ${new_sanitized_name}`)
 
         if(!(old_sanitized_name in this.pelis) || (new_sanitized_name in this.pelis)){
             return false

@@ -30,7 +30,7 @@ module.exports = {
 		FilmManager.instance.add_tag(inputtag)
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("**" + inputtag + "** añadido a la lista de tags.")
+			interaction.reply(`**${inputtag}** añadido a la lista de tags.`)
 		}).catch( () => {
 			interaction.reply({ contents: "No se ha podido añadir ese tag :/", ephemeral: true })
 		})

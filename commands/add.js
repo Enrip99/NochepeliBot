@@ -47,9 +47,9 @@ module.exports = {
 			if(old_channel_id && old_message_id){
 				let channel = await interaction.client.channels.fetch(old_channel_id)
 				channel.messages.fetch(old_message_id)
-					.then(old_message => old_message.edit({ content: "~~" + old_message.content + "~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando `/add`.)", components: []}))
+					.then(old_message => old_message.edit({ content: `~~${old_message.content}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/add\`.)`, components: []}))
 					.catch( (e) => {
-						console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
+						console.log(`No se ha podido editar el mensaje con ID ${old_message_id} en el canal con ID ${old_channel_id}. Traza: ${e}`)
 					})
 			}
 
@@ -60,7 +60,7 @@ module.exports = {
 			
 
 			FilmManager.instance.save().then( () => {
-				sentmsg.edit({ content: "La película **" + pelipost.first_name + "** ya estaba en la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.", components: [row]})
+				sentmsg.edit({ content: `La película **${pelipost.first_name}** ya estaba en la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.`, components: [row]})
 			}).catch( () => {
 				sentmsg.edit("No se ha podido añadir esa peli :/")
 			})
@@ -74,7 +74,7 @@ module.exports = {
 		
 		pelipost.react_message = Message.from(sentmsg)
 		FilmManager.instance.save().then( () => {
-			sentmsg.edit({ content: "**" + inputpeli + "** añadida a la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.", components: [row] })
+			sentmsg.edit({ content: `**${inputpeli}** añadida a la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.`, components: [row] })
 		}).catch( () => {
 			sentmsg.edit("No se ha podido añadir esa peli :/")
 		})

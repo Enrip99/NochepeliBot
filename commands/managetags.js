@@ -28,9 +28,9 @@ module.exports = {
         
         if(old_message_obj) {
             old_message_obj.fetch(interaction.client)
-            .then(old_message => old_message.edit({ content: "~~" + old_message.content + "~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando `/managetags`).", components: []}))
+            .then(old_message => old_message.edit({ content: `~~${old_message.content}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/managetags\`).`, components: []}))
             .catch( (e) => {
-                console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
+                console.log(`No se ha podido editar el mensaje con ID ${old_message_id} en el canal con ID ${old_channel_id}. Traza: ${e}`)
             })
         }
 
@@ -71,7 +71,7 @@ module.exports = {
 
 		FilmManager.instance.save().then( () => {
 			sentmsg.edit({
-                content: "Modificando los tags de la película **" + inputpeli + "**.",
+                content: `Modificando los tags de la película **${inputpeli}**.`,
                 components: rows
             })
 		}).catch( () => {
