@@ -3,7 +3,7 @@ const { MessageEmbed } = require('discord.js');
 const { FilmManager } = require('../src/film_manager.js');
 const utils = require('../src/utils.js');
 
-const DESCRIPTION_LIMIT = 600
+const DESCRIPTION_LIMIT = 4096
 
 module.exports = {
 	data: new SlashCommandBuilder()
