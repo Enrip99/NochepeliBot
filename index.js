@@ -4,22 +4,25 @@ const { Client, Collection, Intents } = require('discord.js');
 const { token, guildId, channelId } = require('./data/config.json');
 const { FilmManager } = require('./src/film_manager.js')
 const { Message } = require('./src/message.js')
+const { Film } = require('./src/film.js')
 const utils = require('./src/utils.js')
 const interests = require('./src/interests.js');
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { MessageActionRow, MessageButton, TextChannel } = require('discord.js');
+const DiscordMessage = require("discord.js").Message
 
 
 // Create a new client instance
+/** @type {import('discord.js').Client} */
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 
-client.commands = new Collection();
+const commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	// Set a new item in the Collection
 	// With the key as the command name and the value as the exported module
-	client.commands.set(command.data.name, command);
+	commands.set(command.data.name, command);
 }
 
 // When the client is ready, run this code (only once)
@@ -31,6 +34,7 @@ client.once('ready', async () => {
 
     client.channels.fetch(channelId).then(channel => {
       console.log("Cargando en caché mensajes de reacción:")
+      /** @type {Promise<Film>[]} */
       let promarray = []
       for (let peli of FilmManager.instance.iterate()){
         console.log(peli.react_message + " - " + peli.first_name)
@@ -38,7 +42,9 @@ client.once('ready', async () => {
       }
       Promise.all(promarray).then( value => {
         console.log('¡Listo!');
-        client.channels.fetch(channelId).then(channel => channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°'));
+        client.channels.fetch(channelId).then(channel => {
+          if(!(channel instanceof TextChannel)) return
+          channel.send('°･*: ．。．☆ Holi 。 ☆ ．。．:*･°')});
       })
     })
   } catch(e) {
@@ -47,13 +53,11 @@ client.once('ready', async () => {
 })
 
 
-
-
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
-  if (interaction.guildId != guildId) return;
+  if (interaction.guildId != guildId) return
 
-	const command = client.commands.get(interaction.commandName);
+	const command = commands.get(interaction.commandName);
 
 	if (!command) return;
 
@@ -68,11 +72,14 @@ client.on('interactionCreate', async interaction => {
 
 client.on('interactionCreate', async interaction => { //Botones
 	if (!interaction.isButton()) return;
-  if (interaction.guildId != guildId) return;
+  if (interaction.guildId != guildId) return
+  if(!(interaction.message instanceof DiscordMessage)) return;  //typecheck
 
   //TODO: mover esta ristra enorme a subarchivos, igual que con commands
-  let user = interaction.user
+  let user = interaction.user 
+
   let interaction_msg = Message.from(interaction.message)
+  
   for (let peli of FilmManager.instance.iterate()){
 
     if(peli.react_message && peli.react_message.equals(interaction_msg)) {
@@ -111,17 +118,21 @@ client.on('interactionCreate', async interaction => { //Botones
       interaction.deferUpdate()
 
       let inputtag = interaction.customId
+      let tag = FilmManager.instance.get_tag(inputtag)
 
-      if(peli.tags.includes(inputtag)){
-        utils.remove_from_list(peli.tags, inputtag)
+      if(!tag) return //typecheck
+
+      if(peli.tags.includes(tag)){
+        utils.remove_from_list(peli.tags, tag)
       } else{
-        peli.tags.push(inputtag)
+        peli.tags.push(tag)
       }
 
       //copypasteado de maangetags.js. Iteramos de nuevo por todos los tags porque me da palo buscar un modo mejor.
 
       let counter = 0
 
+      /** @type {MessageActionRow[]} s} */
       const rows = []
       
       let row = new MessageActionRow()
@@ -137,9 +148,9 @@ client.on('interactionCreate', async interaction => { //Botones
 
           let tag_button = new MessageButton()
                           .setCustomId(tag.sanitized_name)
-                          .setLabel(tag.tag_name)
+                          .setLabel(tag.tag_name + (tag.hidden ? " (OCULTO)" : ""))
 
-          if(peli.tags.includes(tag.sanitized_name)){
+          if(peli.tags.includes(tag)){
               tag_button.setStyle('SUCCESS')
           }
           else{
@@ -151,9 +162,12 @@ client.on('interactionCreate', async interaction => { //Botones
       }    
       rows.push(row)
 
-      FilmManager.instance.save().then( () => {
+      try {
+        await FilmManager.instance.save()
         interaction.message.edit({ components: rows})
-      }).catch( (e) => console.log(e))
+      } catch(e) {
+        console.error(e)
+      }
       
     }
   }
@@ -168,11 +182,12 @@ client.on('interactionCreate', async interaction => { //Botones
   if(regmatch){
       let inputtag = regmatch[1]
       FilmManager.instance.remove_tag(inputtag)
-      FilmManager.instance.save().then( () => {
+      try {
+        await FilmManager.instance.save()
         interaction.message.edit({ content: "El tag **" + inputtag + "** se ha borrado de la lista de tags.", components: []})
-      }).catch( () => {
+      } catch(e) {
         interaction.message.edit({ content: "No se ha podido borrar el tag **" + inputtag + "** :(", components: []})
-      })
+      }
   }
 
 })

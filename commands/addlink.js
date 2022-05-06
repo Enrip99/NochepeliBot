@@ -15,17 +15,21 @@ module.exports = {
 		option.setName('link')
 			.setDescription('El Hipervínculo')
 			.setRequired(true)),
+
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
 		let inputlink = interaction.options.getString('link')
 		
-		if(!FilmManager.instance.exists(inputpeli)) {
+		let peli = FilmManager.instance.get(inputpeli)
+		if(!peli) {
 			await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
 			return
-		} 
+		}
 		
-		let peli = FilmManager.instance.get(inputpeli)
 		let actualizar = peli.link != null
 		peli.link = inputlink
 		console.log("Actualizado link para peli " + inputpeli)
