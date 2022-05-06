@@ -45,7 +45,6 @@ class FilmManager {
         if(!ret) {
             this.pelis[sanitized_name] = new Film(film_name, proposed_by_user)
         }
-        this.list_renderer.update(this.client)
         return !ret // TODO Devolver [ret, this.pelis[sanitized_name]]
     }
 
@@ -59,7 +58,7 @@ class FilmManager {
         film_name = utils.sanitize_film_name(film_name)
         console.log("Eliminada peli " + film_name)
         let ret = delete this.pelis[film_name]
-        this.list_renderer.update(this.client)
+        
         return ret
     }
 
@@ -89,7 +88,7 @@ class FilmManager {
         if(old_sanitized_name != new_sanitized_name){
             delete this.pelis[old_sanitized_name]
         }
-        this.list_renderer.update(this.client)
+        
         return true
 
     }
@@ -132,7 +131,7 @@ class FilmManager {
             this.tags[sanitized_name] = new Tag(tag_name)
             this.tags[sanitized_name].sanitized_name = sanitized_name
         }
-        this.list_renderer.update(this.client)
+        
         return !ret
     }
 
@@ -152,7 +151,7 @@ class FilmManager {
         }
         
         console.log("Eliminado tag " + tag.sanitized_name)
-        this.list_renderer.update(this.client)
+        
         return delete this.tags[tag.sanitized_name]
     }
 
@@ -244,6 +243,8 @@ class FilmManager {
             tags: this.tags,
             list_renderer: this.list_renderer.serialize()
         }
+
+        this.list_renderer.update(this.client)
         
         return new Promise((resolve, reject) => {
             fs.writeFile(LISTA_LOCATION, JSON.stringify(lista, null, 4), function(err) {
@@ -256,6 +257,7 @@ class FilmManager {
                 }
             })    
         })
+
     }
 
 
