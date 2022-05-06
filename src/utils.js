@@ -74,13 +74,20 @@ exports.parallel_for = async function(list, lambda) {
     return Promise.all(promises)
 }
 
-
+/**
+ * lmao
+ * @typedef {string | number | symbol} K
+ * @typedef {string | number | symbol} V
+ * @param {{[key :K]: V}} dict
+ * @returns
+ */
 exports.reverse_dictionary = function(dict) {
+    /** @type {{[key :V]: K}} */
     let ret = {}
     for(let key of Object.keys(dict)) {
         let value = dict[key]
         if(value in ret) {
-            console.warn(`Value '${value}' is duplicated`)
+            console.warn(`Value '${value.toString()}' is duplicated`)
         }
         ret[value] = key
     }
@@ -88,12 +95,21 @@ exports.reverse_dictionary = function(dict) {
 }
 
 
+/**
+ * 
+ * @param {{[id :string]: string}} types 
+ * @param {string} customId 
+ * @returns 
+ */
 exports.button_customId_parser = function(types, customId) {
     let fields = customId.split(":")
     if(fields.length < 3) {
         console.warn("Unexpected customId arg length")
     }
     let deciduousity = fields[0]
+    if(deciduousity != "IM" && deciduousity != "DM") {
+        throw new Error("Deciduosity must be either 'IM' or 'DM'")
+    }
     let type = ""
     if(!(fields[1] in types)) {
         console.warn("customId type unknown")
@@ -102,13 +118,22 @@ exports.button_customId_parser = function(types, customId) {
     }
     let individual_customId = fields[2]
     let args = fields.slice(3) // Si no existe, devuelve []
-    return [deciduousity, type, individual_customId, args]
+    return {deciduousity, type, individual_customId, args}
 }
 
 
+/**
+ * 
+ * @param {"IM" | "DM"} deciduousity 
+ * @param {string} type 
+ * @param {string} customId 
+ * @param {string[]} args 
+ * @returns 
+ */
 exports.button_customId_maker = function(deciduousity, type, customId, args = []) {
 
-    let ret = `${deciduousity}:${type.unique_id}:${customId}`
+    //TODO ¿Aquí qué hacemos?
+    let ret = `${deciduousity}:${type}:${customId}`
     let stringified_args = args.join(":")
     return [ret, stringified_args].join(":")
 }
