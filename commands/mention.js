@@ -9,6 +9,9 @@ module.exports = {
 		option.setName('peli')
 			.setDescription('la película')
 			.setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
@@ -18,7 +21,7 @@ module.exports = {
 			return
 		}
 
-		peli = FilmManager.instance.get(inputpeli)
+		let peli = FilmManager.instance.get(inputpeli)
 		let tosend = ""
 		if (!peli.interested.length){
 			interaction.reply("No hay nadie interesado en ver la película.")

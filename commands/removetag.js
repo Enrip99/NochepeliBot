@@ -12,6 +12,9 @@ module.exports = {
 			option.setName('tag')
 				.setDescription('el tag a quitar')
 				.setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputtag = interaction.options.getString('tag')
@@ -49,7 +52,7 @@ module.exports = {
 		FilmManager.instance.save().then( () => {
 			interaction.reply(`**${inputtag}** borrado de la lista de tags.`)
 		}).catch( () => {
-			interaction.reply({ contents: `No se ha podido borrar ese tag :/`, ephemeral: true })
+			interaction.reply({ content: `No se ha podido borrar ese tag :/`, ephemeral: true })
 		})
 
 	},

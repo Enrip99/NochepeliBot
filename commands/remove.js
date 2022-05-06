@@ -10,6 +10,9 @@ module.exports = {
 			option.setName('peli')
 				.setDescription('la película a quitar')
 				.setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 		let inputpeli = interaction.options.getString('peli')
 
@@ -18,7 +21,7 @@ module.exports = {
 			return
 		} 
 		
-		peli = FilmManager.instance.get(inputpeli)
+		let peli = FilmManager.instance.get(inputpeli)
 		FilmManager.instance.remove(inputpeli)
 		await FilmManager.instance.save().then( () => {
 			interaction.reply(`**${peli.first_name}** eliminada de la lista.`)

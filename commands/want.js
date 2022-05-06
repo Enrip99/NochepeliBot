@@ -17,14 +17,18 @@ module.exports = {
 			.addChoices({name: '✔️ Positivo ✔️', value: +1}, 
 						{name: '🤷 Neutral 🤷', value:0}, 
 						{name: '❌ Negativo ❌', value: -1})),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
 		let inputinteres = interaction.options.getInteger('interés')
+
 		let user = interaction.user
 		let peli = FilmManager.instance.get(inputpeli)
 
-		if(!FilmManager.instance.exists(inputpeli)) {
+		if(!peli) { //peli == null
 			interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
 			return
 		}

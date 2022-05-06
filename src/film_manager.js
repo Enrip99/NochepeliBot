@@ -1,7 +1,9 @@
 const fs = require('fs');
 const utils = require('./utils.js')
 const { Film } = require ('./film.js')
+const { Tag } = require('./tag.js')
 const { ListRenderer } = require('./list_renderer.js')
+
 
 const LISTA_LOCATION = "data/lista.json"
 
@@ -9,12 +11,23 @@ class FilmManager {
 
     /** @type {FilmManager} */
     static instance
+    /** @type {{[name :string]: Film}} */
+    pelis
+    /** @type {{[sanitized_name :string]: Tag}} */
+    tags
+    /** @type {import("discord.js").Client} */
+    client
+    /** @type {ListRenderer} */
+    list_renderer
 
-    constructor() {
+    /**
+     * 
+     * @param {import("discord.js").Client} client 
+     */
+    constructor(client) {
         this.pelis = {}
         this.tags = {}
-        this.client = null
-        this.latest_film = null
+        this.client = client
         this.list_renderer = new ListRenderer(this)
     }
 
@@ -22,7 +35,7 @@ class FilmManager {
     /**
      * Añade una peli a la lista
      * @param {string} film_name El nombre de la peli, sin sanitizar
-     * @param {int} proposed_by_user El id del usuario que la ha propuesto
+     * @param {import("discord.js").Snowflake} proposed_by_user El id del usuario que la ha propuesto
      * @returns Si la película ha sido añadida por primera vez
      */
     add(film_name, proposed_by_user) {
@@ -33,7 +46,7 @@ class FilmManager {
             this.pelis[sanitized_name] = new Film(film_name, proposed_by_user)
         }
         this.list_renderer.update(this.client)
-        return !ret
+        return !ret // TODO Devolver [ret, this.pelis[sanitized_name]]
     }
 
 
@@ -62,8 +75,10 @@ class FilmManager {
         let new_sanitized_name = utils.sanitize_film_name(new_name)
         console.log(`La peli ${old_sanitized_name} ahora se llama ${new_sanitized_name}`)
 
-        if(!(old_sanitized_name in this.pelis) || (new_sanitized_name in this.pelis)){
-            return false
+        if(old_sanitized_name != new_sanitized_name){
+            if(!(old_sanitized_name in this.pelis) || (new_sanitized_name in this.pelis)){
+                return false
+            }
         }
         let old_peli = this.pelis[old_sanitized_name]
 
@@ -71,7 +86,9 @@ class FilmManager {
         old_peli.sanitized_name = new_sanitized_name
 
         this.pelis[new_sanitized_name] = old_peli
-        delete this.pelis[old_sanitized_name]
+        if(old_sanitized_name != new_sanitized_name){
+            delete this.pelis[old_sanitized_name]
+        }
         this.list_renderer.update(this.client)
         return true
 
@@ -85,11 +102,15 @@ class FilmManager {
      */
 
     films_with_tag(tag_name) {
-        let sanitized_tag_name = utils.sanitize_film_name(tag_name)
+        
+        let tag = this.get_tag(tag_name)
+        if(!tag) {
+            return []
+        }
         let ret = []
 
         for(let peli of Object.values(this.pelis)){
-            if(peli.tags.includes(sanitized_tag_name)){
+            if(peli.tags.includes(tag)){
                 ret.push(peli)
             }
         }
@@ -108,28 +129,11 @@ class FilmManager {
         console.log("Añadido tag " + sanitized_name)
         let ret = sanitized_name in this.tags
         if(!ret) {
-            this.tags[sanitized_name] = {"tag_name":tag_name, "sanitized_name":sanitized_name}
+            this.tags[sanitized_name] = new Tag(tag_name)
+            this.tags[sanitized_name].sanitized_name = sanitized_name
         }
         this.list_renderer.update(this.client)
         return !ret
-    }
-
-
-    /**
-     * Comprueba qué películas tienen asociadas cierto tag
-     * @param {string} tag_name El nombre del tag, sin sanitizar
-     * @returns Una lista de nombres sanitizados de películas con dicho tag (posiblemente vacía)
-     */
-    films_with_tag(tag_name) {
-        let sanitized_tag_name = utils.sanitize_film_name(tag_name)
-        let ret = []
-
-        for(let peli of Object.values(this.pelis)){
-            if(peli.tags.includes(sanitized_tag_name)){
-                ret.push(peli)
-            }
-        }
-        return ret
     }
 
 
@@ -139,23 +143,24 @@ class FilmManager {
      * @returns Si el tag existía antes de quitarlo. Si no se puede borrar, retorna -1.
      */
     remove_tag(tag_name) {
-        let sanitized_tag_name = utils.sanitize_film_name(tag_name)
-        let films_with_tag = this.films_with_tag(sanitized_tag_name)
+
+        let tag = this.get_tag(tag_name)
+        let films_with_tag = this.films_with_tag(tag_name)
 
         for(let film of films_with_tag){
-            utils.remove_from_list(film.tags, sanitized_tag_name)
+            utils.remove_from_list(film.tags, tag)
         }
         
-        console.log("Eliminado tag " + sanitized_tag_name)
+        console.log("Eliminado tag " + tag.sanitized_name)
         this.list_renderer.update(this.client)
-        return delete this.tags[sanitized_tag_name]
+        return delete this.tags[tag.sanitized_name]
     }
 
 
     /**
      * Devuelve una peli, si existe. En caso contrario devuelve `null`
      * @param {string} film_name El nombre de la peli, sin sanitizar
-     * @returns El objeto que representa la peli o `null`
+     * @returns {Film?} El objeto que representa la peli o `null`
      */
     get(film_name) {
         film_name = utils.sanitize_film_name(film_name)
@@ -166,7 +171,7 @@ class FilmManager {
     /**
      * Devuelve un tag, si existe. En caso contrario devuelve `null`
      * @param {string} tag_name El nombre del tag, sin sanitizar
-     * @returns El objeto que representa al tag o `null`
+     * @returns {Tag?} El objeto que representa al tag o `null`
      */
     get_tag(tag_name) {
         tag_name = utils.sanitize_film_name(tag_name)
@@ -226,6 +231,7 @@ class FilmManager {
     /**
      * Escribe las pelis del bot en ~La Lista~ para que sea persistente.
      * Retorna una promesa.
+     * @returns {Promise<void>}
      */
     save() {
         console.log("Guardando la lista...")
@@ -256,6 +262,7 @@ class FilmManager {
     /**
      * Carga las pelis guardadas en ~La Lista~ para que el bot las tenga disponibles
      * Retorna una promesa.
+     * @returns {Promise<void>}
      */
     load() {
         console.log("Cargando la lista...")
@@ -268,15 +275,21 @@ class FilmManager {
                 } else {
                     try {
                         let parsed_data = JSON.parse(data)
+                        this_instance.tags = parsed_data.tags ?? {}
                         if(!parsed_data.pelis) {
                             this_instance.pelis = {}
                         }
                         else for(let film of Object.values(parsed_data.pelis)) {
-                            let deserialized_film = Film.deserialize(film)
-                            this_instance.pelis[deserialized_film.sanitized_name] = deserialized_film
+                            let deserialized_film = Film.deserialize(film, this_instance.tags)
+                            if(deserialized_film) {
+                                this_instance.pelis[deserialized_film.sanitized_name] = deserialized_film
+                            }
                         }
-                        this_instance.tags = parsed_data.tags ?? {}
-                        this_instance.list_renderer = ListRenderer.deserialize(parsed_data.list_renderer ?? {}, this_instance)
+                        let deserialized_list_renderer = ListRenderer.deserialize(parsed_data.list_renderer ?? {}, this_instance)
+                        if(!deserialized_list_renderer) {
+                            deserialized_list_renderer = new ListRenderer(this_instance)
+                        }
+                        this_instance.list_renderer = deserialized_list_renderer
                         console.log("Cargada la lista desde disco.")
                         this_instance.list_renderer.update(this_instance.client)
                         resolve()
@@ -291,7 +304,8 @@ class FilmManager {
     }
 }
 
-FilmManager.instance = new FilmManager()
+/* @ts-ignore */
+FilmManager.instance = new FilmManager(null)
 
 
 module.exports = { FilmManager }

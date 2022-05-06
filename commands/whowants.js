@@ -11,19 +11,24 @@ module.exports = {
 		option.setName('peli')
 			.setDescription('la película')
 			.setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 		
 		let inputpeli = interaction.options.getString('peli')
 
-		if(!FilmManager.instance.exists(inputpeli)) {
+		let peli = FilmManager.instance.get(inputpeli)
+
+		if(!peli) { //peli == null
 			interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
 			return
 		} 
-		
-		let peli = FilmManager.instance.get(inputpeli)
+
 		let interested_msg = "✔️ "
 		let not_interested_msg = "\n\n❌ "
 		let interested_promises = []
+		
 		if(peli.interested.length === 0) {
 			interested_msg += `No hay nadie particularmente interesado en ver **${peli.first_name}**.`
 		}
@@ -43,15 +48,14 @@ module.exports = {
 			}
 		}
 		let i = 0;
-		Promise.all(interested_promises).then(values => {
-			for (let value of values) {
-				if (i == peli.interested.length) interested_msg += not_interested_msg
-				++i
-				interested_msg += `\n- **${value.username}**`
-			}
-			if (peli.not_interested.length == 0) interested_msg += not_interested_msg
-			interaction.reply(interested_msg)
-		})
+		let values = await Promise.all(interested_promises)
+		for (let value of values) {
+			if (i == peli.interested.length) interested_msg += not_interested_msg
+			++i
+			interested_msg += `\n- **${value.username}**`
+		}
+		if (peli.not_interested.length == 0) interested_msg += not_interested_msg
+		interaction.reply(interested_msg)
 
 	}
 };
