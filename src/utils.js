@@ -97,28 +97,19 @@ exports.reverse_dictionary = function(dict) {
 
 /**
  * 
- * @param {{[id :string]: string}} types 
- * @param {string} customId 
+ * @param {string} raw_customId 
  * @returns 
  */
-exports.button_customId_parser = function(types, customId) {
-    let fields = customId.split(":")
+exports.button_customId_parser = function(raw_customId) {
+    let fields = raw_customId.split(":")
     if(fields.length < 3) {
         console.warn("Unexpected customId arg length")
     }
     let deciduousity = fields[0]
-    if(deciduousity != "IM" && deciduousity != "DM") {
-        throw new Error("Deciduosity must be either 'IM' or 'DM'")
-    }
     let type = ""
-    if(!(fields[1] in types)) {
-        console.warn("customId type unknown")
-    } else {
-        type = types[fields[1]]
-    }
-    let individual_customId = fields[2]
+    let customId = fields[2]
     let args = fields.slice(3) // Si no existe, devuelve []
-    return {deciduousity, type, individual_customId, args}
+    return {deciduousity, type, customId, args}
 }
 
 

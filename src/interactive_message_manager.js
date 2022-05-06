@@ -1,7 +1,6 @@
 const utils = require("./utils.js")
 const config = require("../data/config.json")
 const { InteractiveMessage, DeciduousInteractiveMessage } = require("./interactive_message.js")
-const { Message } = require("./message.js")
 
 
 class InteractiveMessageManager {
@@ -10,7 +9,11 @@ class InteractiveMessageManager {
     static instance
     /** @type {{[type :string]: {[id :string]: DeciduousInteractiveMessage}}} */
     deciduous_messages
-    /** @type {{[id :string]: string}} */
+    /**
+     * @typedef {import("discord.js").Snowflake} Snowflake
+     * @typedef {new (channel_id :Snowflake, message_id :Snowflake) => InteractiveMessage} MessageConstructor
+     * @type {{[id :string]: MessageConstructor}}
+     */
     message_types
     /** @type {import("discord.js").Client} */
     client
@@ -34,12 +37,10 @@ class InteractiveMessageManager {
 
     /**
      * @param {string} unique_id,
-     * @param {string} type
+     * @param {MessageConstructor} type
      */
     register_type(unique_id, type) {
         this.message_types[unique_id] = type
-        // type.unique_id = unique_id
-        //TODO A ver qué hacemos aquí
     }
 
 
@@ -84,28 +85,26 @@ class InteractiveMessageManager {
 
     /**
      * 
-     * @param {import("discord.js").Interaction} interaction
+     * @param {import("discord.js").ButtonInteraction} interaction
      */
     async process(interaction) {
-        //TODO Tendría que ser una interacción de tipo ButtonInteraction
         if(!interaction.isButton() || interaction.guildId != config.guildId) {
             return
         }
 
         interaction.deferUpdate()
 
-        let {deciduousity, type, individual_customId, args} = utils.button_customId_parser(this.message_types, interaction.customId)
+        let {deciduousity, type, customId, args} = utils.button_customId_parser(interaction.customId)
 
         switch(deciduousity) {
             case "IM":
-                //TODO ¿Aquí qué hacemos?
-                let message_instance = new Message(interaction.channelId, interaction.message.id)
-                //message_instance.on_update(message_instance, customId, args)
+                let message_instance = new this.message_types[type](interaction.channelId, interaction.message.id)
+                message_instance.on_update(message_instance, customId, args)
                 break
             case "DM":
                 for(let id of Object.keys(this.deciduous_messages[type])) {
                     let message_instance = this.deciduous_messages[type][id]
-                    message_instance.on_update(message_instance, individual_customId, args)
+                    message_instance.on_update(message_instance, customId, args)
                     break
                 }
                 break
