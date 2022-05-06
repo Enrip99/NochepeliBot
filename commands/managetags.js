@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
 const { FilmManager } = require("../src/film_manager.js")
 const { Message } = require("../src/message.js")
+const DiscordMessage = require('discord.js').Message
 
 //input: managetags <nombre peli>
 
@@ -13,6 +14,9 @@ module.exports = {
             option.setName('peli')
                 .setDescription('la película a editar')
                 .setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
         
 		let inputpeli = interaction.options.getString('peli')
@@ -30,12 +34,15 @@ module.exports = {
             old_message_obj.fetch(interaction.client)
             .then(old_message => old_message.edit({ content: "~~" + old_message.content + "~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando `/managetags`).", components: []}))
             .catch( (e) => {
-                console.log("No se ha podido editar el mensaje con ID " + old_message_id + " en el canal con ID " + old_channel_id + ". Traza: " + e)
+                console.log("No se ha podido editar el mensaje con ID " + old_message_obj.message_id + " en el canal con ID " + old_message_obj.channel_id + ". Traza: " + e)
             })
         }
         
         let counter = 0
 
+        
+        
+        /** @type {MessageActionRow[]} */
         const rows = []
         
         let row = new MessageActionRow()
@@ -67,16 +74,19 @@ module.exports = {
   
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		
+        if(!(sentmsg instanceof DiscordMessage)) return
         peli.tag_manager_message = Message.from(sentmsg)
 
-		FilmManager.instance.save().then( () => {
+        try {
+            await FilmManager.instance.save()
 			sentmsg.edit({
                 content: `Modificando los tags de la película **${peli.first_name}**.`,
                 components: rows
             })
-		}).catch( () => {
-			sentmsg.edit("No se ha podido inicializar el manageador :/")
-		})
+            
+        } catch(e) {
+            sentmsg.edit("No se ha podido inicializar el manageador :/")
+        }
 
     }
 

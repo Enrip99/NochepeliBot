@@ -15,6 +15,9 @@ module.exports = {
             option.setName('usuario')
                 .setDescription('el nuevo proponedor')
                 .setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')

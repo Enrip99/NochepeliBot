@@ -1,23 +1,34 @@
 const utils = require("./utils.js")
 const { Message } = require("./message.js")
+const { Tag } = require("./tag.js")
 
-/**
- * Objeto que representa una peli
- * @param {string} name Nombre de la peli, sin sanitizar
- * @param {int} proposed_by_user El id del usuario que la ha propuesto
- *
- * Campos:
- * @field `first_name` — El nombre de la peli tal y como lo escribió quien la propuso
- * @field `sanitized_name` — El nombre de la peli como se usa internamente
- * @field `proposed_by_user` — El id del usuario que la propuso
- * @field `link` — Link para descargar la peli. Puede ser `null`.
- * @field `interested` — Lista de ids de usuarios particularmente interesados
- * @field `not_interested` — Lista de ids de usuarios no interesados
- * @field `tags` — Tags de la peli vamos a ver es autoevidente
- */
 
 class Film {
 
+    /** @type {string} El nombre de la peli tal y como lo escribió quien la propuso */
+    first_name
+    /** @type {string} El nombre de la peli como se usa internamente */
+    sanitized_name
+    /** @type {import("discord.js").Snowflake} El id del usuario que la propuso */
+    proposed_by_user
+    /** @type {string?} Link para descargar la peli */
+    link
+    /** @type {import("discord.js").Snowflake[]} Lista de ids de usuarios particularmente interesados */
+    interested
+    /** @type {import("discord.js").Snowflake[]} Lista de ids de usuarios no interesados */
+    not_interested
+    /** @type {Tag[]} Tags de la peli vamos a ver es autoevidente */
+    tags
+    /** @type {Message?} */
+    react_message
+    /** @type {Message?} */
+    tag_manager_message
+
+    /**
+     * 
+     * @param {string} name 
+     * @param {import("discord.js").Snowflake} proposed_by_user 
+     */
     constructor(name, proposed_by_user) {
         this.first_name = name.trim()
         this.sanitized_name = utils.sanitize_film_name(name)
@@ -30,7 +41,11 @@ class Film {
         this.tag_manager_message = null
     }
 
-
+    /**
+     * 
+     * @param {any} other 
+     * @returns 
+     */
     equals(other) {
         return other instanceof Film && this.sanitized_name === other.sanitized_name
     }
@@ -40,15 +55,21 @@ class Film {
         return "[Film : " + this.sanitized_name + "]"
     }
 
+
+    /**
+     * @param {Film} other
+     * @param {'INTEREST' | 'ALPHA'} comparison_criterion
+     */
     compareTo(other, comparison_criterion = 'INTEREST') {
 
         switch(comparison_criterion){
 
             case 'INTEREST':
+                /** @type {(arg :Film) => number} */
                 let norm = ( peli ) => peli.interested.length - peli.not_interested.length
                 let ret = norm( other ) - norm( this ) 
                 if( ret == 0 ){ //Si ambas pelis tienen la misma norma, las ordenamos alfabéticamente
-                    return this.compareTo(other, 'ALPHA')
+                    ret = this.compareTo(other, 'ALPHA')
                 }
                 return ret
             
@@ -80,6 +101,12 @@ class Film {
         }
     }
 
+    /**
+     * 
+     * @param {any} json 
+     * @param {{[sanitized_name :string]: Tag}} tag_dict 
+     * @returns 
+     */
     static deserialize(json, tag_dict) {
         if(!json || !tag_dict) {
             return null
@@ -89,9 +116,12 @@ class Film {
             let data = json
             ret = new Film(data.first_name, data.proposed_by_user)
             for(let key in data) {
+                /** @ts-ignore */
                 ret[key] = data[key]
             }
-            ret.tags = data.tags.map( (sanitized_tag_name) => tag_dict[sanitized_tag_name]) 
+            /** @type {string[]} */
+            let data_tags = data.tags
+            ret.tags = data_tags.map( (sanitized_tag_name) => tag_dict[sanitized_tag_name]) 
             //Hace falta pasarle el tag_dict para evitar bucle de dependencias
             ret.react_message = Message.deserialize(data.react_message)
             ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
