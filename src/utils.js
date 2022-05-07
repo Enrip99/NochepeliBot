@@ -105,28 +105,29 @@ exports.button_customId_parser = function(raw_customId) {
     if(fields.length < 3) {
         console.warn("Unexpected customId arg length")
     }
-    let deciduousity = fields[0]
-    let type = ""
+    let deciduous = fields[0] == "DM"
+    let type = fields[1]
     let customId = fields[2]
     let args = fields.slice(3) // Si no existe, devuelve []
-    return {deciduousity, type, customId, args}
+    return {deciduous, type, customId, args}
 }
 
 
 /**
  * 
- * @param {"IM" | "DM"} deciduousity 
+ * @param {boolean} deciduous
  * @param {string} type 
  * @param {string} customId 
  * @param {string[]} args 
  * @returns 
  */
-exports.button_customId_maker = function(deciduousity, type, customId, args = []) {
+exports.button_customId_maker = function(deciduous, type, customId, args = []) {
 
-    //TODO ¿Aquí qué hacemos?
-    let ret = `${deciduousity}:${type}:${customId}`
-    let stringified_args = args.join(":")
-    return [ret, stringified_args].join(":")
+    let deciduousity = deciduous ? "DM" : "IM"
+    let split_args = customId.split(":").concat(args)
+    let single_customId = split_args.shift()
+    let ret = `${deciduousity}:${type}:${single_customId}`
+    return [ret, split_args].join(":")
 }
 
 

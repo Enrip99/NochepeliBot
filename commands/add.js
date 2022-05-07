@@ -1,25 +1,14 @@
 const { MessageActionRow, MessageButton, ApplicationCommand, TextChannel } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../src/film_manager.js")
+const { Film } = require("../src/film.js")
 const { Message } = require("../src/message.js")
 const DiscordMessage = require("discord.js").Message
 const utils = require('../src/utils.js')
+const interests = require('../src/interests.js')
+const { DeciduousInteractiveMessage } = require('../src/interactive_message.js');
+const { InteractiveMessageManager } = require('../src/interactive_message_manager.js');
 
-const row = new MessageActionRow()
-				.addComponents(
-					new MessageButton()
-						.setCustomId('1')
-						.setLabel('Positivo')
-						.setStyle('SUCCESS'),
-					new MessageButton()
-						.setCustomId('0')
-						.setLabel('Neutral')
-						.setStyle('PRIMARY'),
-					new MessageButton()
-						.setCustomId('-1')
-						.setLabel('Negativo')
-						.setStyle('DANGER'),
-				)
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -49,29 +38,18 @@ module.exports = {
 		let peli = FilmManager.instance.get(inputpeli)
 		if(peli) {
 
-			let old_channel_id = peli.react_message.channel_id
-			let old_message_id = peli.react_message.message_id
-			if(old_channel_id && old_message_id){
-				let channel = await interaction.client.channels.fetch(old_channel_id)
-				if(!(channel instanceof TextChannel)) return
-				channel.messages.fetch(old_message_id)
-					.then(old_message => old_message.edit({ content: `~~${old_message.content}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/add\`.)`, components: []}))
-					.catch( (e) => {
-						console.log(`No se ha podido editar el mensaje con ID ${old_message_id} en el canal con ID ${old_channel_id}. Traza: ${e}`)
-					})
-			}
-
 			let raw_interaction = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 			if(!(raw_interaction instanceof DiscordMessage)) return
 			let sentmsg = raw_interaction
-			peli.react_message = Message.from(sentmsg)
 			
-
-			FilmManager.instance.save().then( () => {
-				sentmsg.edit({ content: `La película **${pelipost.first_name}** ya estaba en la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.`, components: [row]})
-			}).catch( () => {
+			try {
+				let interactive_message = new AddInteractiveMessage(sentmsg.channelId, sentmsg.id)
+				interactive_message.parse_args([peli.sanitized_name, "true"])
+				InteractiveMessageManager.instance.add(interactive_message, interaction)
+				await FilmManager.instance.save()
+			} catch(e) {
 				sentmsg.edit("No se ha podido añadir esa peli :/")
-			})
+			}
 			return
 		}
 
@@ -81,12 +59,173 @@ module.exports = {
 		if(!pelipost || !(raw_sentmsg instanceof DiscordMessage)) return
 		let sentmsg = raw_sentmsg
 		
-		pelipost.react_message = Message.from(sentmsg)
 		try {
+			let interactive_message = new AddInteractiveMessage(sentmsg.channelId, sentmsg.id)
+			interactive_message.parse_args([peli.sanitized_name, "false"])
+			InteractiveMessageManager.instance.add(interactive_message, interaction)
 			await FilmManager.instance.save()
-			sentmsg.edit({ content: `**${inputpeli}** añadida a la lista.\nReacciona a este mensaje para añadirte como interesado, no interesado o neutral.`, components: [row] })
 		} catch(e) {
 			sentmsg.edit("No se ha podido añadir esa peli :/")
 		}
 	},
 };
+
+
+class AddInteractiveMessage extends DeciduousInteractiveMessage {
+
+	/** @type {Film} */
+	film
+	/** @type {boolean} */
+	film_already_existed
+
+
+	/**
+	 * 
+	 * @param {string[]} args 
+	 */
+	parse_args(args) {
+		this.film = FilmManager.instance.get(args[0])
+		if(1 in args) {
+			this.film_already_existed = Boolean(args[1])
+		}
+	}
+
+
+	stringify_args() {
+		return `${this.film.sanitized_name}:${this.film_already_existed}`
+	}
+
+
+	buttons_to_create() {
+        return [new MessageActionRow()
+			.addComponents(
+			new MessageButton()
+				.setCustomId(`positive:${this.film.sanitized_name}`)
+				.setLabel('Positivo')
+				.setStyle('SUCCESS'),
+			new MessageButton()
+				.setCustomId(`neutral:${this.film.sanitized_name}`)
+				.setLabel('Neutral')
+				.setStyle('PRIMARY'),
+			new MessageButton()
+				.setCustomId(`negative:${this.film.sanitized_name}`)
+				.setLabel('Negativo')
+				.setStyle('DANGER'),
+		)]
+    }
+
+
+    /**
+     * 
+     * @param {import("discord.js").CommandInteraction} interaction 
+     */
+    on_add(interaction) {
+		let text = ""
+		if(!this.film_already_existed) {
+			text += `**${this.film.first_name}** añadida a la lista.`
+		}
+		else {
+			text += `La película **${this.film.first_name}** ya estaba en la lista.`
+		}
+		text += `\n¿Qué interés tienes en esta peli?`
+        this.edit(interaction.client, text)
+		.catch(() => interaction.reply({
+			content: `No se ha podido actualizar el mensaje de añadir la peli`,
+			ephemeral: true
+		}))
+    }
+
+
+    /**
+     * 
+     * @param {import("discord.js").ButtonInteraction} interaction 
+     * @param {string} customId 
+     * @param {string[]} args 
+     */
+    on_update(interaction, customId, args) {
+        let film = FilmManager.instance.get(args[0])
+		if(!film) {
+			interaction.reply({
+				content: `La peli **${args[0]}** ya no existe. Igual ha cambiado de nombre, o igual ya no está en la lista.`,
+				ephemeral: true
+			})
+			return
+		}
+
+		switch(customId) {
+			case "positive":
+				interests.add_very_interested(film, interaction.user.id)
+				.then((updated) => interaction.reply({
+					content: updated ?
+						`Tu interés en la peli **${film.first_name}** es ahora positivo. Evitaremos verla si no estás.` :
+						`Ya estabas muy interesado en la peli **${film.first_name}**.`,
+					ephemeral: true
+				}))
+				.catch(() => interaction.reply({
+					content: `No se ha podido guardar tu gran interés en la peli **${film.first_name}** :(. Algo se habrá roto.`,
+					ephemeral: true
+				}))
+				break
+			case "neutral":
+				interests.remove_interest_for_film(film, interaction.user.id)
+				.then((updated) => interaction.reply({
+					content: updated ?
+						`Tu interés en la peli **${film.first_name}** es ahora neutral, como Suiza.` :
+						`No me constaba tu interés o desinterés en **${film.first_name}**.`,
+					ephemeral: true
+				}))
+				.catch(() => interaction.reply({
+					content: `No se ha podido guardar tu neutralidad en la peli **${film.first_name}** :(. Algo se habrá roto.`,
+					ephemeral: true
+				}))
+				break
+			case "negative":
+				interests.add_not_interested(film, interaction.user.id)
+				.then((updated) => interaction.reply({
+					content: updated ? 
+						`Tu interés en la peli **${film.first_name}** es ahora negativo. La veremos sin ti :)` :
+						`Ya sé que no quieres ver **${film.first_name}**, pesao.`,
+					ephemeral: true
+				}))
+				.catch(() => interaction.reply({
+					content: `No se ha podido guardar tu desinterés en la peli **${film.first_name}** :(. Algo se habrá roto.`,
+					ephemeral: true
+				}))
+				break
+		}
+    }
+
+	identity() {
+        return this.film ? this.film.sanitized_name : this.toString()
+    }
+
+    /**
+     * 
+     * @param {import("discord.js").Interaction} interaction 
+     */
+    on_abandon(interaction) {
+		this.fetch(interaction.client)
+		.then(discord_message => {
+			let old_message = discord_message.content
+			for(let row of discord_message.components) {
+				for(let component of row.components) {
+					component.disabled = true
+				}
+			}
+			discord_message.edit({
+				content: `~~${old_message}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/add\`.)`,
+				components: discord_message.components
+			})
+		})
+		.catch((e) => {
+			console.log(`No se ha podido editar el mensaje ${this}. Traza: ${e}`)
+		})
+    }
+
+
+	should_be_kept() {
+		return this.film != null && FilmManager.instance.exists(this.film.sanitized_name)
+	}
+}
+
+InteractiveMessageManager.instance.register_type(AddInteractiveMessage)

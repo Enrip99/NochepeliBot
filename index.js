@@ -8,6 +8,7 @@ const { Film } = require('./src/film.js')
 const utils = require('./src/utils.js')
 const interests = require('./src/interests.js');
 const { MessageActionRow, MessageButton, TextChannel } = require('discord.js');
+const { InteractiveMessageManager } = require('./src/interactive_message_manager');
 const DiscordMessage = require("discord.js").Message
 
 
@@ -29,6 +30,7 @@ for (const file of commandFiles) {
 client.once('ready', async () => {
   try {
     FilmManager.instance.client = client
+    InteractiveMessageManager.instance.register(client)
     await FilmManager.instance.load()
     client.user.setActivity('Type AYUDA for help', );
 
@@ -37,7 +39,7 @@ client.once('ready', async () => {
       /** @type {Promise<Film>[]} */
       let promarray = []
       for (let peli of FilmManager.instance.iterate()){
-        console.log(`${peli.react_message} - ${peli.first_name}`)
+        console.log(`Loaded ${peli.first_name}`)
         // promarray.push(peli.react_message["channel_id"].messages.fetch(peli.react_message["message_id"], true))
       }
       Promise.all(promarray).then( value => {
@@ -82,38 +84,7 @@ client.on('interactionCreate', async interaction => { //Botones
   
   for (let peli of FilmManager.instance.iterate()){
 
-    if(peli.react_message && peli.react_message.equals(interaction_msg)) {
-
-      let inputpeli = peli.first_name
-      let inputinteres = interaction.customId
-
-      switch(inputinteres){
-        case '1':		
-          interests.add_very_interested(inputpeli, user).then( () => {
-            interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora positivo. Evitaremos verla si no estás.`, ephemeral: true })
-          }).catch( () => {
-            interaction.reply({ content: `No se ha podido guardar tu gran interés en la peli **${peli.first_name}** :(. Algo se habrá roto.`, ephemeral: true })
-          })
-          break
-        
-        case '0':				
-          interests.remove_interest_for_film(inputpeli, user).then( () => {
-            interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora neutral, como Suiza.`, ephemeral: true })
-          }).catch( () => {
-            interaction.reply({ content: `No se ha podido guardar tu neutralidad en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
-          })
-          break
-        
-        case '-1':
-          interests.add_not_interested(inputpeli, user).then( () => {
-            interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora negativo. La veremos sin ti :).`, ephemeral: true })
-          }).catch( () => {
-            interaction.reply({ content: `No se ha podido guardar tu desinterés en la peli **${peli.first_name}** :(. Algo se habrá roto.`})
-          })
-          break
-      }
-    }
-    else if(peli.tag_manager_message && peli.tag_manager_message.equals(interaction_msg)){
+    if(peli.tag_manager_message && peli.tag_manager_message.equals(interaction_msg)){
 
       interaction.deferUpdate()
 

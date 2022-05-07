@@ -3,7 +3,7 @@
         "target": "es6",
         "moduleResolution": "node",
         "strictBindCallApply": true,
-        "strictFunctionTypes": false,
+        "strictFunctionTypes": true,
         "strictPropertyInitialization": false,
         "strictNullChecks": false,
         "checkJs": true,

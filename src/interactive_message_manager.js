@@ -1,6 +1,7 @@
 const utils = require("./utils.js")
 const config = require("../data/config.json")
 const { InteractiveMessage, DeciduousInteractiveMessage } = require("./interactive_message.js")
+const { Message } = require("./message.js")
 
 
 class InteractiveMessageManager {
@@ -31,16 +32,16 @@ class InteractiveMessageManager {
      */
     register(client) {
         this.client = client
-        client.on("interactionCreate", this.process)
+        let this_instance = this
+        client.on("interactionCreate", (interaction) => this.process.call(this_instance, interaction))
     }
 
 
     /**
-     * @param {string} unique_id,
      * @param {MessageConstructor} type
      */
-    register_type(unique_id, type) {
-        this.message_types[unique_id] = type
+    register_type(type) {
+        this.message_types[type.name] = type
     }
 
 
@@ -51,7 +52,7 @@ class InteractiveMessageManager {
      */
     add(message, interaction) {
         if(message instanceof DeciduousInteractiveMessage) {
-            if(message.constructor.name in this.deciduous_messages) {
+            if(!(message.constructor.name in this.deciduous_messages)) {
                 this.deciduous_messages[message.constructor.name] = {}
             }
             if(message.identity() in this.deciduous_messages[message.constructor.name]) {
@@ -59,14 +60,24 @@ class InteractiveMessageManager {
             }
             this.deciduous_messages[message.constructor.name][message.identity()] = message
         }
-        message.on_add(interaction)
+
+        let action_rows = message.buttons_to_create()
+        let deciduous = message instanceof DeciduousInteractiveMessage
+        for(let row of action_rows) {
+            for(let component of row.components) {
+                component.setCustomId(utils.button_customId_maker(deciduous, message.constructor.name, component.customId))
+            }
+        }
+
+        message.edit(interaction.client, { components: action_rows })
+        .then(() => message.on_add(interaction))
     }
 
 
     /**
      * 
      * @param {DeciduousInteractiveMessage} message
-     * @param {import("discord.js").CommandInteraction} interaction
+     * @param {import("discord.js").Interaction} interaction
      */
     abandon(message, interaction) {
         if(!(message instanceof DeciduousInteractiveMessage)) {
@@ -85,32 +96,32 @@ class InteractiveMessageManager {
 
     /**
      * 
-     * @param {import("discord.js").ButtonInteraction} interaction
+     * @param {import("discord.js").Interaction} interaction
      */
     async process(interaction) {
         if(!interaction.isButton() || interaction.guildId != config.guildId) {
             return
         }
 
-        interaction.deferUpdate()
+        //// interaction.deferUpdate()
 
-        let {deciduousity, type, customId, args} = utils.button_customId_parser(interaction.customId)
+        let {deciduous, type, customId, args} = utils.button_customId_parser(interaction.customId)
 
-        switch(deciduousity) {
-            case "IM":
-                let message_instance = new this.message_types[type](interaction.channelId, interaction.message.id)
-                message_instance.on_update(message_instance, customId, args)
-                break
-            case "DM":
-                for(let id of Object.keys(this.deciduous_messages[type])) {
-                    let message_instance = this.deciduous_messages[type][id]
-                    message_instance.on_update(message_instance, customId, args)
-                    break
-                }
-                break
-            default:
-                console.error("Invalid Deciduousity. Must be either 'IM' (perennial) or 'DM' (deciduous).")
-        }   
+        if(!deciduous) {
+            let message_instance = new this.message_types[type](interaction.channelId, interaction.message.id)
+            message_instance.parse_args(args)
+            message_instance.on_update(interaction, customId, args)
+        }
+        else {
+           for(let id of Object.keys(this.deciduous_messages[type])) {
+               let current_msg = this.deciduous_messages[type][id]
+               current_msg.on_update(interaction, customId, args)
+               if(!current_msg.should_be_kept) {
+                   this.abandon(current_msg, interaction)
+               }
+               break
+            }
+        }  
     }
 
 
@@ -121,6 +132,40 @@ class InteractiveMessageManager {
             }
         }
     }
+
+
+    serialize() {
+        /** @type {any} */
+        let ret = {}
+        for(let type of Object.keys(this.deciduous_messages)) {
+            ret[type] = {}
+            for(let id of Object.keys(this.deciduous_messages[type])) {
+                if(this.deciduous_messages[type][id].should_be_kept()) {
+                    ret[type][id] = this.deciduous_messages[type][id].serialize()
+                }
+            }
+        }
+        return ret
+    }
+
+
+    /**
+     * 
+     * @param {any} json
+     */
+    load_messages(json) {
+        for(let type of Object.keys(json)) {
+            if(!(type in this.deciduous_messages)) {
+                this.deciduous_messages[type] = {}
+            }
+            for(let id of Object.keys(json[type])) {
+                /* @ts-ignore */
+                let msg = DeciduousInteractiveMessage.deserialize(json[type][id], this.message_types[type])
+                this.deciduous_messages[type][id] = msg
+            }
+        }
+    }
+
 }
 
 
