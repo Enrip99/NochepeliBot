@@ -28,9 +28,9 @@ module.exports = {
 			return
 		}
 
-		tosend = "<@" + interaction.user.id + "> quiere ver **" + peli.first_name + "**. Llamando a los interesados:"
+		tosend = `<@${interaction.user.id}> quiere ver **${peli.first_name}**. Llamando a los interesados:`
 		for (let i = 0; i < peli.interested.length; ++i){
-			tosend += " <@" + peli.interested[i] + ">"
+			tosend += ` <@${peli.interested[i]}>`
 		}
 
 		await interaction.reply(tosend)

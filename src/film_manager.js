@@ -2,7 +2,8 @@ const fs = require('fs');
 const utils = require('./utils.js')
 const { Film } = require ('./film.js')
 const { Tag } = require('./tag.js')
-const { ListRenderer } = require('./list_renderer.js')
+const { ListRenderer } = require('./list_renderer.js');
+const { InteractiveMessageManager } = require('./interactive_message_manager.js');
 
 
 const LISTA_LOCATION = "data/lista.json"
@@ -72,7 +73,7 @@ class FilmManager {
     edit_name(old_name, new_name) {
         let old_sanitized_name = utils.sanitize_film_name(old_name)
         let new_sanitized_name = utils.sanitize_film_name(new_name)
-        console.log("La peli " + old_sanitized_name + " ahora se llama " + new_sanitized_name)
+        console.log(`La peli ${old_sanitized_name} ahora se llama ${new_sanitized_name}`)
 
         if(old_sanitized_name != new_sanitized_name){
             if(!(old_sanitized_name in this.pelis) || (new_sanitized_name in this.pelis)){
@@ -241,7 +242,8 @@ class FilmManager {
         let lista = {
             pelis: serialized_pelis,
             tags: this.tags,
-            list_renderer: this.list_renderer.serialize()
+            list_renderer: this.list_renderer.serialize(),
+            interactive_messages: InteractiveMessageManager.instance.serialize()
         }
 
         this.list_renderer.update(this.client)
@@ -294,6 +296,7 @@ class FilmManager {
                         this_instance.list_renderer = deserialized_list_renderer
                         console.log("Cargada la lista desde disco.")
                         this_instance.list_renderer.update(this_instance.client)
+                        InteractiveMessageManager.instance.load_messages(parsed_data.interactive_messages ?? {})
                         resolve()
                     } catch(e) {
                         console.error("Error al cargar de disco: " + e)

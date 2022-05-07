@@ -11,7 +11,7 @@ module.exports = {
 	async execute(interaction) {
 		interaction.reply({ content: 'pong 🏓', fetchReply: true }).then((sentmsg) => {
 			if(!(sentmsg instanceof DiscordMessage)) return
-			sentmsg.edit("pong 🏓\n" + (sentmsg.createdTimestamp - interaction.createdTimestamp) + " milisegundos")
+			sentmsg.edit(`pong 🏓\n${(sentmsg.createdTimestamp - interaction.createdTimestamp)} milisegundos`)
 		});
 	},
 };

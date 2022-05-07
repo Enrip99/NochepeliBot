@@ -25,9 +25,9 @@ module.exports = {
 		peli.link = null
 		console.log("Eliminado link de " + inputpeli)
 		await FilmManager.instance.save().then( () => {
-			interaction.reply("Eliminado el enalce de **" + inputpeli + "**.")
+			interaction.reply(`Eliminado el enalce de **${inputpeli}**.`)
 		}).catch(() => {
-			interaction.reply("No se ha podido eliminar el enlace de **" + inputpeli + "** ")
+			interaction.reply({ content: `No se ha podido eliminar el enlace de **${inputpeli}** :(`, ephemeral: true })
 		})
 
 	}

@@ -74,6 +74,62 @@ exports.parallel_for = async function(list, lambda) {
     return Promise.all(promises)
 }
 
+/**
+ * lmao
+ * @typedef {string | number | symbol} K
+ * @typedef {string | number | symbol} V
+ * @param {{[key :K]: V}} dict
+ * @returns
+ */
+exports.reverse_dictionary = function(dict) {
+    /** @type {{[key :V]: K}} */
+    let ret = {}
+    for(let key of Object.keys(dict)) {
+        let value = dict[key]
+        if(value in ret) {
+            console.warn(`Value '${value.toString()}' is duplicated`)
+        }
+        ret[value] = key
+    }
+    return ret
+}
+
+
+/**
+ * 
+ * @param {string} raw_customId 
+ * @returns 
+ */
+exports.button_customId_parser = function(raw_customId) {
+    let fields = raw_customId.split(":")
+    if(fields.length < 3) {
+        console.warn("Unexpected customId arg length")
+    }
+    let deciduous = fields[0] == "DM"
+    let type = fields[1]
+    let customId = fields[2]
+    let args = fields.slice(3) // Si no existe, devuelve []
+    return {deciduous, type, customId, args}
+}
+
+
+/**
+ * 
+ * @param {boolean} deciduous
+ * @param {string} type 
+ * @param {string} customId 
+ * @param {string[]} args 
+ * @returns 
+ */
+exports.button_customId_maker = function(deciduous, type, customId, args = []) {
+
+    let deciduousity = deciduous ? "DM" : "IM"
+    let split_args = customId.split(":").concat(args)
+    let single_customId = split_args.shift()
+    let ret = `${deciduousity}:${type}:${single_customId}`
+    return [ret, split_args].join(":")
+}
+
 
 /**
  * Apaga el bot
