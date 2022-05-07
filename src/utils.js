@@ -125,8 +125,7 @@ exports.button_customId_maker = function(deciduous, type, customId, args = []) {
 
     let deciduousity = deciduous ? "DM" : "IM"
     let split_args = customId.split(":").concat(args)
-    let single_customId = split_args.shift()
-    let ret = `${deciduousity}:${type}:${single_customId}`
+    let ret = `${deciduousity}:${type}`
     return [ret, split_args].join(":")
 }
 

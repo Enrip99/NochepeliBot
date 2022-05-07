@@ -61,13 +61,7 @@ class InteractiveMessageManager {
             this.deciduous_messages[message.constructor.name][message.identity()] = message
         }
 
-        let action_rows = message.buttons_to_create()
-        let deciduous = message instanceof DeciduousInteractiveMessage
-        for(let row of action_rows) {
-            for(let component of row.components) {
-                component.setCustomId(utils.button_customId_maker(deciduous, message.constructor.name, component.customId))
-            }
-        }
+        let action_rows = message.create_buttons()
 
         message.edit(interaction.client, { components: action_rows })
         .then(() => message.on_add(interaction))
@@ -109,7 +103,7 @@ class InteractiveMessageManager {
 
         if(!deciduous) {
             let message_instance = new this.message_types[type](interaction.channelId, interaction.message.id)
-            message_instance.parse_args(args)
+            message_instance.parse_args(...args)
             message_instance.on_update(interaction, customId, args)
         }
         else {

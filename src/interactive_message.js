@@ -1,4 +1,5 @@
 const { Message } = require("./message.js");
+const utils = require("./utils.js")
 
 
 class InteractiveMessage extends Message {
@@ -12,12 +13,28 @@ class InteractiveMessage extends Message {
         return []
     }
 
+    /**
+     * 
+     * @returns {import("discord.js").MessageActionRow[]}
+     */
+    create_buttons(){
+
+        let action_rows = this.buttons_to_create()
+        let deciduous = this instanceof DeciduousInteractiveMessage
+        for(let row of action_rows) {
+            for(let component of row.components) {
+                component.setCustomId(utils.button_customId_maker(deciduous, this.constructor.name, component.customId))
+            }
+        }
+        return action_rows
+    }
+
 
     /**
      * 
      * @param {string[]} args 
      */
-    parse_args(args) {
+    parse_args(...args) {
         // To be overriden in subclasses
     }
 
@@ -111,7 +128,7 @@ class DeciduousInteractiveMessage extends InteractiveMessage {
             ctor = DeciduousInteractiveMessage
         }
         ret = new ctor(json.channel_id, json.message_id)
-        ret.parse_args(json.arguments.split(":"))
+        ret.parse_args(...json.arguments.split(":"))
         return ret
     }
 }

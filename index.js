@@ -79,69 +79,7 @@ client.on('interactionCreate', async interaction => { //Botones
 
   //TODO: mover esta ristra enorme a subarchivos, igual que con commands
   let user = interaction.user 
-
-  let interaction_msg = Message.from(interaction.message)
   
-  for (let peli of FilmManager.instance.iterate()){
-
-    if(peli.tag_manager_message && peli.tag_manager_message.equals(interaction_msg)){
-
-      interaction.deferUpdate()
-
-      let inputtag = interaction.customId
-      let tag = FilmManager.instance.get_tag(inputtag)
-
-      if(!tag) return //typecheck
-
-      if(peli.tags.includes(tag)){
-        utils.remove_from_list(peli.tags, tag)
-      } else{
-        peli.tags.push(tag)
-      }
-
-      //copypasteado de maangetags.js. Iteramos de nuevo por todos los tags porque me da palo buscar un modo mejor.
-
-      let counter = 0
-
-      /** @type {MessageActionRow[]} s} */
-      const rows = []
-      
-      let row = new MessageActionRow()
-
-      for(let tag of FilmManager.instance.iterate_tags()){
-
-          counter += 1
-          if(counter > 5){
-              counter -= 5
-              rows.push(row)
-              row = new MessageActionRow()
-          }
-
-          let tag_button = new MessageButton()
-                          .setCustomId(tag.sanitized_name)
-                          .setLabel(tag.tag_name + (tag.hidden ? " (OCULTO)" : ""))
-
-          if(peli.tags.includes(tag)){
-              tag_button.setStyle('SUCCESS')
-          }
-          else{
-              tag_button.setStyle('SECONDARY')
-          }
-
-          row.addComponents(tag_button)
-
-      }    
-      rows.push(row)
-
-      try {
-        await FilmManager.instance.save()
-        interaction.message.edit({ components: rows})
-      } catch(e) {
-        console.error(e)
-      }
-      
-    }
-  }
 
   if(interaction.customId == 'cancel'){
     interaction.message.edit({ content: `Acción cancelada por el usuario ${user.username}.`, components: []})

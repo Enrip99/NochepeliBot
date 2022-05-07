@@ -44,7 +44,7 @@ module.exports = {
 			
 			try {
 				let interactive_message = new AddInteractiveMessage(sentmsg.channelId, sentmsg.id)
-				interactive_message.parse_args([peli.sanitized_name, "true"])
+				interactive_message.parse_args(peli.sanitized_name, "true")
 				InteractiveMessageManager.instance.add(interactive_message, interaction)
 				await FilmManager.instance.save()
 			} catch(e) {
@@ -61,7 +61,7 @@ module.exports = {
 		
 		try {
 			let interactive_message = new AddInteractiveMessage(sentmsg.channelId, sentmsg.id)
-			interactive_message.parse_args([peli.sanitized_name, "false"])
+			interactive_message.parse_args(peli.sanitized_name, "false")
 			InteractiveMessageManager.instance.add(interactive_message, interaction)
 			await FilmManager.instance.save()
 		} catch(e) {
@@ -74,7 +74,7 @@ module.exports = {
 class AddInteractiveMessage extends DeciduousInteractiveMessage {
 
 	/** @type {Film} */
-	film
+	peli
 	/** @type {boolean} */
 	film_already_existed
 
@@ -83,8 +83,8 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 	 * 
 	 * @param {string[]} args 
 	 */
-	parse_args(args) {
-		this.film = FilmManager.instance.get(args[0])
+	parse_args(...args) {
+		this.peli = FilmManager.instance.get(args[0])
 		if(1 in args) {
 			this.film_already_existed = Boolean(args[1])
 		}
@@ -92,7 +92,7 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 
 
 	stringify_args() {
-		return `${this.film.sanitized_name}:${this.film_already_existed}`
+		return `${this.peli.sanitized_name}:${this.film_already_existed}`
 	}
 
 
@@ -100,15 +100,15 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
         return [new MessageActionRow()
 			.addComponents(
 			new MessageButton()
-				.setCustomId(`positive:${this.film.sanitized_name}`)
+				.setCustomId(`positive`)
 				.setLabel('Positivo')
 				.setStyle('SUCCESS'),
 			new MessageButton()
-				.setCustomId(`neutral:${this.film.sanitized_name}`)
+				.setCustomId(`neutral`)
 				.setLabel('Neutral')
 				.setStyle('PRIMARY'),
 			new MessageButton()
-				.setCustomId(`negative:${this.film.sanitized_name}`)
+				.setCustomId(`negative`)
 				.setLabel('Negativo')
 				.setStyle('DANGER'),
 		)]
@@ -122,10 +122,10 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
     on_add(interaction) {
 		let text = ""
 		if(!this.film_already_existed) {
-			text += `**${this.film.first_name}** añadida a la lista.`
+			text += `**${this.peli.first_name}** añadida a la lista.`
 		}
 		else {
-			text += `La película **${this.film.first_name}** ya estaba en la lista.`
+			text += `La película **${this.peli.first_name}** ya estaba en la lista.`
 		}
 		text += `\n¿Qué interés tienes en esta peli?`
         this.edit(interaction.client, text)
@@ -143,8 +143,9 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
      * @param {string[]} args 
      */
     on_update(interaction, customId, args) {
-        let film = FilmManager.instance.get(args[0])
-		if(!film) {
+		
+        let film = this.peli
+		if(!FilmManager.instance.exists(film.sanitized_name)) {
 			interaction.reply({
 				content: `La peli **${args[0]}** ya no existe. Igual ha cambiado de nombre, o igual ya no está en la lista.`,
 				ephemeral: true
@@ -196,7 +197,7 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
     }
 
 	identity() {
-        return this.film ? this.film.sanitized_name : this.toString()
+        return this.peli ? this.peli.sanitized_name : this.toString()
     }
 
     /**
@@ -224,7 +225,7 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 
 
 	should_be_kept() {
-		return this.film != null && FilmManager.instance.exists(this.film.sanitized_name)
+		return this.peli != null && FilmManager.instance.exists(this.peli.sanitized_name)
 	}
 }
 
