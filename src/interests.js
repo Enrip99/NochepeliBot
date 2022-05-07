@@ -60,3 +60,39 @@ exports.add_not_interested = async function(peli, user_id) {
 	await FilmManager.instance.save()
 	return interest_updated
 }
+
+
+/**
+ * Comprueba en qué películas está muy interesado, neutralmente interesado, o no interesado el usuario.
+ * Devuelve una promesa.
+ * @param { import("discord.js").Snowflake } userid
+ * @returns { Promise< Record<string, Film[]> > }
+ */
+exports.get_user_interest_list = function( userid ) {
+
+	//TODO: combinar las otras 3 funciones en una, como aquí
+	//TODO: cambiar intereses a strings, en general (¿creas clase?)
+	/** @type { Record<string, Film[]> } */
+	let interest_lists = {'negativo':[], 'neutral':[], 'positivo':[]}
+
+	return new Promise((resolve, reject) => {
+
+		try{			
+			for( let peli of FilmManager.instance.iterate() ){
+				if( peli.interested.includes(userid) ){
+					interest_lists['positivo'].push(peli)
+				} else if( peli.not_interested.includes(userid) ){
+					interest_lists['negativo'].push(peli)
+				} else {
+					interest_lists['neutral'].push(peli)
+				}
+			}
+			resolve(interest_lists)
+
+		} catch(e) {
+			reject(e)
+		}
+			
+	})
+	
+}

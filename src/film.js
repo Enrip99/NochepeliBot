@@ -54,6 +54,13 @@ class Film {
 
 
     /**
+     * @return { number }
+     */
+    norm(){
+        return this.interested.length - this.not_interested.length
+    }
+
+    /**
      * @param {Film} other
      * @param {'INTEREST' | 'ALPHA'} comparison_criterion
      */
@@ -62,9 +69,7 @@ class Film {
         switch(comparison_criterion){
 
             case 'INTEREST':
-                /** @type {(arg :Film) => number} */
-                let norm = ( peli ) => peli.interested.length - peli.not_interested.length
-                let ret = norm( other ) - norm( this ) 
+                let ret = other.norm() - this.norm()
                 if( ret == 0 ){ //Si ambas pelis tienen la misma norma, las ordenamos alfabéticamente
                     ret = this.compareTo(other, 'ALPHA')
                 }
@@ -79,6 +84,8 @@ class Film {
         }
     }
 
+    
+    /** @returns { boolean } */
     is_hidden() {
         //Si algún tag está oculto, la peli está oculta
         return this.tags.some((tag) => tag.hidden)  
