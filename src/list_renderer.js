@@ -69,8 +69,8 @@ class ListRenderer {
                 msg += " · ratio"
             }
             let user = await utils.get_user_by_id(client, peli.proposed_by_user)
-            msg += " · Propuesta por **" + user.username + "**\n"
-            msg += this.display_film_link_status(peli)
+            msg += " · Propuesta por **" + user.username + "**"
+            msg += this.display_film_link_status(peli) + "\n"
 
             let obj = { 'message': msg, 'peli': peli } 
 
