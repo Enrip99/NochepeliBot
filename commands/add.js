@@ -48,15 +48,16 @@ module.exports = {
 				InteractiveMessageManager.instance.add(interactive_message, interaction)
 				await FilmManager.instance.save()
 			} catch(e) {
+				console.error(`Error al añadir peli ${inputpeli}: ${e}`)
 				sentmsg.edit("No se ha podido añadir esa peli :/")
 			}
 			return
 		}
 
 		FilmManager.instance.add(inputpeli, interaction.user.id)
-		let pelipost = FilmManager.instance.get(inputpeli)
+		peli = FilmManager.instance.get(inputpeli)
 		let raw_sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
-		if(!pelipost || !(raw_sentmsg instanceof DiscordMessage)) return
+		if(!peli || !(raw_sentmsg instanceof DiscordMessage)) return
 		let sentmsg = raw_sentmsg
 		
 		try {
@@ -65,6 +66,7 @@ module.exports = {
 			InteractiveMessageManager.instance.add(interactive_message, interaction)
 			await FilmManager.instance.save()
 		} catch(e) {
+			console.error(`Error al añadir peli ${inputpeli}: ${e}`)
 			sentmsg.edit("No se ha podido añadir esa peli :/")
 		}
 	},
@@ -86,7 +88,7 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 	parse_args(...args) {
 		this.peli = FilmManager.instance.get(args[0])
 		if(1 in args) {
-			this.film_already_existed = Boolean(args[1])
+			this.film_already_existed = args[1] === "true"
 		}
 	}
 
