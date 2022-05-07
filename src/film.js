@@ -82,6 +82,8 @@ class Film {
         }
     }
 
+    
+    /** @returns { boolean } */
     is_hidden() {
         //Si algún tag está oculto, la peli está oculta
         return this.tags.some((tag) => tag.hidden)  
