@@ -2,6 +2,7 @@ const utils = require("./utils.js")
 const config = require("../data/config.json")
 const { InteractiveMessage, DeciduousInteractiveMessage } = require("./interactive_message.js")
 const { Message } = require("./message.js")
+const DiscordMessage = require("discord.js").Message
 
 
 class InteractiveMessageManager {
@@ -51,6 +52,10 @@ class InteractiveMessageManager {
      * @param {import("discord.js").CommandInteraction} interaction
      */
     add(message, interaction) {
+        if(!(message.constructor.name in this.message_types)) {
+            console.warn(`El tipo ${message.constructor.name} no está registrado en el Manager`)
+        }
+
         if(message instanceof DeciduousInteractiveMessage) {
             if(!(message.constructor.name in this.deciduous_messages)) {
                 this.deciduous_messages[message.constructor.name] = {}
@@ -97,23 +102,27 @@ class InteractiveMessageManager {
             return
         }
 
-        //// interaction.deferUpdate()
-
-        let {deciduous, type, customId, args} = utils.button_customId_parser(interaction.customId)
+        let {deciduous, type, args} = utils.button_customId_parser(interaction.customId)
+        if(!(type in this.message_types)) {
+            console.warn(`El tipo ${type} no está registrado en el Manager`)
+        }
 
         if(!deciduous) {
             let message_instance = new this.message_types[type](interaction.channelId, interaction.message.id)
             message_instance.parse_args(...args)
-            message_instance.on_update(interaction, customId, args)
+            message_instance.on_update(interaction, args)
         }
         else {
-           for(let id of Object.keys(this.deciduous_messages[type])) {
+            if(!(interaction.message instanceof DiscordMessage)) return
+            for(let id of Object.keys(this.deciduous_messages[type])) {
                let current_msg = this.deciduous_messages[type][id]
-               current_msg.on_update(interaction, customId, args)
-               if(!current_msg.should_be_kept) {
-                   this.abandon(current_msg, interaction)
+               if(current_msg.equals(Message.from(interaction.message))) {
+                   current_msg.on_update(interaction, args)
+                   if(!current_msg.should_be_kept()) {
+                       this.abandon(current_msg, interaction)
+                    }
+                    break
                }
-               break
             }
         }  
     }

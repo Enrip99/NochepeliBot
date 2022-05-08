@@ -107,9 +107,8 @@ exports.button_customId_parser = function(raw_customId) {
     }
     let deciduous = fields[0] == "DM"
     let type = fields[1]
-    let customId = fields[2]
-    let args = fields.slice(3) // Si no existe, devuelve []
-    return {deciduous, type, customId, args}
+    let args = fields.slice(2) // Si no existe, devuelve []
+    return {deciduous, type, args}
 }
 
 
@@ -122,9 +121,8 @@ exports.button_customId_parser = function(raw_customId) {
  * @returns 
  */
 exports.button_customId_maker = function(deciduous, type, customId, args = []) {
-
     let deciduousity = deciduous ? "DM" : "IM"
-    let split_args = customId.split(":").concat(args)
+    let split_args = customId.split(":").concat(args).join(":")
     let ret = `${deciduousity}:${type}`
     return [ret, split_args].join(":")
 }

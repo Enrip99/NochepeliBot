@@ -4,21 +4,13 @@ const utils = require("./utils.js")
 
 class InteractiveMessage extends Message {
 
-
-    /**
-     * 
-     * @returns {import("discord.js").MessageActionRow[]}
-     */
-    buttons_to_create() {
-        return []
-    }
-
+    
     /**
      * 
      * @returns {import("discord.js").MessageActionRow[]}
      */
     create_buttons(){
-
+        
         let action_rows = this.buttons_to_create()
         let deciduous = this instanceof DeciduousInteractiveMessage
         for(let row of action_rows) {
@@ -28,6 +20,15 @@ class InteractiveMessage extends Message {
         }
         return action_rows
     }
+    
+
+    /**
+     * 
+     * @returns {import("discord.js").MessageActionRow[]}
+     */
+    buttons_to_create() {
+        return []
+    }
 
 
     /**
@@ -36,15 +37,6 @@ class InteractiveMessage extends Message {
      */
     parse_args(...args) {
         // To be overriden in subclasses
-    }
-
-
-    /**
-     * @returns {string}
-     */
-    stringify_args() {
-        // To be overriden in subclasses
-        return ""
     }
 
 
@@ -60,10 +52,9 @@ class InteractiveMessage extends Message {
     /**
      * 
      * @param {import("discord.js").ButtonInteraction} interaction
-     * @param {string} customId 
      * @param {string[]} args 
      */
-    on_update(interaction, customId, args) {
+    on_update(interaction, args) {
         // To be overriden in subclasses
     }
 
@@ -90,6 +81,15 @@ class DeciduousInteractiveMessage extends InteractiveMessage {
     identity() {
         // To be overriden in subclasses
         return this.toString()
+    }
+
+
+    /**
+     * @returns {string}
+     */
+     stringify_args() {
+        // To be overriden in subclasses
+        return ""
     }
 
 

@@ -140,23 +140,22 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
 
     /**
      * 
-     * @param {import("discord.js").ButtonInteraction} interaction 
-     * @param {string} customId 
+     * @param {import("discord.js").ButtonInteraction} interaction
      * @param {string[]} args 
      */
-    async on_update(interaction, customId, args) {
+    async on_update(interaction, args) {
 
         let film = this.peli
 		if(!FilmManager.instance.exists(film.sanitized_name)) {
 			interaction.reply({
-				content: `La peli **${args[0]}** ya no existe. Igual ha cambiado de nombre, o igual ya no está en la lista.`,
+				content: `La peli ya no existe. Igual ha cambiado de nombre, o igual ya no está en la lista.`,
 				ephemeral: true
 			})
 			return
 		}
         await interaction.deferUpdate()
 
-        let tag = FilmManager.instance.get_tag(customId)
+        let tag = FilmManager.instance.get_tag(args[0])
 
         if(film.tags.includes(tag)){
             utils.remove_from_list(film.tags, tag)

@@ -140,22 +140,21 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 
     /**
      * 
-     * @param {import("discord.js").ButtonInteraction} interaction 
-     * @param {string} customId 
+     * @param {import("discord.js").ButtonInteraction} interaction
      * @param {string[]} args 
      */
-    on_update(interaction, customId, args) {
+    on_update(interaction, args) {
 		
         let film = this.peli
-		if(!FilmManager.instance.exists(film.sanitized_name)) {
+		if(!film || !FilmManager.instance.exists(film.sanitized_name)) {
 			interaction.reply({
-				content: `La peli **${args[0]}** ya no existe. Igual ha cambiado de nombre, o igual ya no está en la lista.`,
+				content: `La peli ya no existe. Igual ha cambiado de nombre, o igual ya no está en la lista.`,
 				ephemeral: true
 			})
 			return
 		}
 
-		switch(customId) {
+		switch(args[0]) {
 			case "positive":
 				interests.add_very_interested(film, interaction.user.id)
 				.then((updated) => interaction.reply({

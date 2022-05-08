@@ -123,7 +123,7 @@ class Film {
                 ret[key] = data[key]
             }
             /** @type {string[]} */
-            let data_tags = data.tags
+            let data_tags = data.tags ?? []
             ret.tags = data_tags.map( (sanitized_tag_name) => tag_dict[sanitized_tag_name]) 
             //Hace falta pasarle el tag_dict para evitar bucle de dependencias
             ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
