@@ -163,6 +163,7 @@ class FilmManager {
      * @returns {Film?} El objeto que representa la peli o `null`
      */
     get(film_name) {
+        if(!film_name) return null
         film_name = utils.sanitize_film_name(film_name)
         return this.pelis[film_name] ?? null
     }
@@ -174,6 +175,7 @@ class FilmManager {
      * @returns {Tag?} El objeto que representa al tag o `null`
      */
     get_tag(tag_name) {
+        if(!tag_name) return null
         tag_name = utils.sanitize_film_name(tag_name)
         return this.tags[tag_name] ?? null
     }
