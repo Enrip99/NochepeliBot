@@ -12,12 +12,15 @@ module.exports = {
 			option.setName('tag')
 				.setDescription('el tag a quitar')
 				.setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputtag = interaction.options.getString('tag')
 
 		if(!FilmManager.instance.exists_tag(inputtag)) {
-			await interaction.reply({ content: "El tag " + inputtag + " no existe.", ephemeral: true})
+			await interaction.reply({ content: `El tag ${inputtag} no existe.`, ephemeral: true})
 			return
 		}
 		
@@ -39,7 +42,7 @@ module.exports = {
             //TODO: pasar esto a utils o a FilmManager y formatear como string de modo bonito
             let pelis_nombradas = films_with_tag.map((peli) => peli.first_name).join(", ")
 
-            interaction.reply({ content: "Las siguientes películas tienen el tag **" + inputtag + "** en uso:\n" + pelis_nombradas + ".\n¿Seguro que quieres borrarlo?", components: [row]})
+            interaction.reply({ content: `Las siguientes películas tienen el tag **${inputtag}** en uso:\n${pelis_nombradas}.\n¿Seguro que quieres borrarlo?`, components: [row]})
             
             return
         }
@@ -47,9 +50,9 @@ module.exports = {
         FilmManager.instance.remove_tag(inputtag)
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("**" + inputtag + "** borrado de la lista de tags.")
+			interaction.reply(`**${inputtag}** borrado de la lista de tags.`)
 		}).catch( () => {
-			interaction.reply({ contents: "No se ha podido borrar ese tag :/", ephemeral: true })
+			interaction.reply({ content: `No se ha podido borrar ese tag :/`, ephemeral: true })
 		})
 
 	},

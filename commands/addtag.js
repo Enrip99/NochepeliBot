@@ -10,12 +10,23 @@ module.exports = {
 		.addStringOption(option => 
 			option.setName('tag')
 				.setDescription('el tag a añadir')
-				.setRequired(true)),
+				.setRequired(true))
+		.addIntegerOption(option =>
+			option.setName('ocultabilidad')
+				.setDescription('Si el tag es visible (default) o está oculto')
+				.setRequired(false)
+				.addChoices({name: 'Visible', value: 0}, 
+							{name: 'Oculto', value: 1})),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputtag = interaction.options.getString('tag')
+		if(!inputtag) return
+		let ocultabilidad = interaction.options.getInteger('ocultabilidad')
 
-		vibe_check = utils.vaporeon_check(inputtag) //cadena verdaderosa o false
+		let vibe_check = utils.vaporeon_check(inputtag) //cadena verdaderosa o null
 
 		if(vibe_check) {
 			await interaction.reply({ content: vibe_check, ephemeral: true})
@@ -28,11 +39,16 @@ module.exports = {
 		}
 		
 		FilmManager.instance.add_tag(inputtag)
+		
+		if(ocultabilidad){
+			let tag = FilmManager.instance.get_tag(inputtag)
+			if(tag) tag.hidden = true
+		}
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("**" + inputtag + "** añadido a la lista de tags.")
+			interaction.reply(`**${inputtag}** añadido a la lista de tags.`)
 		}).catch( () => {
-			interaction.reply({ contents: "No se ha podido añadir ese tag :/", ephemeral: true })
+			interaction.reply({ content: "No se ha podido añadir ese tag :/", ephemeral: true })
 		})
 
 	},

@@ -4,6 +4,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('ayuda')
 		.setDescription('help'),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 		let msg = "Escribe **list** para ver la lista de películas.\n"
 		+ "Escribe **add**  ***nombre de la peli*** para añadirla a la lista.\n"

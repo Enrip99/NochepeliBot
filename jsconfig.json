@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "moduleResolution": "node",
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": false,
+        "strictNullChecks": false,
+        "checkJs": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "resolveJsonModule": true
+    },
+    "typeRoots": [
+        "types"
+    ],
+    "declaration": true,
+    "include": ["**/*.js"],
+    "exclude": ["node_modules"]
+}

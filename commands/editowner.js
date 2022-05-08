@@ -15,13 +15,16 @@ module.exports = {
             option.setName('usuario')
                 .setDescription('el nuevo proponedor')
                 .setRequired(true)),
+	/** 
+	 * @param {import("discord.js").CommandInteraction} interaction
+	 */
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
 		let inputusuario = interaction.options.getUser('usuario')
 
         if(!FilmManager.instance.exists(inputpeli)){
-            await interaction.reply({ content: "La película **" + inputpeli + "** no está en la lista.", ephemeral: true})
+            await interaction.reply({ content: `La película **${inputpeli}** no está en la lista.`, ephemeral: true})
 			return
         }
 		
@@ -30,7 +33,7 @@ module.exports = {
         peli.proposed_by_user = inputusuario.id 
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("El nuevo propuestador de la película **" + peli.first_name + "** ahora es **" + inputusuario.username + "**. Por favor no uséis esto para decir que he propuesto ver Mistetas.")
+			interaction.reply(`El nuevo propuestador de la película **${peli.first_name}** ahora es **${inputusuario.username}**. Por favor no uséis esto para decir que he propuesto ver Mistetas.`)
 		}).catch( () => {
 			interaction.reply({ content: "No se ha podido cambiar el proposicionador de esa peli :/", ephemeral: true })
 		})
