@@ -17,7 +17,11 @@ module.exports = {
 		.addStringOption(option => 
 			option.setName('peli')
 				.setDescription('la película a añadir')
-				.setRequired(true)),
+				.setRequired(true))
+		.addStringOption(option => 
+			option.setName('tag')
+				.setDescription('un tag existente que añadirle a la película')
+				.setRequired(false)),
 
 	/**
 	 * 
@@ -27,8 +31,9 @@ module.exports = {
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
+		let inputtag = interaction.options.getString('tag')		
 
-		let vibe_check = utils.vaporeon_check(inputpeli) //cadena verdaderosa o null
+		let vibe_check = utils.vaporeon_check(inputpeli + ' ' + inputtag) //cadena verdaderosa o null
 
 		if(vibe_check) {
 			await interaction.reply({ content: vibe_check, ephemeral: true})
@@ -44,7 +49,7 @@ module.exports = {
 			
 			try {
 				let interactive_message = new AddInteractiveMessage(sentmsg.channelId, sentmsg.id)
-				interactive_message.parse_args(peli.sanitized_name, "true")
+				interactive_message.parse_args(peli.sanitized_name, "true", inputtag)
 				InteractiveMessageManager.instance.add(interactive_message, interaction)
 				await FilmManager.instance.save()
 			} catch(e) {
@@ -52,7 +57,8 @@ module.exports = {
 				sentmsg.edit("No se ha podido añadir esa peli :/")
 			}
 			return
-		}
+		}	
+
 
 		FilmManager.instance.add(inputpeli, interaction.user.id)
 		peli = FilmManager.instance.get(inputpeli)
@@ -62,7 +68,7 @@ module.exports = {
 		
 		try {
 			let interactive_message = new AddInteractiveMessage(sentmsg.channelId, sentmsg.id)
-			interactive_message.parse_args(peli.sanitized_name, "false")
+			interactive_message.parse_args(peli.sanitized_name, "false", inputtag)
 			InteractiveMessageManager.instance.add(interactive_message, interaction)
 			await FilmManager.instance.save()
 		} catch(e) {
@@ -79,7 +85,10 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 	peli
 	/** @type {boolean} */
 	film_already_existed
-
+	/** @type {import('../src/tag.js').Tag?} */
+	tag
+	/** @type {string?} */
+	inputtag
 
 	/**
 	 * 
@@ -90,11 +99,16 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 		if(1 in args) {
 			this.film_already_existed = args[1] === "true"
 		}
+		if(2 in args){
+			this.inputtag = args[2]
+			this.tag = FilmManager.instance.get_tag(this.inputtag) //posiblemente null
+
+		}
 	}
 
 
 	stringify_args() {
-		return `${this.peli.sanitized_name}:${this.film_already_existed}`
+		return `${this.peli.sanitized_name}:${this.film_already_existed}` 
 	}
 
 
@@ -128,6 +142,16 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 		}
 		else {
 			text += `La película **${this.peli.first_name}** ya estaba en la lista.`
+		}
+		if(this.tag) {
+			if(this.peli.tags.includes(this.tag)){
+				text += `\nNo se le ha podido añadir el tag **${this.tag.tag_name}** porque la película ya lo tenía.`
+			} else{
+				text += `\nAdicionalmente, se le ha añadido el tag **${this.tag.tag_name}**.`
+				this.peli.tags.push(this.tag)
+			}
+		} else if(this.inputtag){
+			text += `\nNo se le ha podido añadir el tag **${this.inputtag}** ya que no existe en la lista de tags.`
 		}
 		text += `\n¿Qué interés tienes en esta peli?`
         this.edit(interaction.client, text)
