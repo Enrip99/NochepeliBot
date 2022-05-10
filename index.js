@@ -72,35 +72,6 @@ client.on('interactionCreate', async interaction => {
 });
 
 
-client.on('interactionCreate', async interaction => { //Botones
-	if (!interaction.isButton()) return;
-  if (interaction.guildId != guildId) return
-  if(!(interaction.message instanceof DiscordMessage)) return;  //typecheck
-
-  //TODO: mover esta ristra enorme a subarchivos, igual que con commands
-  let user = interaction.user 
-  
-
-  if(interaction.customId == 'cancel'){
-    interaction.message.edit({ content: `Acción cancelada por el usuario ${user.username}.`, components: []})
-  }
-
-  let delete_tag_regex = /delete tag (.*)/gm
-  let regmatch = delete_tag_regex.exec(interaction.customId)
-  
-  if(regmatch){
-      let inputtag = regmatch[1]
-      FilmManager.instance.remove_tag(inputtag)
-      try {
-        await FilmManager.instance.save()
-        interaction.message.edit({ content: `El tag **${inputtag}** se ha borrado de la lista de tags.`, components: []})
-      } catch(e) {
-        interaction.message.edit({ content: `No se ha podido borrar el tag **${inputtag}** :(`, components: []})
-      }
-  }
-
-})
-
 // Login to Discord with your client's token
 client.login(token);
 
