@@ -99,8 +99,9 @@ class ListRenderer {
         current_page = 0
         for(let page of pages) {
             current_page += 1
+            let pages_text = pages.length != 1 ? `(${current_page}/${pages.length})` : ""
             embeds.push(new MessageEmbed()
-            .setTitle(`${title} (${current_page}/${pages.length})`)
+            .setTitle(`${title} ${pages_text}`)
             .setDescription(page))
         }
         if(embeds.length > 10) {
@@ -168,7 +169,7 @@ class ListRenderer {
             msg += ` (${tag_names})`
         }
         msg += `\n\☑️ ${peli.interested.length} · ❎ ${peli.not_interested.length}`
-        if(peli.not_interested.length - 3 >= peli.interested.length) {
+        if(peli.norm() < 0) {
             msg += " · ratio"
         }
         let user = await utils.get_user_by_id(client, peli.proposed_by_user)

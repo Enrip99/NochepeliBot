@@ -102,6 +102,19 @@ class InteractiveMessageManager {
             return
         }
 
+        if(!interaction.customId.includes(":")) {
+            console.warn(`Se ha activado un botón con customId '${interaction.customId}'`)
+            let old_message = interaction.message
+            let components = old_message.components
+            components.forEach(row => row.components.forEach(button => button.disabled = true))
+            interaction.update({
+                content: `~~${old_message.content}~~\n(Deprecado, crea otro mensaje)`,
+                /** @ts-ignore */
+                components: components
+            })
+            return
+        }
+
         let {deciduous, type, args} = utils.button_customId_parser(interaction.customId)
         if(!(type in this.message_types)) {
             console.warn(`El tipo ${type} no está registrado en el Manager`)

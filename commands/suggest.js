@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require('../src/film_manager.js');
-const interests = require('../src/interests.js')
+const utils = require('../src/utils.js')
 
 
 module.exports = {
@@ -48,32 +48,22 @@ module.exports = {
             weigths.push(Math.max(peli.norm(), 0.1)) //si la norma es 0 o menos, le damos un valor pequeñito
 
         }
-
-
-        /**
-         * @template {any} T
-         * @param {T[]} items 
-         * @param {number[]} weights 
-         * @returns {T}
-         */
-        function weighted_random(items, weights) { //sacada de StackOverflow porque me da pereza escribirla yo
-            var i;
         
-            for (i = 0; i < weights.length; i++)
-                weights[i] += weights[i - 1] || 0;
-            
-            var random = Math.random() * weights[weights.length - 1];
-            
-            for (i = 0; i < weights.length; i++)
-                if (weights[i] > random)
-                    break;
-            
-            return items[i];
-        }
+        let peli_elegida = utils.random_from_list(pelis, weigths)
+        let interesados = await Promise.all(peli_elegida.interested.map(v => utils.get_user_by_id(interaction.client, v)))
 
-        let peli_elegida = weighted_random(pelis, weigths)
+        let p = `**${peli_elegida.first_name}**`
 
-        await interaction.editReply(`Peli elegida: **${peli_elegida.first_name}**.`)
+        let phrases = [
+            `¿Qué tal ${p}?`,
+            `¿Y si veis ${p}?`,
+            `Echadle un ojo a ${p}.`,
+            `Considerad: ${p}.`
+        ]
+
+        let frase_elegida = `${utils.random_from_list(phrases)}\nLa quieren ver: ${interesados.map(u => u.username).join(", ")}`
+
+        await interaction.editReply(frase_elegida)
         
 	}
 };

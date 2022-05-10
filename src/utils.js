@@ -52,9 +52,30 @@ exports.remove_from_list = function(list, item) {
  * Devuelve un elemento aleatorio de la lista
  * @template {any} T
  * @param {T[]} list
+ * @param {number[]?} weights
  */
-exports.random_from_list = function(list) {
-    return list[Math.floor(Math.random() * list.length)]
+exports.random_from_list = function(list, weights = null) {
+    if(!weights) {
+        return list[Math.floor(Math.random() * list.length)]
+    } else {
+        if(list.length != weights.length) {
+            throw new Error("La lista de pesos tiene que tener el mismo tamaño que la lista principal")
+            
+        }
+        let total_weight = weights.reduce((a, b) => a + b)
+        if(total_weight <= 0) {
+            throw new Error("No se puede obtener elementos aleatorios con un peso total de 0 o negativo")
+        }
+        let selected_value = Math.random() * total_weight
+        let cum_value = 0
+        for(let i = 0; i < list.length; i++) {
+            cum_value += weights[i]
+            if(cum_value > selected_value) {
+                return list[i]
+            }
+        }
+        throw new Error(`No se ha podido obtener un valor de la lista ${list} con pesos=${weights} selected_value=${selected_value}`)
+    }
 }
 
 /**

@@ -275,10 +275,14 @@ class FilmManager {
         let this_instance = this
         return new Promise( (resolve, reject) => {
             fs.readFile(LISTA_LOCATION, "utf8", async function(err, data) {
-                if(err) {
+                if(err && err.code != "ENOENT") {
                     console.error(err)
                     reject()
                 } else {
+                    if(!data || !data.length) {
+                        console.warn("La lista no existía o estaba vacía. Se ha creado una nueva.")
+                        data = "{}"
+                    }
                     try {
                         let parsed_data = JSON.parse(data)
                         this_instance.tags = parsed_data.tags ?? {}
