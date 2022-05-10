@@ -153,7 +153,6 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
 			})
 			return
 		}
-        await interaction.deferUpdate()
 
         let tag = FilmManager.instance.get_tag(args[0])
 
@@ -167,7 +166,7 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
 
         try {
             await FilmManager.instance.save()
-            this.edit(interaction.client, { components: rows })
+            interaction.update({ components: rows })
         } catch(e) {
             console.error(e)
         }

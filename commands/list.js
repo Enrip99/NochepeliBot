@@ -125,7 +125,7 @@ class ListInteractiveMessage extends InteractiveMessage {
 			(this.tag ? this.tag.tag_name : undefined))
 		this.page = render_data.page_number
 		let rows = this.create_buttons()
-		this.edit(interaction.client, { embeds: [render_data.embed], components: rows })
+		interaction.update({ embeds: [render_data.embed], components: rows })
     }
 }
 
