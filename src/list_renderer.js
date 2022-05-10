@@ -3,6 +3,7 @@ const { MessageEmbed } = require('discord.js')
 const { Message } = require('./message.js')
 
 const DESCRIPTION_LIMIT = 4096
+const DEFAULT_LIST_TITLE = "📽️✨ Pelis pendientes ✨"
 
 class ListRenderer {
 
@@ -59,31 +60,17 @@ class ListRenderer {
 
             if(!include_hidden && peli.is_hidden()) return
 
-            let msg = `\n**${peli.first_name}**`
-            let tag_names = this.display_tag_names(peli)
-            if(tag_names != "") {
-                msg += ` (${tag_names})`
-            }
-            msg += `\n\☑️ ${peli.interested.length} · ❎ ${peli.not_interested.length}`
-            if(peli.not_interested.length - 3 >= peli.interested.length) {
-                msg += " · ratio"
-            }
-            let user = await utils.get_user_by_id(client, peli.proposed_by_user)
-            msg += ` · Propuesta por **${user.username}**`
-            msg += this.display_film_link_status(peli) + "\n"
-
+            let msg = await this.render_film(client, peli)
             let obj = { 'message': msg, 'peli': peli } 
-
             listobj.push(obj)
         })
 
         listobj.sort(sort_criterion)
         let listmsg = listobj.map( (element) => element.message )
 
-        let embeds = ListRenderer.create_embeds_for_list("📽️✨ Pelis pendientes ✨", listmsg, character_limit)
+        let embeds = ListRenderer.create_embeds_for_list(DEFAULT_LIST_TITLE, listmsg, character_limit)
         return embeds
     }
-
 
 
     /**
@@ -120,6 +107,74 @@ class ListRenderer {
             console.warn("Se han creado más de 10 ~Empotrados~ de golpe. No se pueden meter más de 10 ~Empotrados~ en el mismo mensaje")
         }
         return embeds
+    }
+
+
+    /**
+     * 
+     * @param {number} page_number 
+     * @param {number} items_per_page
+     * @param {(p :Film) => boolean} filter
+     */
+    async create_single_page_embed(page_number, items_per_page,
+        filter = (p) => true, sort_criterion = default_sort_criterion, include_hidden = false, page_title = DEFAULT_LIST_TITLE) {
+
+        /** @type {Film[]} */
+        let films = []
+        for(let film of this.film_manager.iterate()) {
+            films.push(film)
+        }
+        
+        
+        /** @type {PeliObj[]} */
+        let listobj = []
+        await utils.parallel_for(films.filter(filter), async peli => {
+
+            if(!include_hidden && peli.is_hidden()) return
+
+            let msg = await this.render_film(this.film_manager.client, peli)
+            let obj = { 'message': msg, 'peli': peli } 
+            listobj.push(obj)
+        })
+
+        let page_total = Math.ceil(listobj.length / items_per_page)
+        page_number = (page_number + page_total) % page_total
+        let first_item = items_per_page * page_number
+        listobj = listobj.sort(sort_criterion).slice(first_item, first_item + items_per_page)
+        let msg = listobj.map((element) => element.message).join("")
+        if(msg.length > DESCRIPTION_LIMIT) {
+            console.warn(`Se ha generado una página con más de ${DESCRIPTION_LIMIT} caracteres. Discord no soporta más caracteres en un embed.`)
+        }
+
+        return {
+            embed: new MessageEmbed()
+            .setTitle(`${page_title} (${page_number + 1}/${page_total})`)
+            .setDescription(msg),
+            page_number: page_number,
+            page_total: page_total
+        }
+    }
+
+
+    /**
+     * 
+     * @param {import("discord.js").Client} client
+     * @param {Film} peli 
+     */
+     async render_film(client, peli) {
+        let msg = `\n**${peli.first_name}**`
+        let tag_names = this.display_tag_names(peli)
+        if(tag_names != "") {
+            msg += ` (${tag_names})`
+        }
+        msg += `\n\☑️ ${peli.interested.length} · ❎ ${peli.not_interested.length}`
+        if(peli.not_interested.length - 3 >= peli.interested.length) {
+            msg += " · ratio"
+        }
+        let user = await utils.get_user_by_id(client, peli.proposed_by_user)
+        msg += ` · Propuesta por **${user.username}**`
+        msg += this.display_film_link_status(peli) + "\n"
+        return msg
     }
 
 
