@@ -1,19 +1,19 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const utils = require('../src/utils.js')
-const { FilmManager } = require("../src/film_manager.js")
+const { FilmManager } = require("../film_manager.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('remove')
-		.setDescription('quita película de la lista')
-		.addStringOption(option => 
-			option.setName('peli')
-				.setDescription('la película a quitar')
-				.setRequired(true)),
+	.setName('removelink')
+	.setDescription('quita el enlace de una película de la lista')
+	.addStringOption(option => 
+		option.setName('peli')
+			.setDescription('la película')
+			.setRequired(true)),
 	/** 
 	 * @param {import("discord.js").CommandInteraction} interaction
 	 */
 	async execute(interaction) {
+
 		let inputpeli = interaction.options.getString('peli')
 
 		if(!FilmManager.instance.exists(inputpeli)) {
@@ -22,11 +22,13 @@ module.exports = {
 		} 
 		
 		let peli = FilmManager.instance.get(inputpeli)
-		FilmManager.instance.remove(inputpeli)
+		peli.link = null
+		console.log("Eliminado link de " + inputpeli)
 		await FilmManager.instance.save().then( () => {
-			interaction.reply(`**${peli.first_name}** eliminada de la lista.`)
-		}).catch( () => {
-			interaction.reply({ content: `No se ha podido eliminar **${peli.first_name}** de la lista.`, ephemeral: true })
+			interaction.reply(`Eliminado el enalce de **${inputpeli}**.`)
+		}).catch(() => {
+			interaction.reply({ content: `No se ha podido eliminar el enlace de **${inputpeli}** :(`, ephemeral: true })
 		})
+
 	}
 };

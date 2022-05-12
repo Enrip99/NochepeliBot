@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Message } = require('../src/message.js');
-const { FilmManager } = require('../src/film_manager.js');
+const { Message } = require('../message.js');
+const { FilmManager } = require('../film_manager.js');
 const DiscordMessage = require('discord.js').Message;
-const utils = require('../src/utils.js');
+const utils = require('../utils.js');
 
 const DESCRIPTION_LIMIT = 4096
 

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const interests = require('../src/interests.js')
-const { FilmManager } = require('../src/film_manager.js')
+const interests = require('../interests.js')
+const { FilmManager } = require('../film_manager.js')
 
 module.exports = {
 	data: new SlashCommandBuilder()
