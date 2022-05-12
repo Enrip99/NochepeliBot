@@ -27,6 +27,5 @@ module.exports = {
 		} else {
 			interaction.reply(`Link de **${peli.first_name}**:\n\`\`\`${peli.link}\`\`\``)
 		}
-
 	}
 };
