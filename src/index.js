@@ -1,14 +1,15 @@
 // Require the necessary discord.js classes
 const fs = require('node:fs');
 const { Client, Collection, Intents } = require('discord.js');
-const { token, guildId, channelId } = require('./data/config.json');
-const { FilmManager } = require('./src/film_manager.js')
-const { Message } = require('./src/message.js')
-const { Film } = require('./src/film.js')
-const utils = require('./src/utils.js')
-const interests = require('./src/interests.js');
+const { token, guildId, channelId } = require('../data/config.json');
+const { FilmManager } = require('./film_manager.js')
+const { Message } = require('./message.js')
+const { Film } = require('./film.js')
+const utils = require('./utils.js')
+const interests = require('./interests.js');
 const { MessageActionRow, MessageButton, TextChannel } = require('discord.js');
-const { InteractiveMessageManager } = require('./src/interactive_message_manager');
+const { InteractiveMessageManager } = require('./interactive_message_manager');
+const { get_command_collection } = require('./commands');
 const DiscordMessage = require("discord.js").Message
 
 
@@ -16,15 +17,7 @@ const DiscordMessage = require("discord.js").Message
 /** @type {import('discord.js').Client} */
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 
-const commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	// Set a new item in the Collection
-	// With the key as the command name and the value as the exported module
-	commands.set(command.data.name, command);
-}
+const commands = get_command_collection()
 
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
@@ -59,7 +52,7 @@ client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
   if (interaction.guildId != guildId) return
 
-	const command = commands.get(interaction.commandName);
+	const command = commands[interaction.commandName];
 
 	if (!command) return;
 

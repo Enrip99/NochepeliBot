@@ -1,13 +1,13 @@
 const { MessageActionRow, MessageButton, ApplicationCommand, TextChannel } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../src/film_manager.js")
-const { Film } = require("../src/film.js")
-const { Message } = require("../src/message.js")
+const { FilmManager } = require("../film_manager.js")
+const { Film } = require("../film.js")
+const { Message } = require("../message.js")
 const DiscordMessage = require("discord.js").Message
-const utils = require('../src/utils.js')
-const interests = require('../src/interests.js')
-const { DeciduousInteractiveMessage } = require('../src/interactive_message.js');
-const { InteractiveMessageManager } = require('../src/interactive_message_manager.js');
+const utils = require('../utils.js')
+const interests = require('../interests.js')
+const { DeciduousInteractiveMessage } = require('../interactive_message.js');
+const { InteractiveMessageManager } = require('../interactive_message_manager.js');
 
 
 module.exports = {
@@ -85,7 +85,7 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 	peli
 	/** @type {boolean} */
 	film_already_existed
-	/** @type {import('../src/tag.js').Tag?} */
+	/** @type {import('../tag.js').Tag?} */
 	tag
 	/** @type {string?} */
 	inputtag

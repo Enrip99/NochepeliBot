@@ -107,4 +107,5 @@ dist
 data/
 
 .DS_Store
-.vscode
+.vscode/
+out/

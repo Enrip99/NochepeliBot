@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../src/film_manager.js")
+const { FilmManager } = require("../film_manager.js")
 
 //input: addlink <nombre peli> <link>
 

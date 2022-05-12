@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require('../src/film_manager.js');
-const utils = require('../src/utils.js')
+const { FilmManager } = require('../film_manager.js');
+const utils = require('../utils.js')
 
 
 module.exports = {

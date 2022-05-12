@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, Application} = require('discord.js');
-const { FilmManager } = require("../src/film_manager.js")
-const { InteractiveMessage } = require('../src/interactive_message.js');
-const { InteractiveMessageManager } = require('../src/interactive_message_manager.js');
+const { FilmManager } = require("../film_manager.js")
+const { InteractiveMessage } = require('../interactive_message.js');
+const { InteractiveMessageManager } = require('../interactive_message_manager.js');
 const DiscordMessage = require('discord.js').Message
 
 
@@ -60,7 +60,7 @@ class RemoveTagInteractiveMessage extends InteractiveMessage {
 	/** @type {string} */
 	command
 
-	/** @type {import("../src/tag.js").Tag?} */
+	/** @type {import("../tag.js").Tag?} */
 	tag
 
     /**
