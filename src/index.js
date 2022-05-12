@@ -9,6 +9,7 @@ const utils = require('./utils.js')
 const interests = require('./interests.js');
 const { MessageActionRow, MessageButton, TextChannel } = require('discord.js');
 const { InteractiveMessageManager } = require('./interactive_message_manager');
+const { get_command_collection } = require('./commands');
 const DiscordMessage = require("discord.js").Message
 
 
@@ -16,15 +17,7 @@ const DiscordMessage = require("discord.js").Message
 /** @type {import('discord.js').Client} */
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 
-const commands = new Collection();
-const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	// Set a new item in the Collection
-	// With the key as the command name and the value as the exported module
-	commands.set(command.data.name, command);
-}
+const commands = get_command_collection()
 
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
@@ -59,7 +52,7 @@ client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
   if (interaction.guildId != guildId) return
 
-	const command = commands.get(interaction.commandName);
+	const command = commands[interaction.commandName];
 
 	if (!command) return;
 
