@@ -183,3 +183,18 @@ exports.vaporeon_check = function(my_string) {
 	return ret
 }
 
+/**
+ *  No, pero me gustaría verlas.
+ *  @param {string} my_string 
+*/
+exports.mistetas_check = function(my_string) {
+	let regex = /\bmistetas\b/gmi
+	let ret = null
+	if(my_string.match(regex)) {
+        ret = exports.random_from_list(
+            ["No, pero me gustaría verlas."]) 
+            //La cadena es verdaderosa
+	}
+	return ret
+}
+

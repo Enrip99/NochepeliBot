@@ -33,10 +33,15 @@ module.exports = {
 		let inputpeli = interaction.options.getString('peli')
 		let inputtag = interaction.options.getString('tag')		
 
-		let vibe_check = utils.vaporeon_check(inputpeli + ' ' + inputtag) //cadena verdaderosa o null
+		let vibe_check = utils.vaporeon_check(inputpeli + ' ' + inputtag) //cadena verdaderosa o null\
+		let can_you_pet_the_dog = utils.mistetas_check(inputpeli + ' ' + inputtag) 
 
 		if(vibe_check) {
-			await interaction.reply({ content: vibe_check, ephemeral: true})
+			await interaction.reply({ content: vibe_check, ephemeral: true })
+			return
+		}
+		else if(can_you_pet_the_dog){
+			await interaction.reply({ content: can_you_pet_the_dog, ephemeral: true })
 			return
 		}
 		
