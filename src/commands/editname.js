@@ -24,9 +24,14 @@ module.exports = {
 		let inputnombre = interaction.options.getString('nombre')
 
 		let vibe_check = utils.vaporeon_check(inputnombre) //cadena verdaderosa o false
+		let can_you_pet_the_dog = utils.mistetas_check(inputnombre)
 
 		if(vibe_check) {
 			await interaction.reply({ content: vibe_check, ephemeral: true})
+			return
+		}
+		else if(can_you_pet_the_dog){
+			await interaction.reply({ content: can_you_pet_the_dog, ephemeral: true })
 			return
 		}
 

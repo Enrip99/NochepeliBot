@@ -71,7 +71,11 @@ while(current_index < old_file_content.length) {
 // Escribe el resto del archivo
 while(current_index < old_file_content.length) {
     let line = old_file_content[current_index]
-    fs.writeFileSync(new_commands_file, `${line}\n`)
+    let linebreak = ""
+    if(current_index < old_file_content.length - 1) {
+        linebreak = "\n"
+    }
+    fs.writeFileSync(new_commands_file, `${line}${linebreak}`)
     current_index++
 }
 
