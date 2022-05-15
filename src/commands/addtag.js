@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../src/film_manager.js")
-const utils = require('../src/utils.js')
+const { FilmManager } = require("../film_manager.js")
+const utils = require('../utils.js')
 
 
 module.exports = {
@@ -46,7 +46,7 @@ module.exports = {
 		}
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("**" + inputtag + "** añadido a la lista de tags.")
+			interaction.reply(`**${inputtag}** añadido a la lista de tags.`)
 		}).catch( () => {
 			interaction.reply({ content: "No se ha podido añadir ese tag :/", ephemeral: true })
 		})

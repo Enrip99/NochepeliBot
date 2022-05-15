@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../src/film_manager.js")
+const { FilmManager } = require("../film_manager.js")
 
 //input: addlink <nombre peli> <link>
 
@@ -32,13 +32,13 @@ module.exports = {
 		
 		let actualizar = peli.link != null
 		peli.link = inputlink
-		console.log("Actualizado link para peli " + inputpeli)
+		console.log(`Actualizado link para peli ${inputpeli}`)
 
 		await FilmManager.instance.save().then( () => {
 				if(actualizar) {
-					interaction.reply("Enlace actualizado para la peli **" + inputpeli +  "**.")
+					interaction.reply(`Enlace actualizado para la peli **${peli.first_name}**.\n\`\`\`${peli.link}\`\`\``)
 				} else {
-					interaction.reply("Enlace añadido a la peli **" + inputpeli +  "**.")
+					interaction.reply(`Enlace añadido a la peli **${peli.first_name}**.\n\`\`\`${peli.link}\`\`\``)
 				}
 			}).catch( () => {
 				interaction.reply({ content: "No se ha podido poner ese enlace a la peli.", ephemeral: true })

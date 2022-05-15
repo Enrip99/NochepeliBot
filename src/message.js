@@ -43,7 +43,7 @@ class Message {
             let message = await channel.messages.fetch(this.message_id)
             ret = message
         } catch(e) {
-            console.error("No se ha podido fetchear " + this + ": " + e)
+            console.error(`No se ha podido fetchear ${this}: ${e}`)
         }
         return ret
     }
@@ -69,7 +69,7 @@ class Message {
 
 
     toString() {
-        return "[Message : channel " + this.channel_id + ", message " + this.message_id + "]"
+        return `[Message : channel ${this.channel_id}, message ${this.message_id}]`
     }
 
 
@@ -91,7 +91,7 @@ class Message {
             let data = json
             ret = new Message(data.channel_id, data.message_id)
         } catch(e) {
-            console.error("Error al deserializar: " + e + " (JSON: " + json + ")")
+            console.error(`Error al deserializar: ${e} (JSON: ${json})`)
         }
         return ret
     }

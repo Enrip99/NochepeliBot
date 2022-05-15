@@ -2,7 +2,8 @@ const fs = require('fs');
 const utils = require('./utils.js')
 const { Film } = require ('./film.js')
 const { Tag } = require('./tag.js')
-const { ListRenderer } = require('./list_renderer.js')
+const { ListRenderer } = require('./list_renderer.js');
+const { InteractiveMessageManager } = require('./interactive_message_manager.js');
 
 
 const LISTA_LOCATION = "data/lista.json"
@@ -72,7 +73,7 @@ class FilmManager {
     edit_name(old_name, new_name) {
         let old_sanitized_name = utils.sanitize_film_name(old_name)
         let new_sanitized_name = utils.sanitize_film_name(new_name)
-        console.log("La peli " + old_sanitized_name + " ahora se llama " + new_sanitized_name)
+        console.log(`La peli ${old_sanitized_name} ahora se llama ${new_sanitized_name}`)
 
         if(old_sanitized_name != new_sanitized_name){
             if(!(old_sanitized_name in this.pelis) || (new_sanitized_name in this.pelis)){
@@ -162,6 +163,7 @@ class FilmManager {
      * @returns {Film?} El objeto que representa la peli o `null`
      */
     get(film_name) {
+        if(!film_name) return null
         film_name = utils.sanitize_film_name(film_name)
         return this.pelis[film_name] ?? null
     }
@@ -173,6 +175,7 @@ class FilmManager {
      * @returns {Tag?} El objeto que representa al tag o `null`
      */
     get_tag(tag_name) {
+        if(!tag_name) return null
         tag_name = utils.sanitize_film_name(tag_name)
         return this.tags[tag_name] ?? null
     }
@@ -241,7 +244,8 @@ class FilmManager {
         let lista = {
             pelis: serialized_pelis,
             tags: this.tags,
-            list_renderer: this.list_renderer.serialize()
+            list_renderer: this.list_renderer.serialize(),
+            interactive_messages: InteractiveMessageManager.instance.serialize()
         }
 
         this.list_renderer.update(this.client)
@@ -271,10 +275,14 @@ class FilmManager {
         let this_instance = this
         return new Promise( (resolve, reject) => {
             fs.readFile(LISTA_LOCATION, "utf8", async function(err, data) {
-                if(err) {
+                if(err && err.code != "ENOENT") {
                     console.error(err)
                     reject()
                 } else {
+                    if(!data || !data.length) {
+                        console.warn("La lista no existía o estaba vacía. Se ha creado una nueva.")
+                        data = "{}"
+                    }
                     try {
                         let parsed_data = JSON.parse(data)
                         this_instance.tags = parsed_data.tags ?? {}
@@ -294,6 +302,7 @@ class FilmManager {
                         this_instance.list_renderer = deserialized_list_renderer
                         console.log("Cargada la lista desde disco.")
                         this_instance.list_renderer.update(this_instance.client)
+                        InteractiveMessageManager.instance.load_messages(parsed_data.interactive_messages ?? {})
                         resolve()
                     } catch(e) {
                         console.error("Error al cargar de disco: " + e)

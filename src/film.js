@@ -20,8 +20,6 @@ class Film {
     /** @type {Tag[]} Tags de la peli vamos a ver es autoevidente */
     tags
     /** @type {Message?} */
-    react_message
-    /** @type {Message?} */
     tag_manager_message
 
     /**
@@ -37,7 +35,6 @@ class Film {
         this.interested = [proposed_by_user]
         this.not_interested = []
         this.tags = []
-        this.react_message = null
         this.tag_manager_message = null
     }
 
@@ -52,9 +49,16 @@ class Film {
 
 
     toString() {
-        return "[Film : " + this.sanitized_name + "]"
+        return `[Film : ${this.sanitized_name}]`
     }
 
+
+    /**
+     * @return { number }
+     */
+    norm(){
+        return this.interested.length - this.not_interested.length
+    }
 
     /**
      * @param {Film} other
@@ -65,9 +69,7 @@ class Film {
         switch(comparison_criterion){
 
             case 'INTEREST':
-                /** @type {(arg :Film) => number} */
-                let norm = ( peli ) => peli.interested.length - peli.not_interested.length
-                let ret = norm( other ) - norm( this ) 
+                let ret = other.norm() - this.norm()
                 if( ret == 0 ){ //Si ambas pelis tienen la misma norma, las ordenamos alfabéticamente
                     ret = this.compareTo(other, 'ALPHA')
                 }
@@ -82,6 +84,8 @@ class Film {
         }
     }
 
+    
+    /** @returns { boolean } */
     is_hidden() {
         //Si algún tag está oculto, la peli está oculta
         return this.tags.some((tag) => tag.hidden)  
@@ -96,7 +100,6 @@ class Film {
             interested: this.interested,
             not_interested: this.not_interested,
             tags: this.tags.map( (tag) => tag.sanitized_name ),
-            react_message: this.react_message,
             tag_manager_message: this.tag_manager_message
         }
     }
@@ -120,14 +123,13 @@ class Film {
                 ret[key] = data[key]
             }
             /** @type {string[]} */
-            let data_tags = data.tags
+            let data_tags = data.tags ?? []
             ret.tags = data_tags.map( (sanitized_tag_name) => tag_dict[sanitized_tag_name]) 
             //Hace falta pasarle el tag_dict para evitar bucle de dependencias
-            ret.react_message = Message.deserialize(data.react_message)
             ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
 
         } catch(e) {
-            console.error("Error al deserializar: " + e + " (JSON: " + json + ")")
+            console.error(`Error al deserializar: ${e} (JSON: ${json})`)
         }
         return ret
     }

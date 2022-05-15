@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../src/film_manager.js")
-const utils = require('../src/utils.js');
+const { FilmManager } = require("../film_manager.js")
+const utils = require('../utils.js');
 
 
 module.exports = {
@@ -24,27 +24,29 @@ module.exports = {
 		let inputnombre = interaction.options.getString('nombre')
 
 		let vibe_check = utils.vaporeon_check(inputnombre) //cadena verdaderosa o false
+		let can_you_pet_the_dog = utils.mistetas_check(inputnombre)
 
 		if(vibe_check) {
 			await interaction.reply({ content: vibe_check, ephemeral: true})
 			return
 		}
-
+		else if(can_you_pet_the_dog){
+			await interaction.reply({ content: can_you_pet_the_dog, ephemeral: true })
+			return
+		}
 
 		let peli = FilmManager.instance.get(inputpeli)
         let deadname = peli.first_name
-
-		let sanitized_names_are_equal = utils.sanitize_film_name(inputpeli) === utils.sanitize_film_name(inputnombre)
-
+		
 		if(!FilmManager.instance.exists(inputpeli)){
-			await interaction.reply({ content: "La película **" + inputpeli + "** no está en la lista.", ephemeral: true})
+			await interaction.reply({ content: `La película **${inputpeli}** no está en la lista.`, ephemeral: true})
 			return
 		}
 
 		if(FilmManager.instance.exists(inputnombre)){
 			let peli2 = FilmManager.instance.get(inputnombre)
 			if(!peli.equals(peli2)){ //permitimos cambiar el first_name de las pelis sin cambiar el nombre sanitizado
-				await interaction.reply({ content: "Ya hay una película con el nombre **" + peli2.first_name + "** en la lista.", ephemeral: true})
+				await interaction.reply({ content: `Ya hay una película con el nombre **${peli.first_name}** en la lista.`, ephemeral: true})
 				return
 			}
 		}			
@@ -53,7 +55,7 @@ module.exports = {
         FilmManager.instance.edit_name(inputpeli, inputnombre)        
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("La película **" + deadname + "** ahora se llama **" + inputnombre + "**. No le hagas deadname :(.")
+			interaction.reply(`La película **${deadname}** ahora se llama **${inputnombre}**. No le hagas deadname :(.`)
 		}).catch( () => {
 			interaction.reply({ content: "No se ha podido cambiar el nombre de esa peli :/", ephemeral: true })
 		})

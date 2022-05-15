@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../src/film_manager.js")
-const utils = require('../src/utils.js');
+const { FilmManager } = require("../film_manager.js")
+const utils = require('../utils.js');
 
 
 module.exports = {
@@ -24,7 +24,7 @@ module.exports = {
 		let inputusuario = interaction.options.getUser('usuario')
 
         if(!FilmManager.instance.exists(inputpeli)){
-            await interaction.reply({ content: "La película **" + inputpeli + "** no está en la lista.", ephemeral: true})
+            await interaction.reply({ content: `La película **${inputpeli}** no está en la lista.`, ephemeral: true})
 			return
         }
 		
@@ -33,7 +33,7 @@ module.exports = {
         peli.proposed_by_user = inputusuario.id 
 
 		FilmManager.instance.save().then( () => {
-			interaction.reply("El nuevo propuestador de la película **" + peli.first_name + "** ahora es **" + inputusuario.username + "**. Por favor no uséis esto para decir que he propuesto ver Mistetas.")
+			interaction.reply(`El nuevo propuestador de la película **${peli.first_name}** ahora es **${inputusuario.username}**. Por favor no uséis esto para decir que he propuesto ver Mistetas.`)
 		}).catch( () => {
 			interaction.reply({ content: "No se ha podido cambiar el proposicionador de esa peli :/", ephemeral: true })
 		})

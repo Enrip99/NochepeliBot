@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const interests = require('../src/interests.js')
-const { FilmManager } = require('../src/film_manager.js')
+const interests = require('../interests.js')
+const { FilmManager } = require('../film_manager.js')
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -35,26 +35,26 @@ module.exports = {
 
 		switch(inputinteres){
 			case 1:		
-				interests.add_very_interested(inputpeli, user).then( () => {
-					interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora positivo. Evitaremos verla si no estás.", ephemeral: true })
+				interests.add_very_interested(peli, user.id).then( () => {
+					interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora positivo. Evitaremos verla si no estás.`, ephemeral: true })
 				}).catch( () => {
-					interaction.reply({ content: "No se ha podido guardar tu gran interés en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+					interaction.reply({ content: `No se ha podido guardar tu gran interés en la peli **${peli.first_name}** :(. Algo se habrá roto.`, ephemeral: true})
 				})
 				break
 			
 			case 0:				
-				interests.remove_interest_for_film(inputpeli, user).then( () => {
-					interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora neutral, como Suiza.", ephemeral: true })
+				interests.remove_interest_for_film(peli, user.id).then( () => {
+					interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora neutral, como Suiza.`, ephemeral: true })
 				}).catch( () => {
-					interaction.reply({ content: "No se ha podido guardar tu neutralidad en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+					interaction.reply({ content: `No se ha podido guardar tu neutralidad en la peli **${peli.first_name}** :(. Algo se habrá roto.`, ephemeral: true})
 				})
 				break
 			
 			case -1:
-				interests.add_not_interested(inputpeli, user).then( () => {
+				interests.add_not_interested(peli, user.id).then( () => {
 					interaction.reply({ content: "Tu interés en la peli **" + peli.first_name +"** es ahora negativo. La veremos sin ti :).", ephemeral: true })
 				}).catch( () => {
-					interaction.reply({ content: "No se ha podido guardar tu desinterés en la peli **" + peli.first_name + "** :(. Algo se habrá roto."})
+					interaction.reply({ content: `No se ha podido guardar tu desinterés en la peli **${peli.first_name}** :(. Algo se habrá roto.`, ephemeral: true})
 				})
 				break
 		}	

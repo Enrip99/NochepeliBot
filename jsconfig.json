@@ -16,6 +16,6 @@
         "types"
     ],
     "declaration": true,
-    "include": ["**/*.js"],
+    "include": ["src/**/*.js"],
     "exclude": ["node_modules"]
 }

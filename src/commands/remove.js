@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const utils = require('../src/utils.js')
-const { FilmManager } = require("../src/film_manager.js")
+const utils = require('../utils.js')
+const { FilmManager } = require("../film_manager.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,9 +24,9 @@ module.exports = {
 		let peli = FilmManager.instance.get(inputpeli)
 		FilmManager.instance.remove(inputpeli)
 		await FilmManager.instance.save().then( () => {
-			interaction.reply("**" + peli.first_name + "** eliminada de la lista.")
+			interaction.reply(`**${peli.first_name}** eliminada de la lista.`)
 		}).catch( () => {
-			interaction.reply({ content: "No se ha podido eliminar **" + peli.first_name + "** de la lista.", ephemeral: true })
+			interaction.reply({ content: `No se ha podido eliminar **${peli.first_name}** de la lista.`, ephemeral: true })
 		})
 	}
 };

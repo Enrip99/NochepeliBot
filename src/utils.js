@@ -52,9 +52,30 @@ exports.remove_from_list = function(list, item) {
  * Devuelve un elemento aleatorio de la lista
  * @template {any} T
  * @param {T[]} list
+ * @param {number[]?} weights
  */
-exports.random_from_list = function(list) {
-    return list[Math.floor(Math.random() * list.length)]
+exports.random_from_list = function(list, weights = null) {
+    if(!weights) {
+        return list[Math.floor(Math.random() * list.length)]
+    } else {
+        if(list.length != weights.length) {
+            throw new Error("La lista de pesos tiene que tener el mismo tamaño que la lista principal")
+            
+        }
+        let total_weight = weights.reduce((a, b) => a + b)
+        if(total_weight <= 0) {
+            throw new Error("No se puede obtener elementos aleatorios con un peso total de 0 o negativo")
+        }
+        let selected_value = Math.random() * total_weight
+        let cum_value = 0
+        for(let i = 0; i < list.length; i++) {
+            cum_value += weights[i]
+            if(cum_value > selected_value) {
+                return list[i]
+            }
+        }
+        throw new Error(`No se ha podido obtener un valor de la lista ${list} con pesos=${weights} selected_value=${selected_value}`)
+    }
 }
 
 /**
@@ -72,6 +93,59 @@ exports.parallel_for = async function(list, lambda) {
         }))
     }
     return Promise.all(promises)
+}
+
+/**
+ * lmao
+ * @typedef {string | number | symbol} K
+ * @typedef {string | number | symbol} V
+ * @param {{[key :K]: V}} dict
+ * @returns
+ */
+exports.reverse_dictionary = function(dict) {
+    /** @type {{[key :V]: K}} */
+    let ret = {}
+    for(let key of Object.keys(dict)) {
+        let value = dict[key]
+        if(value in ret) {
+            console.warn(`Value '${value.toString()}' is duplicated`)
+        }
+        ret[value] = key
+    }
+    return ret
+}
+
+
+/**
+ * 
+ * @param {string} raw_customId 
+ * @returns 
+ */
+exports.button_customId_parser = function(raw_customId) {
+    let fields = raw_customId.split(":")
+    if(fields.length < 3) {
+        console.warn("Unexpected customId arg length")
+    }
+    let deciduous = fields[0] == "DM"
+    let type = fields[1]
+    let args = fields.slice(2) // Si no existe, devuelve []
+    return {deciduous, type, args}
+}
+
+
+/**
+ * 
+ * @param {boolean} deciduous
+ * @param {string} type 
+ * @param {string} customId 
+ * @param {string[]} args 
+ * @returns 
+ */
+exports.button_customId_maker = function(deciduous, type, customId, args = []) {
+    let deciduousity = deciduous ? "DM" : "IM"
+    let split_args = customId.split(":").concat(args).join(":")
+    let ret = `${deciduousity}:${type}`
+    return [ret, split_args].join(":")
 }
 
 
@@ -104,6 +178,21 @@ exports.vaporeon_check = function(my_string) {
 			["jaja qué gracioso", "comedy heaven", "me parto los cojones /s", "la comedia fue hecha",
 			"Hey guys, did you know that in terms of human companionship, Flareon is objectively the most huggable Pokemon? While their maximum temperature is likely too much for most, they are capable of controlling it, so they can set themselves to the perfect temperature for you. Along with that, they have a lot of fluff, making them undeniably incredibly soft to touch. But that's not all, they have a very respectable special defense stat of 110, which means that they are likely very calm and resistant to emotional damage. Because of this, if you have a bad day, you can vent to it while hugging it, and it won't mind. It can make itself even more endearing with moves like Charm and Baby Doll Eyes, ensuring that you never have a prolonged bout of depression ever again.",
 			"lol", "ok", "ratio"]) 
+            //La cadena es verdaderosa
+	}
+	return ret
+}
+
+/**
+ *  No, pero me gustaría verlas.
+ *  @param {string} my_string 
+*/
+exports.mistetas_check = function(my_string) {
+	let regex = /\bmistetas\b/gmi
+	let ret = null
+	if(my_string.match(regex)) {
+        ret = exports.random_from_list(
+            ["No, pero me gustaría verlas."]) 
             //La cadena es verdaderosa
 	}
 	return ret
