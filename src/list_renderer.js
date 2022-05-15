@@ -140,7 +140,9 @@ class ListRenderer {
 
         let page_total = Math.ceil(listobj.length / items_per_page)
         page_number = (page_number + page_total) % page_total
+        if(isNaN(page_number)) page_number = 0
         let first_item = items_per_page * page_number
+        let displayed_page_number = page_total != 0 ? page_number + 1 : 0
         listobj = listobj.sort(sort_criterion).slice(first_item, first_item + items_per_page)
         let msg = listobj.map((element) => element.message).join("")
         if(msg.length > DESCRIPTION_LIMIT) {
@@ -149,7 +151,7 @@ class ListRenderer {
 
         return {
             embed: new MessageEmbed()
-            .setTitle(`${page_title} (${page_number + 1}/${page_total})`)
+            .setTitle(`${page_title} (${displayed_page_number}/${page_total})`)
             .setDescription(msg),
             page_number: page_number,
             page_total: page_total
