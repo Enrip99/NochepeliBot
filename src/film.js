@@ -57,7 +57,7 @@ class Film {
      * @return { number }
      */
     norm(){
-        return this.interested.length - this.not_interested.length
+        return this.interested.length - 0.99*this.not_interested.length
     }
 
     /**
