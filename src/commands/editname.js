@@ -49,7 +49,7 @@ module.exports = {
 		}			
 		
 
-        FilmManager.instance.edit_name(inputpeli, inputnombre)        
+        FilmManager.instance.edit_name(peli.sanitized_name, inputnombre)        
 
 		FilmManager.instance.save().then( () => {
 			interaction.reply(`La película **${deadname}** ahora se llama **${inputnombre}**. No le hagas deadname :(.`)

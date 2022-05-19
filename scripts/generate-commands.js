@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require("path")
+const { get_all_nested_files } = require("./script-utils.js")
 
 
 const COMMANDS_DIR = "src/commands"
@@ -10,28 +11,6 @@ const PATTERN = "GEN-COMMAND"
 
 let old_commands_file = fs.openSync(COMMANDS_FILE, 'r')
 let new_commands_file = fs.openSync(COMMANDS_FILE + '_', 'a')
-
-/**
- * 
- * @param {string} directory 
- */
-function get_all_nested_files(directory, relative_to = null) {
-    let files = fs.readdirSync(directory)
-    /** @type {string[]} */
-    let ret = []
-    for(let file of files) {
-        let joined_file = path.join(directory, file)
-        let file_stats = fs.statSync(joined_file)
-        if(file_stats.isDirectory()) {
-            ret = ret.concat(get_all_nested_files(joined_file, relative_to))
-        } else {
-            if(relative_to) {
-                ret.push(path.relative(relative_to, joined_file))
-            }
-        }
-    }
-    return ret
-}
 
 
 let command_files = get_all_nested_files(COMMANDS_DIR, path.dirname(COMMANDS_FILE))
