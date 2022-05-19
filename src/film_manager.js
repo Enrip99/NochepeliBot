@@ -82,6 +82,7 @@ class FilmManager {
         }
         let old_peli = this.pelis[old_sanitized_name]
 
+        old_sanitized_name = old_peli.sanitized_name
         old_peli.first_name = new_name
         old_peli.sanitized_name = new_sanitized_name
 
@@ -89,6 +90,7 @@ class FilmManager {
         if(old_sanitized_name != new_sanitized_name){
             delete this.pelis[old_sanitized_name]
         }
+        this.add_alias(new_sanitized_name, old_sanitized_name)
         
         return true
 
@@ -156,6 +158,56 @@ class FilmManager {
         return delete this.tags[tag.sanitized_name]
     }
 
+    
+    /**
+     * 
+     * @param {string} film_name 
+     * @param {...string} aliases 
+     */
+    add_alias(film_name, ...aliases) {
+        film_name = utils.sanitize_film_name(film_name)
+        if(!(film_name in this.pelis)) {
+            return false
+        }
+
+        let film = this.pelis[film_name]
+        let ret = false
+        for(let alias of aliases) {
+            let sanitized_alias = utils.sanitize_film_name(alias)
+            if(!(sanitized_alias in this.pelis) && !film.aliases.includes(sanitized_alias)) {
+                film.aliases.push(sanitized_alias)
+                console.log(`Alias registrado: ${sanitized_alias} → ${film.first_name}`)
+                ret = true
+            }
+        }
+        return ret
+    }
+
+
+    /**
+     * 
+     * @param {string} film_name 
+     * @param {...string} aliases 
+     */
+     remove_alias(film_name, ...aliases) {
+        film_name = utils.sanitize_film_name(film_name)
+        if(!(film_name in this.pelis)) {
+            return false
+        }
+
+        let film = this.pelis[film_name]
+        let ret = false
+        for(let alias of aliases) {
+            let sanitized_alias = utils.sanitize_film_name(alias)
+            if(film.aliases.includes(sanitized_alias)) {
+                utils.remove_from_list(film.aliases, sanitized_alias)
+                console.log(`Alias borrado: ${sanitized_alias} ↛  ${film.first_name}`)
+                ret = true
+            }
+        }
+        return ret
+    }
+
 
     /**
      * Devuelve una peli, si existe. En caso contrario devuelve `null`
@@ -182,6 +234,34 @@ class FilmManager {
 
 
     /**
+     * Como los aliases no se usan como id, es posible que estén duplicados y algunos aliases, efectivamente, no se usen
+     * (están 'obscured'). Esta función devuelve la peli que puede estar usando el mismo nombre en caso de que NO sea la peli
+     * que se indica, y devuelve `null` si la peli o no existe, o no tiene ese alias en primer lugar, o el alias indicado efectivamente
+     * le pertenece.
+     * @param {string} film_name 
+     * @param {string} alias 
+     */
+    is_alias_obscured(film_name, alias) {
+        film_name = utils.sanitize_film_name(film_name)
+        alias = utils.sanitize_film_name(alias)
+        let film = this.pelis[film_name]
+        if(film == null) return null
+        if(!film.aliases.includes(alias)) return null
+        for(let key of Object.keys(this.pelis)) {
+            if(key == alias) {
+                return this.pelis[key]
+            }
+        }
+        for(let alias_tuple of this.iterate_aliases()) {
+            if(alias_tuple.alias == alias) {
+                return alias_tuple.film.equals(film) ? null : alias_tuple.film
+            }
+        }
+        return null
+    }
+
+
+    /**
      * Indica si hay una peli registrada con ese nombre
      * @param {string} film_name El nombre de la peli, sin sanitizar
      * @returns Si la peli existe o no
@@ -199,6 +279,34 @@ class FilmManager {
     exists_tag(tag_name) {
         tag_name = utils.sanitize_film_name(tag_name)
         return tag_name in this.tags
+    }
+
+
+    /**
+     * 
+     * @param {string} film_name_or_alias 
+     */
+    get_film_fuzzy(film_name_or_alias) {
+        /** @type {Film | Film[]} */
+        let ret = this.get(film_name_or_alias)
+        if(ret != null) { // La película existe tal cual con el nombre que se ha dado, no hay que seguir buscando
+            return ret
+        }
+        // Si no, a buscar por claves. Cada palabra que se pasa se mira por separado
+        let expr = new RegExp(film_name_or_alias.split(/\W/).filter(s => s.length > 0).join(".*"), "gmi")
+        ret = []
+        // TODO Permitir aquí fuzzy match?
+        for(let key of Object.keys(this.pelis)) {
+            if(key.match(expr)) {
+                ret.push(this.pelis[key])
+            }
+        }
+        for(let alias_tuple of this.iterate_aliases()) {
+            if(alias_tuple.alias.match(expr)) {
+                ret.push(alias_tuple.film)
+            }
+        }
+        return ret.length == 1 ? ret[0] : ret.length == 0 ? null : ret
     }
 
 
@@ -226,6 +334,19 @@ class FilmManager {
     *iterate_tags() {
         for(let tag of Object.keys(this.tags)) {
             yield this.tags[tag]
+        }
+    }
+
+
+    /** Itera por todas las tuplas (peli, alias) que haya registradas en el FilmManager */
+    *iterate_aliases() {
+        for(let film of Object.keys(this.pelis)) {
+            for(let alias of this.pelis[film].aliases) {
+                yield {
+                    film: this.pelis[film],
+                    alias: alias
+                }
+            }
         }
     }
 

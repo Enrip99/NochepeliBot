@@ -19,8 +19,8 @@ class Film {
     not_interested
     /** @type {Tag[]} Tags de la peli vamos a ver es autoevidente */
     tags
-    /** @type {Message?} */
-    tag_manager_message
+    /** @type {string[]} Nombres sanitizados alternativos por los que te puedes referir a la película */
+    aliases
 
     /**
      * 
@@ -35,7 +35,7 @@ class Film {
         this.interested = [proposed_by_user]
         this.not_interested = []
         this.tags = []
-        this.tag_manager_message = null
+        this.aliases = []
     }
 
     /**
@@ -49,7 +49,7 @@ class Film {
 
 
     toString() {
-        return `[Film : ${this.sanitized_name}]`
+        return `[Film : ${this.first_name}]`
     }
 
 
@@ -100,7 +100,7 @@ class Film {
             interested: this.interested,
             not_interested: this.not_interested,
             tags: this.tags.map( (tag) => tag.sanitized_name ),
-            tag_manager_message: this.tag_manager_message
+            aliases: this.aliases
         }
     }
 
@@ -126,7 +126,7 @@ class Film {
             let data_tags = data.tags ?? []
             ret.tags = data_tags.map( (sanitized_tag_name) => tag_dict[sanitized_tag_name]) 
             //Hace falta pasarle el tag_dict para evitar bucle de dependencias
-            ret.tag_manager_message = Message.deserialize(data.tag_manager_message)
+            ret.aliases = data.aliases ?? []
 
         } catch(e) {
             console.error(`Error al deserializar: ${e} (JSON: ${json})`)

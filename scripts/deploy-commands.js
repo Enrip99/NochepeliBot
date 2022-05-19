@@ -2,16 +2,20 @@ const fs = require('node:fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { clientId, guildId, token } = require('../data/config.json');
+const { get_all_nested_files } = require("./script-utils.js")
 const process = require('process')
+const path = require('path')
+
+const COMMANDS_DIR = "src/commands"
 
 const commands = [];
 
 const rest = new REST({ version: '9' }).setToken(token);
 
-const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
+const commandFiles = get_all_nested_files(COMMANDS_DIR)
 
 for (const file of commandFiles) {
-	const command = require(`../src/commands/${file}`);
+	const command = require(`../${file}`); // Partiendo del directorio raíz del proyecto
 	commands.push(command.data.toJSON());
 }
 

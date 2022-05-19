@@ -1,11 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const interests = require('../interests.js')
-const { FilmManager } = require('../film_manager.js')
+const { FilmManager } = require('../film_manager.js');
+const { validate } = require('../validate_inputpeli.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 	.setName('want')
-	.setDescription('Te permite controlar tu nivel de interés en la peli dada.')
+	.setDescription('Te permite controlar tu nivel de interés en la peli indicada')
 	.addStringOption(option => 
 		option.setName('peli')
 			.setDescription('la película')
@@ -26,14 +27,10 @@ module.exports = {
 		let inputinteres = interaction.options.getInteger('interés')
 
 		let user = interaction.user
-		let peli = FilmManager.instance.get(inputpeli)
+		let peli = validate(inputpeli, interaction)
+		if(peli == null) return
 
-		if(!peli) { //peli == null
-			interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
-			return
-		}
-
-		switch(inputinteres){
+		switch(inputinteres) {
 			case 1:		
 				interests.add_very_interested(peli, user.id).then( () => {
 					interaction.reply({ content: `Tu interés en la peli **${peli.first_name}** es ahora positivo. Evitaremos verla si no estás.`, ephemeral: true })

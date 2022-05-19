@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { FilmManager } = require("../film_manager.js")
+const { FilmManager } = require("../film_manager.js");
+const { validate } = require('../validate_inputpeli.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,13 +16,8 @@ module.exports = {
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
+		let peli = validate(inputpeli, interaction)
 
-		if(!FilmManager.instance.exists(inputpeli)) {
-			interaction.reply({ content:"La película no está en la lista.", ephemeral: true })
-			return
-		}
-
-		let peli = FilmManager.instance.get(inputpeli)
 		let tosend = ""
 		if (!peli.interested.length){
 			interaction.reply("No hay nadie interesado en ver la película.")

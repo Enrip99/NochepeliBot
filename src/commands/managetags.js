@@ -7,6 +7,7 @@ const DiscordMessage = require('discord.js').Message
 const utils = require('../utils.js')
 const { DeciduousInteractiveMessage } = require('../interactive_message.js');
 const { InteractiveMessageManager } = require('../interactive_message_manager.js');
+const { validate } = require('../validate_inputpeli.js');
 
 //input: managetags <nombre peli>
 
@@ -25,22 +26,8 @@ module.exports = {
         
 		let inputpeli = interaction.options.getString('peli')
 
-        if(!FilmManager.instance.exists(inputpeli)) {
-            await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
-            return
-        } 
-
-        let peli = FilmManager.instance.get(inputpeli)
-
-        let old_message_obj = peli.tag_manager_message
-        
-        if(old_message_obj) {
-            old_message_obj.fetch(interaction.client)
-            .then(old_message => old_message.edit({ content: `~~${old_message.content}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/managetags\`).`, components: []}))
-            .catch( (e) => {
-                console.log(`No se ha podido editar el mensaje con ID ${old_message_obj.message_id} en el canal con ID ${old_message_obj.channel_id}. Traza: ${e}`)
-            })
-        }
+        let peli = validate(inputpeli, interaction)
+        if(peli == null) return
           
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		

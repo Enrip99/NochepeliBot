@@ -1,5 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../film_manager.js")
+const utils = require("../utils.js");
+const { validate } = require('../validate_inputpeli.js');
 
 //input: addlink <nombre peli> <link>
 
@@ -24,25 +26,24 @@ module.exports = {
 		let inputpeli = interaction.options.getString('peli')
 		let inputlink = interaction.options.getString('link')
 		
-		let peli = FilmManager.instance.get(inputpeli)
-		if(!peli) {
-			await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
-			return
-		}
+		let peli = validate(inputpeli, interaction)
+		if(peli == null) return
 		
 		let actualizar = peli.link != null
 		peli.link = inputlink
 		console.log(`Actualizado link para peli ${inputpeli}`)
 
-		await FilmManager.instance.save().then( () => {
-				if(actualizar) {
-					interaction.reply(`Enlace actualizado para la peli **${peli.first_name}**.\n\`\`\`${peli.link}\`\`\``)
-				} else {
-					interaction.reply(`Enlace añadido a la peli **${peli.first_name}**.\n\`\`\`${peli.link}\`\`\``)
-				}
-			}).catch( () => {
-				interaction.reply({ content: "No se ha podido poner ese enlace a la peli.", ephemeral: true })
-			})
+		try {
+			await FilmManager.instance.save()
+			if(actualizar) {
+				interaction.reply(`Enlace actualizado para la peli **${peli.first_name}**.\n\`\`\`${peli.link}\`\`\``)
+			} else {
+				interaction.reply(`Enlace añadido a la peli **${peli.first_name}**.\n\`\`\`${peli.link}\`\`\``)
+			}
+		} catch(e) {
+			console.error(e)
+			interaction.reply({ content: "No se ha podido poner ese enlace a la peli.", ephemeral: true })
+		}
 			
 	}
 }
