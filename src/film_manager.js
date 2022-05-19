@@ -203,6 +203,29 @@ class FilmManager {
 
 
     /**
+     * 
+     * @param {string} film_name_or_alias 
+     */
+    get_film_fuzzy(film_name_or_alias) {
+        /** @type {Film | Film[]} */
+        let ret = this.get(film_name_or_alias)
+        if(ret != null) { // La película existe tal cual con el nombre que se ha dado, no hay que seguir buscando
+            return ret
+        }
+        // Si no, a buscar por claves. Cada palabra que se pasa se mira por separado
+        let expr = new RegExp(film_name_or_alias.split(/\W/).filter(s => s.length > 0).join(".*"), "gmi")
+        ret = []
+        // TODO Permitir aquí fuzzy match?
+        for(let key of Object.keys(this.pelis)) {
+            if(key.match(expr)) {
+                ret.push(this.pelis[key])
+            }
+        }
+        return ret.length == 1 ? ret[0] : ret.length == 0 ? null : ret
+    }
+
+
+    /**
      * Devuelve el número de pelis que hay en la lista
      * @returns el número de pelis que hay en la lista
      */

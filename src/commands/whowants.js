@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../film_manager.js")
-const utils = require('../utils.js')
+const utils = require('../utils.js');
+const { validate } = require('../validate_inputpeli.js');
 
 
 module.exports = {
@@ -18,12 +19,8 @@ module.exports = {
 		
 		let inputpeli = interaction.options.getString('peli')
 
-		let peli = FilmManager.instance.get(inputpeli)
-
-		if(!peli) { //peli == null
-			interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
-			return
-		} 
+		let peli = validate(inputpeli, interaction)
+		if(peli == null) return
 
 		let interested_msg = "✔️ "
 		let not_interested_msg = "\n\n❌ "

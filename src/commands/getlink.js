@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../film_manager.js")
+const { validate } = require("../validate_inputpeli.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,15 +16,11 @@ module.exports = {
 	async execute(interaction) {
 
 		let inputpeli = interaction.options.getString('peli')
+		let peli = validate(inputpeli, interaction)
+		if(peli == null) return;
 
-		if(!FilmManager.instance.exists(inputpeli)) {
-			interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
-			return
-		} 
-
-		let peli = FilmManager.instance.get(inputpeli)
 		if(peli.link == null) {
-			interaction.reply({ content: `**${inputpeli}** no tiene enlace.`, ephemeral: true })
+			interaction.reply({ content: `**${peli.first_name}** no tiene enlace.`, ephemeral: true })
 		} else {
 			interaction.reply(`Link de **${peli.first_name}**:\n\`\`\`${peli.link}\`\`\``)
 		}

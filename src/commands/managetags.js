@@ -7,6 +7,7 @@ const DiscordMessage = require('discord.js').Message
 const utils = require('../utils.js')
 const { DeciduousInteractiveMessage } = require('../interactive_message.js');
 const { InteractiveMessageManager } = require('../interactive_message_manager.js');
+const { validate } = require('../validate_inputpeli.js');
 
 //input: managetags <nombre peli>
 
@@ -25,12 +26,8 @@ module.exports = {
         
 		let inputpeli = interaction.options.getString('peli')
 
-        if(!FilmManager.instance.exists(inputpeli)) {
-            await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
-            return
-        } 
-
-        let peli = FilmManager.instance.get(inputpeli)
+        let peli = validate(inputpeli, interaction)
+        if(peli == null) return
 
         let old_message_obj = peli.tag_manager_message
         

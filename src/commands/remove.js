@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const utils = require('../utils.js')
-const { FilmManager } = require("../film_manager.js")
+const { FilmManager } = require("../film_manager.js");
+const { validate } = require('../validate_inputpeli.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,13 +16,20 @@ module.exports = {
 	 */
 	async execute(interaction) {
 		let inputpeli = interaction.options.getString('peli')
+		let peli = validate(inputpeli, interaction)
+		if(peli == null) return
 
-		if(!FilmManager.instance.exists(inputpeli)) {
-			await interaction.reply({ content: "La película no está en la lista.", ephemeral: true })
+		// Solo por asegurarse...
+		let sanitized_inputpeli = utils.sanitize_film_name(inputpeli)
+		if(sanitized_inputpeli != peli.sanitized_name) {
+			interaction.reply({
+				content: `Entiendo que te refieres a **${peli.first_name}**, pero solo para estar seguros de que no borro la que no es, ` 
+					+ `vuelve a usar \`/remove\` con el nombre de la peli tal cual lo tengo registrado (lo que acabo de poner en negrita)`,
+				ephemeral: true
+			})
 			return
-		} 
-		
-		let peli = FilmManager.instance.get(inputpeli)
+		}
+
 		FilmManager.instance.remove(inputpeli)
 		await FilmManager.instance.save().then( () => {
 			interaction.reply(`**${peli.first_name}** eliminada de la lista.`)

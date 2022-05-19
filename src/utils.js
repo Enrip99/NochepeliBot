@@ -148,6 +148,37 @@ exports.button_customId_maker = function(deciduous, type, customId, args = []) {
     return [ret, split_args].join(":")
 }
 
+/**
+ * 
+ * @param  {...{toString :() => string}} args 
+ */
+exports.list_as_readable_text = function(...args) {
+    let ret = ""
+    for(let i = 0; i < args.length; i++) {
+        ret += args[i].toString()
+        if(i == args.length - 2) {
+            ret += " y "
+        } else if(i < args.length - 1) {
+            ret += ", "
+        }
+    }
+    return ret
+}
+
+/**
+ * 
+ * @param {number} number 
+ * @param {'m' | 'f'} gender
+ */
+exports.numbers_as_text = function(number, gender = "f") {
+    const names = ["cero", gender == 'f' ? "una" : "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
+    if(number >= names.length || number < 0) {
+        return number.toString()
+    } else {
+        return names[number]
+    }
+}
+
 
 /**
  * Apaga el bot
