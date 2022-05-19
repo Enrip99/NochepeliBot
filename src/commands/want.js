@@ -13,10 +13,10 @@ module.exports = {
 			.setRequired(true))
 	.addIntegerOption(option =>
 		option.setName('interés')
-			.setDescription('Nivel de interés')
-			.setRequired(true)
+			.setDescription('Nivel de interés (default: positivo)')
+			.setRequired(false)
 			.addChoices({name: '✔️ Positivo ✔️', value: +1}, 
-						{name: '🤷 Neutral 🤷', value:0}, 
+						{name: '🤷 Neutral 🤷', value: 0}, 
 						{name: '❌ Negativo ❌', value: -1})),
 	/** 
 	 * @param {import("discord.js").CommandInteraction} interaction
@@ -25,6 +25,9 @@ module.exports = {
 
 		let inputpeli = interaction.options.getString('peli')
 		let inputinteres = interaction.options.getInteger('interés')
+		if(inputinteres == null){
+			inputinteres = 1
+		}
 
 		let user = interaction.user
 		let peli = validate(inputpeli, interaction)

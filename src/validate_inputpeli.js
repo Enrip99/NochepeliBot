@@ -13,6 +13,9 @@ exports.validate = function(inputpeli, interaction) {
 
     if(peli instanceof Array) {
 		let matched_pelis = new Set(peli.map(f => f.first_name))
+		if(matched_pelis.size == 1){
+			return peli[0]
+		}
 		interaction.reply({
 			content:
 			`Sé más específico, hay ${utils.numbers_as_text(matched_pelis.size)} pelis a las que te puedes ` +

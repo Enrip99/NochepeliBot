@@ -248,7 +248,7 @@ class FilmManager {
         if(film == null) return null
         if(!film.aliases.includes(alias)) return null
         for(let key of Object.keys(this.pelis)) {
-            if(key == alias) {
+            if(key == alias && !this.pelis[key].equals(film)) {
                 return this.pelis[key]
             }
         }
