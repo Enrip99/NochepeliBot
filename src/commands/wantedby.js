@@ -66,7 +66,7 @@ module.exports = {
         let embeds = []
 
         for( let key of keys ){
-            if( inputinteres == 'key' || inputinteres == 'todas'){
+            if( inputinteres == key || inputinteres == 'todas'){
                 let render_data = await FilmManager.instance.list_renderer.create_single_page_embed_from_list(interest_list[key],
                     undefined,
                     titulos_interes[key],

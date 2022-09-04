@@ -126,7 +126,7 @@ class ListRenderer {
 
         /** Filtro pasado por parámetro + filtrar/no filtrar ocultas */
         /** @type {(p :Film) => boolean} */
-        let filter_plus_hidden = peli => filter(peli) && (include_hidden || !peli.is_hidden) 
+        let filter_plus_hidden = peli => filter(peli) && (include_hidden || !peli.is_hidden()) 
 
         /** @type {Film[]} */
         let film_list = []
@@ -199,7 +199,7 @@ class ListRenderer {
 
         let msg
         if(slim_format){
-           msg = `\n• **${peli.first_name}**`
+            msg = `\n• **${peli.first_name}**`
         }
         else{
             msg = `\n**${peli.first_name}**`
