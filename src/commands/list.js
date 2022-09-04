@@ -98,7 +98,9 @@ class ListInteractiveMessage extends InteractiveMessage {
 			(this.tag ? this.tag.hidden : false),
 			(this.tag ? this.tag.tag_name : undefined))
 		let old_message = await this.fetch(interaction.client)
-		old_message.edit({ content: null, embeds: [render_data.embed] })
+		let embed = await render_data.embed
+
+		old_message.edit({ content: null, embeds: [embed] })
     }
 
 
@@ -125,7 +127,9 @@ class ListInteractiveMessage extends InteractiveMessage {
 			(this.tag ? this.tag.tag_name : undefined))
 		this.page = render_data.page_number
 		let rows = this.create_buttons()
-		interaction.update({ embeds: [render_data.embed], components: rows })
+		let embed = await render_data.embed
+
+		interaction.update({ embeds: [embed], components: rows })
     }
 }
 

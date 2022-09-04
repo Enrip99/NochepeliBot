@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { FilmManager } = require('../film_manager.js');
 const interests = require('../interests.js')
 
+const FILMS_PER_PAGE = 100
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,7 +18,8 @@ module.exports = {
             .setRequired(false)
             .addChoices({name: '✔️ Quiere ver ✔️', value: 'positivo'}, 
                         {name: '🤷 Neutral 🤷', value: 'neutral'}, 
-                        {name: '❌ No quiere ver ❌', value: 'negativo'}))
+                        {name: '❌ No quiere ver ❌', value: 'negativo'},                      
+                        {name: 'Todas', value: 'todas'}))
     .addIntegerOption(option =>
         option.setName('ocultas')
             .setDescription('¿Mostrar ocultas? (default: no)')
@@ -29,8 +32,12 @@ module.exports = {
 	 */
 	async execute(interaction) {
 		
+        /** TODO:
+         *  Meter parámetro para el orden de las pelis
+         */
+
 		let inputuser = interaction.options.getUser('usuario')
-        let inputinteres = interaction.options.getString('interés')
+        let inputinteres = interaction.options.getString('interés') ?? 'todas'
         let inputocultas = interaction.options.getInteger('ocultas')
 
         let ocultas = inputocultas ?? false
@@ -40,6 +47,12 @@ module.exports = {
 
         let interest_list = await interests.get_user_interest_list(user.id)
 
+        /** @type { Record<string, string> } */
+        let titulos_interes = {
+            positivo: `✔️ Películas en las que está interesado el usuario **${ user.username }**`,
+            neutral: `🤷 Películas que ni le van ni le vienen al usuario **${ user.username }**`,
+            negativo: `❌ Películas en las que NO está interesado el usuario **${ user.username }**`,
+        }
 
         if(!ocultas || solo_ocultas){
 
@@ -49,28 +62,20 @@ module.exports = {
 
         } 
 
+        let keys = ['positivo', 'neutral', 'negativo']
+        let embeds = []
 
-        let msg_positivo = `✔️ Películas en las que está interesado el usuario **${ user.username }**:\n${ interest_list.positivo.map( (peli) => peli.first_name ).join(', ') }` 
-        let msg_neutral = `🤷 Películas que ni le van ni le vienen al usuario **${ user.username }**:\n${ interest_list.neutral.map( (peli) => peli.first_name ).join(', ') }` 
-        let msg_negativo = `❌ Películas en las que NO está interesado el usuario **${ user.username }**:\n${ interest_list.negativo.map( (peli) => peli.first_name ).join(', ') }` 
-
-        switch( inputinteres ){
-            case 'positivo':                
-                interaction.reply(msg_positivo)
-                break
-
-            case 'neutral':
-                interaction.reply(msg_neutral)
-                break
-
-            case 'negativo':
-                interaction.reply(msg_negativo)
-                break
-            
-            default: //null
-                interaction.reply(`${msg_positivo}\n\n${msg_neutral}\n\n${msg_negativo}`)
-
+        for( let key of keys ){
+            if( inputinteres == 'key' || inputinteres == 'todas'){
+                let render_data = await FilmManager.instance.list_renderer.create_single_page_embed_from_list(interest_list[key],
+                    undefined,
+                    titulos_interes[key],
+                    true)
+                embeds.push(render_data)
+            }
         }
+
+        interaction.reply({embeds: embeds})
         
 	}
 };

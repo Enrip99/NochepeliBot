@@ -42,7 +42,7 @@ class ListRenderer {
      * @typedef {import("./film.js").Film} Film
      * @typedef {{message :string, peli :Film}} PeliObj
      * @param {import("discord.js").Client} client
-     * @param {(p1 :PeliObj, p2 :PeliObj) => number} sort_criterion
+     * @param {(p1 :Film, p2 :Film) => number} sort_criterion
      * @param {Iterable<Film>?} iterable
      * @returns 
      */
@@ -65,7 +65,9 @@ class ListRenderer {
             listobj.push(obj)
         })
 
-        listobj.sort(sort_criterion)
+        let obj_sort_criterion = sort_criteria_film_to_obj(sort_criterion)
+        listobj.sort(obj_sort_criterion)
+
         let listmsg = listobj.map( (element) => element.message )
 
         let embeds = ListRenderer.create_embeds_for_list(DEFAULT_LIST_TITLE, listmsg, character_limit)
@@ -116,68 +118,106 @@ class ListRenderer {
      * @param {number} page_number 
      * @param {number} items_per_page
      * @param {(p :Film) => boolean} filter
+     * @param {(p1 :Film, p2 :Film) => number} sort_criterion
+     * @param {string} base_page_title
      */
     async create_single_page_embed(page_number, items_per_page,
-        filter = (p) => true, sort_criterion = default_sort_criterion, include_hidden = false, page_title = DEFAULT_LIST_TITLE) {
+        filter = (p) => true, sort_criterion = default_sort_criterion, include_hidden = false, base_page_title = DEFAULT_LIST_TITLE) {
+
+        /** Filtro pasado por parámetro + filtrar/no filtrar ocultas */
+        /** @type {(p :Film) => boolean} */
+        let filter_plus_hidden = peli => filter(peli) && (include_hidden || !peli.is_hidden) 
 
         /** @type {Film[]} */
-        let films = []
+        let film_list = []
         for(let film of this.film_manager.iterate()) {
-            films.push(film)
+            if(filter_plus_hidden(film)){
+                film_list.push(film)
+            }
         }
-        
-        
-        /** @type {PeliObj[]} */
-        let listobj = []
-        await utils.parallel_for(films.filter(filter), async peli => {
 
-            if(!include_hidden && peli.is_hidden()) return
-
-            let msg = await this.render_film(this.film_manager.client, peli)
-            let obj = { 'message': msg, 'peli': peli } 
-            listobj.push(obj)
-        })
-
-        let page_total = Math.ceil(listobj.length / items_per_page)
+        let page_total = Math.ceil(film_list.length / items_per_page)
         page_number = (page_number + page_total) % page_total
         if(isNaN(page_number)) page_number = 0
         let first_item = items_per_page * page_number
         let displayed_page_number = page_total != 0 ? page_number + 1 : 0
-        listobj = listobj.sort(sort_criterion).slice(first_item, first_item + items_per_page)
-        let msg = listobj.map((element) => element.message).join("")
-        if(msg.length > DESCRIPTION_LIMIT) {
-            console.warn(`Se ha generado una página con más de ${DESCRIPTION_LIMIT} caracteres. Discord no soporta más caracteres en un embed.`)
-        }
+
+        film_list = film_list.sort(sort_criterion).slice(first_item, first_item + items_per_page)
+    
+        let page_title = `${base_page_title} (${displayed_page_number}/${page_total})`
 
         return {
-            embed: new MessageEmbed()
-            .setTitle(`${page_title} (${displayed_page_number}/${page_total})`)
-            .setDescription(msg),
+            embed: this.create_single_page_embed_from_list(film_list, sort_criterion, page_title),
             page_number: page_number,
             page_total: page_total
         }
+
     }
+
+
+    /**
+     * 
+     * @param {Film[]} film_list
+     * @param {(p1 :Film, p2 :Film) => number} sort_criterion
+     * @param {string} page_title
+     * @param {boolean} slim_format
+     */
+         async create_single_page_embed_from_list(film_list, sort_criterion = default_sort_criterion, page_title = DEFAULT_LIST_TITLE, slim_format = false) {
+            
+            film_list = film_list.sort(sort_criterion)
+            
+            /** @type {PeliObj[]} */
+            let listobj = []
+            await utils.parallel_for(film_list, async peli => {
+
+                let msg = await this.render_film(this.film_manager.client, peli, slim_format)
+                let obj = { 'message': msg, 'peli': peli } 
+                listobj.push(obj)
+
+            })
+
+            let msg = listobj.map((element) => element.message).join("")
+            if(msg.length > DESCRIPTION_LIMIT) {
+                console.warn(`Se ha generado una página con más de ${DESCRIPTION_LIMIT} caracteres. Discord no soporta más caracteres en un embed.`)
+            }
+    
+            return new MessageEmbed()
+                .setTitle(page_title)
+                .setDescription(msg)
+        }
+    
+
 
 
     /**
      * 
      * @param {import("discord.js").Client} client
      * @param {Film} peli 
+     * @param {boolean} slim_format
      */
-     async render_film(client, peli) {
-        let msg = `\n**${peli.first_name}**`
-        let tag_names = this.display_tag_names(peli)
-        if(tag_names != "") {
-            msg += ` (${tag_names})`
+     async render_film(client, peli, slim_format = false) {
+
+        let msg
+        if(slim_format){
+           msg = `\n• **${peli.first_name}**`
         }
-        msg += `\n\☑️ ${peli.interested.length} · ❎ ${peli.not_interested.length}`
-        if(peli.norm() < 0) {
-            msg += " · ratio"
+        else{
+            msg = `\n**${peli.first_name}**`
+            let tag_names = this.display_tag_names(peli)
+            if(tag_names != "") {
+                msg += ` (${tag_names})`
+            }
+            msg += `\n\☑️ ${peli.interested.length} · ❎ ${peli.not_interested.length}`
+            if(peli.norm() < 0) {
+                msg += " · ratio"
+            }
+            let user = await utils.get_user_by_id(client, peli.proposed_by_user)
+            msg += ` · Propuesta por **${user.username}**`
+            msg += this.display_film_link_status(peli) + "\n"
         }
-        let user = await utils.get_user_by_id(client, peli.proposed_by_user)
-        msg += ` · Propuesta por **${user.username}**`
-        msg += this.display_film_link_status(peli) + "\n"
+        
         return msg
+        
     }
 
 
@@ -239,14 +279,21 @@ class ListRenderer {
 //Funciones privadas
 
 /**
- * 
- * @typedef {{peli :import("./film.js").Film}} PeliObjLike
- * @param {PeliObjLike} obj1 
- * @param {PeliObjLike} obj2 
- * @returns 
+ * @param {Film} p1 
+ * @param {Film} p2 
+ * @returns {number} 
  */
-function default_sort_criterion(obj1, obj2){
-    return obj1.peli.compareTo(obj2.peli)
+function default_sort_criterion(p1, p2){
+    return p1.compareTo(p2)
+}
+
+/**
+ * @typedef {{peli :import("./film.js").Film}} PeliObjLike
+ * @param {(p1 :Film, p2 :Film) => number} sort_criterion
+ * @returns {(p1 :PeliObjLike, p2 :PeliObjLike) => number}
+ */
+ function sort_criteria_film_to_obj(sort_criterion){
+    return (obj1, obj2) => sort_criterion(obj1.peli, obj2.peli) 
 }
 
 module.exports = { ListRenderer }
