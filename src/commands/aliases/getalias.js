@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const { FilmManager } = require("../../film_manager");
 const { validate } = require("../../validate_inputpeli");
 
@@ -19,6 +19,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
         let inputpeli = interaction.options.getString('peli')
         let peli = validate(inputpeli, interaction)
         if(peli == null) return
@@ -31,7 +34,7 @@ module.exports = {
             return
         }
 
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
         embed.setTitle(`Aliases de ${peli.first_name}`)
         let description = "Los aliases se muestran sanitizados. Podéis usarlos intercalando espacios, símbolos, mayúsculas, etc.\n"
         for(let alias of peli.aliases) {

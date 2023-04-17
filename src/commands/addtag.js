@@ -22,8 +22,14 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputtag = interaction.options.getString('tag')
 		if(!inputtag) return
+		/** 
+		 * @type {?number}
+		 * @ts-ignore */
 		let ocultabilidad = interaction.options.getInteger('ocultabilidad')
 
 		let vibe_check = utils.vaporeon_check(inputtag) //cadena verdaderosa o null

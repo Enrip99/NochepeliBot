@@ -21,6 +21,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {?number}
+		 * @ts-ignore */
 		let autoupdate = !!interaction.options.getInteger('autoupdate') //booleano
 		
 		if (!FilmManager.instance.count()) {

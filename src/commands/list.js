@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { FilmManager } = require('../film_manager.js');
 const { InteractiveMessage } = require('../interactive_message.js');
 const { InteractiveMessageManager } = require('../interactive_message_manager.js');
@@ -20,6 +20,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {?string}
+		 * @ts-ignore */
 		let inputtag = interaction.options.getString('tag')
 		let tag = inputtag ? FilmManager.instance.get_tag(inputtag) : null
 		let iterable = tag ? FilmManager.instance.films_with_tag(inputtag) : null
@@ -56,20 +59,24 @@ class ListInteractiveMessage extends InteractiveMessage {
 
     /**
      * 
-     * @returns {import("discord.js").MessageActionRow[]}
+     * @returns {ActionRowBuilder<ButtonBuilder>[]}
      */
 	 buttons_to_create() {
-        return [new MessageActionRow()
+		/** 
+		 * @type {ActionRowBuilder<ButtonBuilder>[]}
+		 * @ts-ignore */	
+        let action_rows = [new ActionRowBuilder()
 					.addComponents(
-					new MessageButton()
+					new ButtonBuilder()
 						.setCustomId(`left:${this.tag ? this.tag.sanitized_name : ''}:${this.page}`)
 						.setEmoji('⬅️')
-						.setStyle('PRIMARY'),
-					new MessageButton()
+						.setStyle(ButtonStyle.Primary),
+					new ButtonBuilder()
 						.setCustomId(`right:${this.tag ? this.tag.sanitized_name : ''}:${this.page}`)
 						.setEmoji('➡️')
-						.setStyle('PRIMARY')
+						.setStyle(ButtonStyle.Primary)
 		)]
+		return action_rows
     }
 
     
@@ -126,6 +133,9 @@ class ListInteractiveMessage extends InteractiveMessage {
 			(this.tag ? this.tag.hidden : false),
 			(this.tag ? this.tag.tag_name : undefined))
 		this.page = render_data.page_number
+		/** 
+		 * @type {ActionRowBuilder<ButtonBuilder>[]}
+		 * @ts-ignore */
 		let rows = this.create_buttons()
 		let embed = await render_data.embed
 

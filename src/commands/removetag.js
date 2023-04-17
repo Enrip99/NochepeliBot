@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton, Application} = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { FilmManager } = require("../film_manager.js")
 const { InteractiveMessage } = require('../interactive_message.js');
 const { InteractiveMessageManager } = require('../interactive_message_manager.js');
@@ -19,6 +19,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputtag = interaction.options.getString('tag')
 		let tag = FilmManager.instance.get_tag(inputtag)
 
@@ -65,22 +68,24 @@ class RemoveTagInteractiveMessage extends InteractiveMessage {
 
     /**
      * 
-     * @returns {import("discord.js").MessageActionRow[]}
+     * @returns {ActionRowBuilder<ButtonBuilder>[]}
      */
 	 buttons_to_create() {
-
-		return [new MessageActionRow()
+		/** 
+		 * @type {ActionRowBuilder<ButtonBuilder>[]}
+		 * @ts-ignore */	
+		let action_rows = [new ActionRowBuilder()
 					.addComponents(
-					new MessageButton()
+					new ButtonBuilder()
 						.setCustomId(`delete:${this.tag.sanitized_name}`)
 						.setLabel('Borrar')
-						.setStyle('DANGER'),
-					new MessageButton()
+						.setStyle(ButtonStyle.Danger),
+					new ButtonBuilder()
 						.setCustomId(`cancel:${this.tag.sanitized_name}`)
 						.setLabel('Cancelar')
-						.setStyle('SECONDARY')
+						.setStyle(ButtonStyle.Secondary)
 		)]
-
+		return action_rows
     }
 
     

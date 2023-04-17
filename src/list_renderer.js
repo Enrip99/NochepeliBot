@@ -1,5 +1,5 @@
 const utils = require('./utils.js')
-const { MessageEmbed } = require('discord.js')
+const { EmbedBuilder } = require('discord.js')
 const { Message } = require('./message.js')
 
 const DESCRIPTION_LIMIT = 4096
@@ -102,7 +102,7 @@ class ListRenderer {
         for(let page of pages) {
             current_page += 1
             let pages_text = pages.length != 1 ? `(${current_page}/${pages.length})` : ""
-            embeds.push(new MessageEmbed()
+            embeds.push(new EmbedBuilder()
             .setTitle(`${title} ${pages_text}`)
             .setDescription(page))
         }
@@ -180,8 +180,9 @@ class ListRenderer {
             if(msg.length > DESCRIPTION_LIMIT) {
                 console.warn(`Se ha generado una página con más de ${DESCRIPTION_LIMIT} caracteres. Discord no soporta más caracteres en un embed.`)
             }
+            if(!msg) msg = '\u00A0' //Non-breaking space, evita que la descripción esté vacía.
     
-            return new MessageEmbed()
+            return new EmbedBuilder()
                 .setTitle(page_title)
                 .setDescription(msg)
         }

@@ -16,6 +16,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
 		
+		/** 
+		 * @type {?string}
+		 * @ts-ignore */
         let inputtag = interaction.options.getString('tag')
         
         let iterable 

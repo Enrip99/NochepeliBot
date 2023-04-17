@@ -1,21 +1,25 @@
 const { Message } = require("./message.js");
 const utils = require("./utils.js")
 
-
 class InteractiveMessage extends Message {
 
-    
     /**
-     * 
-     * @returns {import("discord.js").MessageActionRow[]}
+     * @typedef {import("discord.js").ButtonBuilder} ButtonBuilder
+     * @returns {import("discord.js").ActionRowBuilder<ButtonBuilder>[]}
      */
     create_buttons(){
         
+        /** @type {import("discord.js").ActionRowBuilder<ButtonBuilder>[]} */
         let action_rows = this.buttons_to_create()
         let deciduous = this instanceof DeciduousInteractiveMessage
         for(let row of action_rows) {
             for(let component of row.components) {
-                component.setCustomId(utils.button_customId_maker(deciduous, this.constructor.name, component.customId))
+                //Sanitize customId
+                let componentJSON = component.toJSON();
+                let custom_id = 'custom_id' in componentJSON ? componentJSON.custom_id : ''; //Type guard
+                component.setCustomId(
+                    utils.button_customId_maker(deciduous, this.constructor.name, custom_id)
+                )
             }
         }
         return action_rows
@@ -24,7 +28,7 @@ class InteractiveMessage extends Message {
 
     /**
      * 
-     * @returns {import("discord.js").MessageActionRow[]}
+     * @returns {import("discord.js").ActionRowBuilder<ButtonBuilder>[]}
      */
     buttons_to_create() {
         return []
@@ -95,7 +99,7 @@ class DeciduousInteractiveMessage extends InteractiveMessage {
 
     /**
      * 
-     * @param {import("discord.js").Interaction} interaction 
+     * @param {import("discord.js").BaseInteraction} interaction 
      */
     on_abandon(interaction) {
         // To be overriden in subclasses

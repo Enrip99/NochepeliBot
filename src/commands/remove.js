@@ -15,6 +15,9 @@ module.exports = {
 	 * @param {import("discord.js").CommandInteraction} interaction
 	 */
 	async execute(interaction) {
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
 		let peli = validate(inputpeli, interaction)
 		if(peli == null) return

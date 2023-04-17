@@ -23,7 +23,13 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputlink = interaction.options.getString('link')
 		
 		let peli = validate(inputpeli, interaction)

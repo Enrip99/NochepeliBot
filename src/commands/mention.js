@@ -15,8 +15,12 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
 		let peli = validate(inputpeli, interaction)
+		if(!peli) return //Evitamos que pete si hay varios matches.
 
 		let tosend = ""
 		if (!peli.interested.length){

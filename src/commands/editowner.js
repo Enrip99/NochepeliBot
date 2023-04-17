@@ -21,6 +21,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
 		let inputusuario = interaction.options.getUser('usuario')
 

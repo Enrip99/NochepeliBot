@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, ApplicationCommand, TextChannel } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { FilmManager } = require("../film_manager.js")
 const { Film } = require("../film.js")
@@ -30,7 +30,13 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
+		/** 
+		 * @type {?string}
+		 * @ts-ignore */
 		let inputtag = interaction.options.getString('tag')		
 
 		let vibe_check = utils.vaporeon_check(inputpeli + ' ' + inputtag) //cadena verdaderosa o null\
@@ -118,21 +124,25 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 
 
 	buttons_to_create() {
-        return [new MessageActionRow()
+		/** 
+		 * @type {ActionRowBuilder<ButtonBuilder>[]}
+		 * @ts-ignore */		
+        let action_rows = [new ActionRowBuilder()
 			.addComponents(
-			new MessageButton()
+			new ButtonBuilder()
 				.setCustomId(`positive`)
 				.setLabel('Positivo')
-				.setStyle('SUCCESS'),
-			new MessageButton()
+				.setStyle(ButtonStyle.Success),
+			new ButtonBuilder()
 				.setCustomId(`neutral`)
 				.setLabel('Neutral')
-				.setStyle('PRIMARY'),
-			new MessageButton()
+				.setStyle(ButtonStyle.Primary),
+			new ButtonBuilder()
 				.setCustomId(`negative`)
 				.setLabel('Negativo')
-				.setStyle('DANGER'),
+				.setStyle(ButtonStyle.Danger),
 		)]
+		return action_rows
     }
 
 
@@ -238,14 +248,25 @@ class AddInteractiveMessage extends DeciduousInteractiveMessage {
 		this.fetch(interaction.client)
 		.then(discord_message => {
 			let old_message = discord_message.content
-			for(let row of discord_message.components) {
-				for(let component of row.components) {
-					component.disabled = true
-				}
+			let old_components = discord_message.components
+			/** @type {ActionRowBuilder<ButtonBuilder>[]} */
+			let new_components = [] //Este código lo usamos en varias partes y debería moverse a un utils.
+			for(let row of old_components){
+				/** 
+				 * @type {ActionRowBuilder<ButtonBuilder>}
+				 * @ts-ignore */
+				let new_row = ActionRowBuilder.from(row)
+				new_row.components.forEach(
+					receivedButton => {
+						let editedButton = ButtonBuilder.from(receivedButton).setDisabled(true)
+						receivedButton = editedButton
+					}
+				)
+				new_components.push(new_row)
 			}
 			discord_message.edit({
 				content: `~~${old_message}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/add\`.)`,
-				components: discord_message.components
+				components: new_components
 			})
 		})
 		.catch((e) => {

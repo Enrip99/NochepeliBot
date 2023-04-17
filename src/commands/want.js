@@ -23,7 +23,13 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
+		/** 
+		 * @type {?number}
+		 * @ts-ignore */
 		let inputinteres = interaction.options.getInteger('interés')
 		if(inputinteres == null){
 			inputinteres = 1

@@ -2,7 +2,7 @@ const utils = require("./utils.js")
 const config = require("../data/config.json")
 const { InteractiveMessage, DeciduousInteractiveMessage } = require("./interactive_message.js")
 const { Message } = require("./message.js")
-const DiscordMessage = require("discord.js").Message
+const { DiscordMessage, ActionRowBuilder, ButtonBuilder } = require("discord.js").Message
 
 
 class InteractiveMessageManager {
@@ -66,6 +66,9 @@ class InteractiveMessageManager {
             this.deciduous_messages[message.constructor.name][message.identity()] = message
         }
 
+        /** 
+         * @type {ActionRowBuilder<ButtonBuilder>}
+         * @ts-ignore */
         let action_rows = message.create_buttons()
 
         message.edit(interaction.client, { components: action_rows })
@@ -76,7 +79,7 @@ class InteractiveMessageManager {
     /**
      * 
      * @param {DeciduousInteractiveMessage} message
-     * @param {import("discord.js").Interaction} interaction
+     * @param {import("discord.js").BaseInteraction} interaction
      */
     abandon(message, interaction) {
         if(!(message instanceof DeciduousInteractiveMessage)) {
@@ -95,7 +98,7 @@ class InteractiveMessageManager {
 
     /**
      * 
-     * @param {import("discord.js").Interaction} interaction
+     * @param {import("discord.js").BaseInteraction} interaction
      */
     async process(interaction) {
         if(!interaction.isButton() || interaction.guildId != config.guildId) {
@@ -106,7 +109,14 @@ class InteractiveMessageManager {
             console.warn(`Se ha activado un botón con customId '${interaction.customId}'`)
             let old_message = interaction.message
             let components = old_message.components
-            components.forEach(row => row.components.forEach(button => button.disabled = true))
+            components.forEach(row => row.components.forEach(
+                receivedButton => {
+                    let editedButton = ButtonBuilder.from(receivedButton).setDisabled(true)
+                    receivedButton = editedButton
+                }
+                /** Breaking change: https://discordjs.guide/additional-info/changes-in-v14.html#messagecomponent */
+                )
+            )
             interaction.update({
                 content: `~~${old_message.content}~~\n(Deprecado, crea otro mensaje)`,
                 /** @ts-ignore */
@@ -126,7 +136,7 @@ class InteractiveMessageManager {
             message_instance.on_update(interaction, args)
         }
         else {
-            if(!(interaction.message instanceof DiscordMessage)) return
+            // if(!(interaction.message instanceof DiscordMessage)) return //"rightside of instanceof is not an object"
             for(let id of Object.keys(this.deciduous_messages[type])) {
                let current_msg = this.deciduous_messages[type][id]
                if(current_msg.equals(Message.from(interaction.message))) {

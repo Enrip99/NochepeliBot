@@ -21,7 +21,13 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputnombre = interaction.options.getString('nombre')
 
 		let vibe_check = utils.vaporeon_check(inputnombre) //cadena verdaderosa o false
@@ -43,7 +49,7 @@ module.exports = {
 		if(FilmManager.instance.exists(inputnombre)){
 			let peli2 = FilmManager.instance.get(inputnombre)
 			if(!peli.equals(peli2)){ //permitimos cambiar el first_name de las pelis sin cambiar el nombre sanitizado
-				await interaction.reply({ content: `Ya hay una película con el nombre **${peli.first_name}** en la lista.`, ephemeral: true})
+				await interaction.reply({ content: `Ya hay una película con el nombre **${peli2.first_name}** en la lista.`, ephemeral: true})
 				return
 			}
 		}			

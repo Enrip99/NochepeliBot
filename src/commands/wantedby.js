@@ -37,7 +37,13 @@ module.exports = {
          */
 
 		let inputuser = interaction.options.getUser('usuario')
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
         let inputinteres = interaction.options.getString('interés') ?? 'todas'
+		/** 
+		 * @type {?number}
+		 * @ts-ignore */
         let inputocultas = interaction.options.getInteger('ocultas')
 
         let ocultas = inputocultas ?? false

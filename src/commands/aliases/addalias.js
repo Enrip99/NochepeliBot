@@ -22,7 +22,13 @@ module.exports = {
 	 */
 	async execute(interaction) {
 
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputalias = interaction.options.getString('alias')
 
 		let vibe_check = utils.vaporeon_check(inputalias) //cadena verdaderosa o null\

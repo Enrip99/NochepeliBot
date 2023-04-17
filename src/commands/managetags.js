@@ -1,9 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Message } = require('discord.js');
 const { FilmManager } = require("../film_manager.js")
 const { Film } = require("../film.js")
-const { Message } = require("../message.js")
-const DiscordMessage = require('discord.js').Message
 const utils = require('../utils.js')
 const { DeciduousInteractiveMessage } = require('../interactive_message.js');
 const { InteractiveMessageManager } = require('../interactive_message_manager.js');
@@ -24,6 +22,9 @@ module.exports = {
 	 */
 	async execute(interaction) {
         
+		/** 
+		 * @type {string}
+		 * @ts-ignore */
 		let inputpeli = interaction.options.getString('peli')
 
         let peli = validate(inputpeli, interaction)
@@ -31,7 +32,7 @@ module.exports = {
           
 		let sentmsg = await interaction.reply({ content: "Espera un segundo...", fetchReply: true })
 		
-        if(!(sentmsg instanceof DiscordMessage)) return
+        if(!(sentmsg instanceof Message)) return
 
 		try {
 			let interactive_message = new ManageTagsInteractiveMessage(sentmsg.channelId, sentmsg.id)
@@ -80,9 +81,10 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
 
 	buttons_to_create() {
 
-        /** @type {MessageActionRow[]} */
-        const rows = []        
-        let row = new MessageActionRow()
+		/** @type {ActionRowBuilder<ButtonBuilder>[]} */
+        const rows = []
+		/** @type {ActionRowBuilder<ButtonBuilder>} */
+        let row = new ActionRowBuilder()
         let counter = 0
         
         for(let tag of FilmManager.instance.iterate_tags()){
@@ -91,22 +93,22 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
             if(counter > 5){
                 counter -= 5
                 rows.push(row)
-                row = new MessageActionRow()
+                row = new ActionRowBuilder()
             }
 
-            let tag_button = new MessageButton()
+            let tag_button = new ButtonBuilder()
                             .setCustomId(tag.sanitized_name)
                             .setLabel(tag.tag_name + (tag.hidden ? " (OCULTO)" : ""))
 
             if(this.peli.tags.includes(tag)){
-                tag_button.setStyle('SUCCESS')
+                tag_button.setStyle(ButtonStyle.Success)
             }
             else{
-                tag_button.setStyle('SECONDARY')
+                tag_button.setStyle(ButtonStyle.Secondary)
             }
 
             row.addComponents(tag_button)
-        }    
+        }
         rows.push(row)
 
         return rows
@@ -149,6 +151,9 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
             film.tags.push(tag)
         }
 
+		/** 
+		 * @type {ActionRowBuilder<ButtonBuilder>[]}
+		 * @ts-ignore */
         let rows = this.create_buttons()
 
         try {
@@ -172,14 +177,25 @@ class ManageTagsInteractiveMessage extends DeciduousInteractiveMessage {
 		this.fetch(interaction.client)
 		.then(discord_message => {
 			let old_message = discord_message.content
-			for(let row of discord_message.components) {
-				for(let component of row.components) {
-					component.disabled = true
-				}
+			let old_components = discord_message.components
+			/** @type {ActionRowBuilder<ButtonBuilder>[]} */
+			let new_components = []
+			for(let row of old_components){
+				/** 
+				 * @type {ActionRowBuilder<ButtonBuilder>}
+				 * @ts-ignore */
+				let new_row = ActionRowBuilder.from(row)
+				new_row.components.forEach(
+					receivedButton => {
+						let editedButton = ButtonBuilder.from(receivedButton).setDisabled(true)
+						receivedButton = editedButton
+					}
+				)
+				new_components.push(new_row)
 			}
 			discord_message.edit({
 				content: `~~${old_message}~~\n(Deprecado, usa el nuevo mensaje o crea otro con el comando \`/managetags\`.)`,
-				components: discord_message.components
+				components: new_components
 			})
 		})
 		.catch((e) => {
